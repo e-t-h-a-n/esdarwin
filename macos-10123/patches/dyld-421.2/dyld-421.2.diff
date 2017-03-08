@@ -1,0 +1,113 @@
+diff -rU3 a/dyld-421.2/dyld.xcodeproj/project.pbxproj b/dyld-421.2/dyld.xcodeproj/project.pbxproj
+--- a/dyld-421.2/dyld.xcodeproj/project.pbxproj	2016-06-30 18:51:26.000000000 +0100
++++ b/dyld-421.2/dyld.xcodeproj/project.pbxproj	2017-03-08 09:28:58.000000000 +0000
+@@ -1900,7 +1900,10 @@
+ 				GCC_DYNAMIC_NO_PIC = NO;
+ 				GCC_ENABLE_BUILTIN_FUNCTIONS = NO;
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+-				GCC_PREPROCESSOR_DEFINITIONS = "DYLD_VERSION=$(RC_ProjectSourceVersion)";
++				GCC_PREPROCESSOR_DEFINITIONS = (
++					"$(inherited)",
++					"DYLD_VERSION=$(RC_ProjectSourceVersion)",
++				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = NO;
+@@ -1953,7 +1956,10 @@
+ 				GCC_DYNAMIC_NO_PIC = NO;
+ 				GCC_ENABLE_CPP_RTTI = NO;
+ 				GCC_OPTIMIZATION_LEVEL = s;
+-				GCC_PREPROCESSOR_DEFINITIONS = "DYLD_VERSION=$(RC_ProjectSourceVersion)";
++				GCC_PREPROCESSOR_DEFINITIONS = (
++					"$(inherited)",
++					"DYLD_VERSION=$(RC_ProjectSourceVersion)",
++				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				GCC_WARN_SHADOW = YES;
+@@ -2116,6 +2122,7 @@
+ 			baseConfigurationReference = F971DD131A4A0E0700BBDD52 /* base.xcconfig */;
+ 			buildSettings = {
+ 				CLANG_CXX_LIBRARY = "compiler-default";
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				ONLY_ACTIVE_ARCH = NO;
+ 				SDKROOT = macosx.internal;
+ 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx watchos appletvos";
+@@ -2127,6 +2134,7 @@
+ 			baseConfigurationReference = F971DD131A4A0E0700BBDD52 /* base.xcconfig */;
+ 			buildSettings = {
+ 				CLANG_CXX_LIBRARY = "compiler-default";
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				SDKROOT = macosx.internal;
+ 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx watchos appletvos";
+ 			};
+Only in b/dyld-421.2/dyld.xcodeproj: project.xcworkspace
+Only in b/dyld-421.2/dyld.xcodeproj: xcuserdata
+diff -rU3 a/dyld-421.2/src/ImageLoader.cpp b/dyld-421.2/src/ImageLoader.cpp
+--- a/dyld-421.2/src/ImageLoader.cpp	2016-11-29 21:44:07.000000000 +0000
++++ b/dyld-421.2/src/ImageLoader.cpp	2017-03-08 09:28:58.000000000 +0000
+@@ -1341,7 +1341,6 @@
+ 
+ 
+ VECTOR_NEVER_DESTRUCTED_IMPL(ImageLoader::InterposeTuple);
++#ifndef __ESDARWIN__
+ VECTOR_NEVER_DESTRUCTED_IMPL(ImagePair);
+-
+-
+-
++#endif /* !__ESDARWIN__ */
+diff -rU3 a/dyld-421.2/src/dyld.cpp b/dyld-421.2/src/dyld.cpp
+--- a/dyld-421.2/src/dyld.cpp	2016-11-29 21:44:07.000000000 +0000
++++ b/dyld-421.2/src/dyld.cpp	2017-03-08 09:28:58.000000000 +0000
+@@ -59,7 +59,10 @@
+ #include <System/sys/reason.h>
+ #include <kern/kcdata.h>
+ #include <sandbox.h>
+-#include <sandbox/private.h>
++
++#ifndef __ESDARWIN__
++#include <sandbox/private.h> /* Yet another closed-source library :( */
++#endif /* __ESDARWIN__ */
+ 
+ #include <array>
+ 
+@@ -106,7 +109,14 @@
+ #include "dyld_cache_format.h"
+ #endif
+ #include "dyld_process_info_internal.h"
+-#include <coreSymbolicationDyldSupport.h>
++
++#ifndef __ESDARWIN__
++	#include <coreSymbolicationDyldSupport.h> /* coresymbolication is not open source */
++#else /* __ESDARWIN__ */
++	#define coresymbolication_load_notifier(c, t, p, h) /* coresymbolication_load_notifier(c, t, p, h) is NOT open source :( */
++	#define coresymbolication_unload_notifier(c, t, p, h) /* coresymbolication_unload_notifier(c, t, p, h) is NOT open source :( */
++#endif /* !__ESDARWIN__ */
++
+ #if TARGET_IPHONE_SIMULATOR
+ 	extern "C" void xcoresymbolication_load_notifier(void *connection, uint64_t load_timestamp, const char *image_path, const struct mach_header *mach_header);
+ 	extern "C" void xcoresymbolication_unload_notifier(void *connection, uint64_t unload_timestamp, const char *image_path, const struct mach_header *mach_header);
+@@ -1192,7 +1202,7 @@
+ 
+ static bool sandboxBlocked(const char* path, const char* kind)
+ {
+-#if TARGET_IPHONE_SIMULATOR
++#if TARGET_IPHONE_SIMULATOR || defined(__ESDARWIN__)
+ 	// sandbox calls not yet supported in simulator runtime
+ 	return false;
+ #else
+@@ -5462,9 +5472,14 @@
+ 		&opendir,
+ 		&readdir_r,
+ 		&closedir,
++		#ifndef __ESDARWIN__
+ 		// added in version 4
+ 		&coresymbolication_load_notifier,
+ 		&coresymbolication_unload_notifier,
++		#else /* __ESDARWIN__ */
++		0,
++		0,
++		#endif /* !__ESDARWIN__ */
+ 		// Added in version 5
+ 		&proc_regionfilename,
+ 		&getpid,
