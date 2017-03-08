@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>projects</key>
+	<array>
+		<string>AvailabilityVersions</string>
+		<string>dtrace</string>
+		<string>xnu</string>
+		<string>Libc</string>
+		<string>dyld</string>
+		<string>CommonCrypto</string>
+		<string>coreTLS</string>
+		<string>Libsystem</string>
+		<string>launchd</string>
+		<string>bash</string>
+		<string>sudo</string>
+		<string>adv_cmds</string>
+		<string>basic_cmds</string>
+		<string>diskdev_cmds</string>
+		<string>doc_cmds</string>
+		<string>file_cmds</string>
+		<string>mail_cmds</string>
+		<string>misc_cmds</string>
+		<string>network_cmds</string>
+		<string>patch_cmds</string>
+		<string>remote_cmds</string>
+		<string>shell_cmds</string>
+		<string>system_cmds</string>
+		<string>text_cmds</string>
+		<string>gpt</string>
+		<string>hfs</string>
+		<string>configd</string>
+		<string>libarchive</string>
+		<string>bless</string>
+	</array>
+</dict>
+</plist>
