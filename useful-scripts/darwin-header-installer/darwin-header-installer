@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+
+# darwin-header-installer
+# A small script that runs "installhdrs" for darwin projects
+# that groups the resulting headers by project and also puts
+# them all into one file that can be merged onto an Xcode macOS SDK.
+
+# Colours
+# Foreground Colours
+
+FG_DARK_BLACK="\033[30m"
+FG_DARK_RED="\033[31m"
+FG_DARK_GREEN="\033[32m"
+FG_DARK_YELLOW="\033[33m"
+FG_DARK_BLUE="\033[34m"
+FG_DARK_MAGENTA="\033[35m"
+FG_DARK_CYAN="\033[36m"
+FG_DARK_WHITE="\033[37m"
+
+FG_LIGHT_BLACK="\033[90m"
+FG_LIGHT_RED="\033[91m"
+FG_LIGHT_GREEN="\033[92m"
+FG_LIGHT_YELLOW="\033[93m"
+FG_LIGHT_BLUE="\033[94m"
+FG_LIGHT_MAGENTA="\033[95m"
+FG_LIGHT_CYAN="\033[96m"
+FG_LIGHT_WHITE="\033[97m"
+
+# Background Colours
+
+BG_DARK_BLACK="\033[40m"
+BG_DARK_RED="\033[41m"
+BG_DARK_GREEN="\033[42m"
+BG_DARK_YELLOW="\033[43m"
+BG_DARK_BLUE="\033[44m"
+BG_DARK_MAGENTA="\033[45m"
+BG_DARK_CYAN="\033[46m"
+BG_DARK_WHITE="\033[47m"
+
+BG_LIGHT_BLACK="\033[100m"
+BG_LIGHT_RED="\033[101m"
+BG_LIGHT_GREEN="\033[102m"
+BG_LIGHT_YELLOW="\033[103m"
+BG_LIGHT_BLUE="\033[104m"
+BG_LIGHT_MAGENTA="\033[105m"
+BG_LIGHT_CYAN="\033[106m"
+BG_LIGHT_WHITE="\033[107m"
+
+# SGR Styles
+
+SGR_RESET="\033[0m"
+SGR_BOLD="\033[1m"
+SGR_FAINT="\033[2m"
+SGR_ITALICIZED="\033[3m"
+SGR_SINGLE_UNDERLINE="\033[4m"
+SGR_SLOW_BLINK="\033[5m"
+SGR_FAST_BLINK="\033[6m" # Unsupported on macOS's Terminal.app
+SGR_NEGATIVE="\033[7m"
+SGR_CONCEALED="\033[8m"
+SGR_CROSSED_OUT="\033[9m"
+
+SGR_DOUBLE_UNDERLINE="\033[21m"
+SGR_RESET_COLOR="\033[22m"
+SGR_RESET_ITALICS="\033[23m"
+SGR_RESET_UNDERLINES="\033[24m"
+SGR_RESET_BLINK="\033[25m"
+# "\033[26m" reserved for proportional #
+# spacing as speciffied in CCITT       #
+# Recommendation T.61                  #
+SGR_RESET_NEGATIVE="\033[27m"
+SGR_RESET_CONCEALED="\033[28m"
+SGR_RESET_CROSSED_OUT="\033[29m"
+
+# Statuses
+ERROR="$SGR_BOLD""$SGR_SLOW_BLINK""$FG_LIGHT_WHITE""$BG_LIGHT_RED""[ERROR]:""$SGR_RESET""   "
+RUNCMD="$FG_DARK_BLACK""$BG_LIGHT_YELLOW""[RUNCMD]:""$SGR_RESET""  ""$FG_LIGHT_WHITE""$BG_LIGHT_BLUE"
+EndRUNCMD="$SGR_RESET"
+SUCCESS="$SGR_BOLD""$FG_LIGHT_WHITE""$BG_LIGHT_GREEN""[SUCCESS]:""$SGR_RESET"" "
+FAIL="$SGR_BOLD""$FG_LIGHT_WHITE""$BG_DARK_RED""[FAIL]:""$SGR_RESET""    "
+INFO="$FG_LIGHT_WHITE""$BG_LIGHT_BLUE""[INFO]:""$SGR_RESET""    "
+
+if [[ $PROJECTS = "" || $INDIVIDUAL_HEADER_OUT = "" || COMBINED_HEADER_OUT = "" ]]; then
+    echo -e "$INFO""Syntax: darwin-header-installer.sh"
+    echo -e ""
+    echo -e "$INFO""Please remember to define these variables (all are mandatory)"
+    echo -e "$INFO""(and remember to add your own values ;P):"
+    echo -e "$INFO""    PROJECTS=\"/path/to/projects\""
+    echo -e "$INFO""    INDIVIDUAL_HEADER_OUT=\"/path/for/resulting/headers/grouped/by/project\""
+    echo -e "$INFO""    COMBINED_HEADER_OUT=\"/path/for/all/resulting/headers\""
+
+    exit
+fi
+
+for project in $PROJECTS/*; do
+    ProjectNameAndVersion="${project##*/}"
+    ProjectName="${ProjectNameAndVersion%-*}"
+    ProjectVersion="${ProjectNameAndVersion##*-}"
+    HAS_USED_XCODEBUILD="No"
+
+    echo -e "$INFO""Working on $ProjectName, version $ProjectVersion"
+
+    for xcproject in $project/*.xcodeproj; do
+
+        if [[ ! -d $xcproject ]]; then
+            # Geez, something's wrong with the xcproject for loop but idk,
+            # so I'm using this in case the script tries to use the project
+            # "*.xcodeproj" (yes, a literal asterisk, not a wildcard :?)
+            HAS_USED_XCODEBUILD="No"
+            break
+        fi
+
+        # We prefer to use xcodebuild
+        echo -e "$INFO""Using xcodebuild for $ProjectNameAndVersion/${xcproject##*/}"
+
+        # Change directory into project
+        cd "$project"
+
+        # Do not do this as root! (It'll just
+        # hang, it's why we use sudo internally!)
+        echo -e "$INFO""Getting project data for $ProjectName (version: $ProjectVersion)"
+        JSONTargets=$(xcodebuild -project "$xcproject" -list -json)
+
+        # echo -e "$INFO""Reading targets from JSON project data"
+        # Targets=$(echo "$JSONTargets" | python3 -c "import sys, json; [print(i) for i in json.load(sys.stdin)['project']['targets']]")
+        # for target in $Targets; do
+        #     # Install to individual path
+        #     echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} -target $target installhdrs SRCROOT=\"$project\" DSTROOT=\"$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion\"""$EndRUNCMD"
+        #     sudo xcodebuild -sdk macosx -project "$xcproject" -target "$target" installhdrs SRCROOT="$project" DSTROOT="$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion"
+        #     indivInstall=$?
+        #
+        #     # Install to combined path
+        #     echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} -target $target installhdrs SRCROOT=\"$project\" DSTROOT=\"$COMBINED_HEADER_OUT\"""$EndRUNCMD"
+        #     sudo xcodebuild -sdk macosx -project "$xcproject" -target "$target" installhdrs SRCROOT="$project" DSTROOT="$COMBINED_HEADER_OUT"
+        #     combiInstall=$?
+        #
+        #     if [[ indivInstall -eq 0 && combiInstall -eq 0 ]]; then
+        #         echo -e "$SUCCESS""Finished target \"$target\" of $ProjectName (version: $ProjectVersion)"
+        #     else
+        #         echo -e "$FAIL""One or more commands failed for target \"$target\" of $ProjectName (version $ProjectVersion)"
+        #     fi
+
+        # Install to individual path
+        echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} installhdrs SRCROOT=\"$project\" DSTROOT=\"$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion\"""$EndRUNCMD"
+        sudo xcodebuild -sdk macosx -project "$xcproject" -alltargets installhdrs SRCROOT="$project" DSTROOT="$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion"
+        indivInstall=$?
+
+        # Install to combined path
+        echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} installhdrs SRCROOT=\"$project\" DSTROOT=\"$COMBINED_HEADER_OUT\"""$EndRUNCMD"
+        sudo xcodebuild -sdk macosx -project "$xcproject" -alltargets installhdrs SRCROOT="$project" DSTROOT="$COMBINED_HEADER_OUT"
+        combiInstall=$?
+
+        done
+        echo -e "$INFO""Done for $ProjectName (version: $ProjectVersion)"
+
+        # Don't use Makefiles afterwards.
+        HAS_USED_XCODEBUILD="Yes"
+
+    done
+
+    if [[ $HAS_USED_XCODEBUILD = "Yes" ]]; then
+        HAS_USED_XCODEBUILD="No"
+        # Don't use Makefiles ;P
+        continue
+
+    elif [[ -f $project/Makefile ]]; then
+        # Next, use Makefiles if there's no Xcode project.
+        echo -e "Using Makefile for $ProjectName, version $ProjectVersion"
+
+        # Change directory into project
+        cd "$project"
+
+        # Install to individual path
+        echo -e "$RUNCMD""sudo make -f Makefile installhdrs SDKROOT=\"macosx\" SRCROOT=\"$project\" DSTROOT=\"$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion\"""$EndRUNCMD"
+        sudo make -f Makefile installhdrs SDKROOT="macosx" SRCROOT="$project" DSTROOT="$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion"
+        indivInstall=$?
+
+        # Install to combined path
+        echo -e "$RUNCMD""sudo make -f Makefile installhdrs SDKROOT=\"macosx\" SRCROOT=\"$project\" DSTROOT=\"$COMBINED_HEADER_OUT\"""$EndRUNCMD"
+        sudo make -f Makefile installhdrs SDKROOT="macosx" SRCROOT="$project" DSTROOT="$COMBINED_HEADER_OUT"
+        combiInstall=$?
+
+        if [[ indivInstall -eq 0 && combiInstall -eq 0 ]]; then
+            echo -e "$SUCCESS""Finished $ProjectName (version: $ProjectVersion)"
+        else
+            echo -e "$FAIL""One or more commands failed for $ProjectName (version $ProjectVersion)"
+        fi
+
+        # We don't want to use makefiles twice on case-insensitive systems
+        continue
+
+    elif [[ -f $project/makefile ]]; then
+        # Same as above (in case somebody is using a case sensitive filesystem).
+        echo -e "Using makefile for $ProjectName, version $ProjectVersion"
+
+        # Change directory into project
+        cd "$project"
+
+        # Install to individual path
+        echo -e "$RUNCMD""sudo make -f makefile installhdrs SDKROOT=\"macosx\" SRCROOT=\"$project\" DSTROOT=\"$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion\"""$EndRUNCMD"
+        sudo make -f makefile installhdrs SDKROOT="macosx" SRCROOT="$project" DSTROOT="$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion"
+        indivInstall=$?
+
+        # Install to combined path
+        echo -e "$RUNCMD""sudo make -f makefile installhdrs SDKROOT=\"macosx\" SRCROOT=\"$project\" DSTROOT=\"$COMBINED_HEADER_OUT\"""$EndRUNCMD"
+        sudo make -f makefile installhdrs SDKROOT="macosx" SRCROOT="$project" DSTROOT="$COMBINED_HEADER_OUT"
+        combiInstall=$?
+
+        if [[ indivInstall -eq 0 && combiInstall -eq 0 ]]; then
+            echo -e "$SUCCESS""Finished $ProjectName (version: $ProjectVersion)"
+        else
+            echo -e "$FAIL""One or more commands failed for $ProjectName (version $ProjectVersion)"
+        fi
+
+        # Exit this round of the for loop.
+        continue
+    fi
+done
