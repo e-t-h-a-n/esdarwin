@@ -6,7 +6,53 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		AA0C94411E79C4B300205141 /* installhdrs */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = AA0C94421E79C4B300205141 /* Build configuration list for PBXAggregateTarget "installhdrs" */;
+			buildPhases = (
+				AA0C944B1E79C55E00205141 /* usr|include */,
+				AA0C944C1E79C56D00205141 /* usr|include|libkern */,
+				AA0C944D1E79C5B900205141 /* usr|include|os */,
+				AA0C944E1E79C5E400205141 /* usr|include|os|internal */,
+				AA0C944F1E79C6DD00205141 /* usr|include|platform */,
+				AA0C94501E79C6E600205141 /* usr|local|include|libkern */,
+				AA0C94521E79C70500205141 /* usr|local|include|os */,
+			);
+			dependencies = (
+			);
+			name = installhdrs;
+			productName = installhdrs;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
+		AA0C94561E79C7F500205141 /* _simple.h in usr|include */ = {isa = PBXBuildFile; fileRef = AA6868F51E7366AB005BF4D1 /* _simple.h */; };
+		AA0C94571E79C7F500205141 /* setjmp.h in usr|include */ = {isa = PBXBuildFile; fileRef = AA68690C1E7366AB005BF4D1 /* setjmp.h */; };
+		AA0C94581E79C7F500205141 /* ucontext.h in usr|include */ = {isa = PBXBuildFile; fileRef = AA68690D1E7366AB005BF4D1 /* ucontext.h */; };
+		AA0C94591E79C7FD00205141 /* OSAtomic.h in usr|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6868F71E7366AB005BF4D1 /* OSAtomic.h */; };
+		AA0C945A1E79C7FD00205141 /* OSAtomicDeprecated.h in usr|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6868F81E7366AB005BF4D1 /* OSAtomicDeprecated.h */; };
+		AA0C945B1E79C7FD00205141 /* OSAtomicQueue.h in usr|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6868F91E7366AB005BF4D1 /* OSAtomicQueue.h */; };
+		AA0C945C1E79C7FD00205141 /* OSCacheControl.h in usr|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6868FA1E7366AB005BF4D1 /* OSCacheControl.h */; };
+		AA0C945D1E79C7FD00205141 /* OSSpinLockDeprecated.h in usr|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6868FB1E7366AB005BF4D1 /* OSSpinLockDeprecated.h */; };
+		AA0C94611E79C80D00205141 /* atomic.h in usr|include|os|internal */ = {isa = PBXBuildFile; fileRef = AA6869011E7366AB005BF4D1 /* atomic.h */; };
+		AA0C94621E79C80D00205141 /* crashlog.h in usr|include|os|internal */ = {isa = PBXBuildFile; fileRef = AA6869021E7366AB005BF4D1 /* crashlog.h */; };
+		AA0C94631E79C80D00205141 /* internal_shared.h in usr|include|os|internal */ = {isa = PBXBuildFile; fileRef = AA6869031E7366AB005BF4D1 /* internal_shared.h */; };
+		AA0C94681E79C82A00205141 /* alloc_once_impl.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6868FD1E7366AB005BF4D1 /* alloc_once_impl.h */; };
+		AA0C94691E79C82A00205141 /* base.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6868FE1E7366AB005BF4D1 /* base.h */; };
+		AA0C946A1E79C82A00205141 /* base_private.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6868FF1E7366AB005BF4D1 /* base_private.h */; };
+		AA0C946B1E79C82A00205141 /* lock.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6869041E7366AB005BF4D1 /* lock.h */; };
+		AA0C946C1E79C82A00205141 /* lock_private.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6869051E7366AB005BF4D1 /* lock_private.h */; };
+		AA0C946D1E79C82A00205141 /* once_private.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6869061E7366AB005BF4D1 /* once_private.h */; };
+		AA0C946E1E79C82A00205141 /* semaphore_private.h in usr|include|os */ = {isa = PBXBuildFile; fileRef = AA6869071E7366AB005BF4D1 /* semaphore_private.h */; };
+		AA0C946F1E79C83900205141 /* compat.h in usr|include|platform */ = {isa = PBXBuildFile; fileRef = AA6869091E7366AB005BF4D1 /* compat.h */; };
+		AA0C94701E79C83900205141 /* introspection_private.h in usr|include|platform */ = {isa = PBXBuildFile; fileRef = AA68690A1E7366AB005BF4D1 /* introspection_private.h */; };
+		AA0C94711E79C83900205141 /* string.h in usr|include|platform */ = {isa = PBXBuildFile; fileRef = AA68690B1E7366AB005BF4D1 /* string.h */; };
+		AA0C94721E79C84100205141 /* internal.h in usr|local|include|os */ = {isa = PBXBuildFile; fileRef = AA6869101E7366AB005BF4D1 /* internal.h */; };
+		AA0C94731E79C84100205141 /* internal_asm.h in usr|local|include|os */ = {isa = PBXBuildFile; fileRef = AA6869111E7366AB005BF4D1 /* internal_asm.h */; };
+		AA0C94741E79C84100205141 /* yield.h in usr|local|include|os */ = {isa = PBXBuildFile; fileRef = AA6869121E7366AB005BF4D1 /* yield.h */; };
+		AA0C94751E79C84C00205141 /* module.modulemap in usr|local|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6869221E7366AB005BF4D1 /* module.modulemap */; };
+		AA0C94761E79C84C00205141 /* OSAtomic.h in usr|local|include|libkern */ = {isa = PBXBuildFile; fileRef = AA6869231E7366AB005BF4D1 /* OSAtomic.h */; };
 		AA6869DE1E758DDC005BF4D1 /* MKGetTimeBaseInfo.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869271E7366AB005BF4D1 /* MKGetTimeBaseInfo.c */; };
 		AA6869DF1E758DDC005BF4D1 /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = AA68692B1E7366AB005BF4D1 /* init.c */; };
 		AA6869E01E758DDC005BF4D1 /* cache.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869351E7366AB005BF4D1 /* cache.c */; };
@@ -40,31 +86,6 @@
 		AA6869FC1E758DDC005BF4D1 /* makecontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869721E7366AB005BF4D1 /* makecontext.c */; };
 		AA6869FD1E758DDC005BF4D1 /* setcontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869731E7366AB005BF4D1 /* setcontext.c */; };
 		AA6869FE1E758DDC005BF4D1 /* swapcontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869741E7366AB005BF4D1 /* swapcontext.c */; };
-		AA686A071E758FBF005BF4D1 /* OSAtomic.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869231E7366AB005BF4D1 /* OSAtomic.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		AA686A081E758FC9005BF4D1 /* internal.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869101E7366AB005BF4D1 /* internal.h */; };
-		AA686A091E758FC9005BF4D1 /* internal_asm.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869111E7366AB005BF4D1 /* internal_asm.h */; };
-		AA686A0A1E758FC9005BF4D1 /* yield.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869121E7366AB005BF4D1 /* yield.h */; };
-		AA686A0B1E758FDD005BF4D1 /* _simple.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F51E7366AB005BF4D1 /* _simple.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A0C1E758FEB005BF4D1 /* OSAtomic.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F71E7366AB005BF4D1 /* OSAtomic.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A0D1E758FEB005BF4D1 /* OSAtomicDeprecated.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F81E7366AB005BF4D1 /* OSAtomicDeprecated.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A0E1E758FEB005BF4D1 /* OSAtomicQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F91E7366AB005BF4D1 /* OSAtomicQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A0F1E758FEC005BF4D1 /* OSCacheControl.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FA1E7366AB005BF4D1 /* OSCacheControl.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A101E758FEC005BF4D1 /* OSSpinLockDeprecated.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FB1E7366AB005BF4D1 /* OSSpinLockDeprecated.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A111E758FEC005BF4D1 /* alloc_once_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FD1E7366AB005BF4D1 /* alloc_once_impl.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A121E758FEC005BF4D1 /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FE1E7366AB005BF4D1 /* base.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A131E758FEC005BF4D1 /* base_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FF1E7366AB005BF4D1 /* base_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A141E758FEC005BF4D1 /* atomic.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869011E7366AB005BF4D1 /* atomic.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A151E758FEC005BF4D1 /* crashlog.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869021E7366AB005BF4D1 /* crashlog.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A161E758FEC005BF4D1 /* internal_shared.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869031E7366AB005BF4D1 /* internal_shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A171E758FEC005BF4D1 /* lock.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869041E7366AB005BF4D1 /* lock.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A181E758FEC005BF4D1 /* lock_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869051E7366AB005BF4D1 /* lock_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A191E758FEC005BF4D1 /* once_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869061E7366AB005BF4D1 /* once_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A1A1E758FEC005BF4D1 /* semaphore_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869071E7366AB005BF4D1 /* semaphore_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A1B1E758FEC005BF4D1 /* compat.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869091E7366AB005BF4D1 /* compat.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A1C1E758FEC005BF4D1 /* introspection_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690A1E7366AB005BF4D1 /* introspection_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A1D1E758FEC005BF4D1 /* string.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690B1E7366AB005BF4D1 /* string.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A1E1E758FEC005BF4D1 /* setjmp.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690C1E7366AB005BF4D1 /* setjmp.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A1F1E758FEC005BF4D1 /* ucontext.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690D1E7366AB005BF4D1 /* ucontext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA686A261E759A50005BF4D1 /* MKGetTimeBaseInfo.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869271E7366AB005BF4D1 /* MKGetTimeBaseInfo.c */; };
 		AA686A271E759A50005BF4D1 /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = AA68692B1E7366AB005BF4D1 /* init.c */; };
 		AA686A281E759A50005BF4D1 /* cache.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869351E7366AB005BF4D1 /* cache.c */; };
@@ -98,31 +119,6 @@
 		AA686A441E759A50005BF4D1 /* makecontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869721E7366AB005BF4D1 /* makecontext.c */; };
 		AA686A451E759A50005BF4D1 /* setcontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869731E7366AB005BF4D1 /* setcontext.c */; };
 		AA686A461E759A50005BF4D1 /* swapcontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869741E7366AB005BF4D1 /* swapcontext.c */; };
-		AA686A4A1E759A50005BF4D1 /* OSAtomic.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F71E7366AB005BF4D1 /* OSAtomic.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A4B1E759A50005BF4D1 /* OSAtomicDeprecated.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F81E7366AB005BF4D1 /* OSAtomicDeprecated.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A4C1E759A50005BF4D1 /* OSAtomicQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F91E7366AB005BF4D1 /* OSAtomicQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A4D1E759A50005BF4D1 /* OSCacheControl.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FA1E7366AB005BF4D1 /* OSCacheControl.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A4E1E759A50005BF4D1 /* OSSpinLockDeprecated.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FB1E7366AB005BF4D1 /* OSSpinLockDeprecated.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A4F1E759A50005BF4D1 /* alloc_once_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FD1E7366AB005BF4D1 /* alloc_once_impl.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A501E759A50005BF4D1 /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FE1E7366AB005BF4D1 /* base.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A511E759A50005BF4D1 /* base_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868FF1E7366AB005BF4D1 /* base_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A521E759A50005BF4D1 /* atomic.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869011E7366AB005BF4D1 /* atomic.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A531E759A50005BF4D1 /* crashlog.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869021E7366AB005BF4D1 /* crashlog.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A541E759A50005BF4D1 /* internal_shared.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869031E7366AB005BF4D1 /* internal_shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A551E759A50005BF4D1 /* lock.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869041E7366AB005BF4D1 /* lock.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A561E759A50005BF4D1 /* lock_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869051E7366AB005BF4D1 /* lock_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A571E759A50005BF4D1 /* once_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869061E7366AB005BF4D1 /* once_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A581E759A50005BF4D1 /* semaphore_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869071E7366AB005BF4D1 /* semaphore_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A591E759A50005BF4D1 /* compat.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869091E7366AB005BF4D1 /* compat.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A5A1E759A50005BF4D1 /* introspection_private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690A1E7366AB005BF4D1 /* introspection_private.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A5B1E759A50005BF4D1 /* string.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690B1E7366AB005BF4D1 /* string.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A5C1E759A50005BF4D1 /* setjmp.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690C1E7366AB005BF4D1 /* setjmp.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A5D1E759A50005BF4D1 /* ucontext.h in Headers */ = {isa = PBXBuildFile; fileRef = AA68690D1E7366AB005BF4D1 /* ucontext.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A5E1E759A50005BF4D1 /* _simple.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6868F51E7366AB005BF4D1 /* _simple.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AA686A5F1E759A50005BF4D1 /* internal.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869101E7366AB005BF4D1 /* internal.h */; };
-		AA686A601E759A50005BF4D1 /* internal_asm.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869111E7366AB005BF4D1 /* internal_asm.h */; };
-		AA686A611E759A50005BF4D1 /* yield.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869121E7366AB005BF4D1 /* yield.h */; };
-		AA686A621E759A50005BF4D1 /* OSAtomic.h in Headers */ = {isa = PBXBuildFile; fileRef = AA6869231E7366AB005BF4D1 /* OSAtomic.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		AA686A6F1E75AD7A005BF4D1 /* MKGetTimeBaseInfo.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869271E7366AB005BF4D1 /* MKGetTimeBaseInfo.c */; };
 		AA686A701E75AD7A005BF4D1 /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = AA68692B1E7366AB005BF4D1 /* init.c */; };
 		AA686A711E75AD7A005BF4D1 /* cache.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869351E7366AB005BF4D1 /* cache.c */; };
@@ -157,6 +153,129 @@
 		AA686A8F1E75AD7A005BF4D1 /* setcontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869731E7366AB005BF4D1 /* setcontext.c */; };
 		AA686A901E75AD7A005BF4D1 /* swapcontext.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6869741E7366AB005BF4D1 /* swapcontext.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA0C94451E79C4BE00205141 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA6868C51E73632B005BF4D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0C94411E79C4B300205141;
+			remoteInfo = installhdrs;
+		};
+		AA0C94471E79C4C300205141 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA6868C51E73632B005BF4D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0C94411E79C4B300205141;
+			remoteInfo = installhdrs;
+		};
+		AA0C94491E79C4C600205141 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA6868C51E73632B005BF4D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0C94411E79C4B300205141;
+			remoteInfo = installhdrs;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA0C944B1E79C55E00205141 /* usr|include */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/include";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C94561E79C7F500205141 /* _simple.h in usr|include */,
+				AA0C94571E79C7F500205141 /* setjmp.h in usr|include */,
+				AA0C94581E79C7F500205141 /* ucontext.h in usr|include */,
+			);
+			name = "usr|include";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AA0C944C1E79C56D00205141 /* usr|include|libkern */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/include/libkern";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C94591E79C7FD00205141 /* OSAtomic.h in usr|include|libkern */,
+				AA0C945A1E79C7FD00205141 /* OSAtomicDeprecated.h in usr|include|libkern */,
+				AA0C945B1E79C7FD00205141 /* OSAtomicQueue.h in usr|include|libkern */,
+				AA0C945C1E79C7FD00205141 /* OSCacheControl.h in usr|include|libkern */,
+				AA0C945D1E79C7FD00205141 /* OSSpinLockDeprecated.h in usr|include|libkern */,
+			);
+			name = "usr|include|libkern";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AA0C944D1E79C5B900205141 /* usr|include|os */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/include/os";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C94681E79C82A00205141 /* alloc_once_impl.h in usr|include|os */,
+				AA0C94691E79C82A00205141 /* base.h in usr|include|os */,
+				AA0C946A1E79C82A00205141 /* base_private.h in usr|include|os */,
+				AA0C946B1E79C82A00205141 /* lock.h in usr|include|os */,
+				AA0C946C1E79C82A00205141 /* lock_private.h in usr|include|os */,
+				AA0C946D1E79C82A00205141 /* once_private.h in usr|include|os */,
+				AA0C946E1E79C82A00205141 /* semaphore_private.h in usr|include|os */,
+			);
+			name = "usr|include|os";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AA0C944E1E79C5E400205141 /* usr|include|os|internal */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/include/os/internal";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C94611E79C80D00205141 /* atomic.h in usr|include|os|internal */,
+				AA0C94621E79C80D00205141 /* crashlog.h in usr|include|os|internal */,
+				AA0C94631E79C80D00205141 /* internal_shared.h in usr|include|os|internal */,
+			);
+			name = "usr|include|os|internal";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AA0C944F1E79C6DD00205141 /* usr|include|platform */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/include/platform";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C946F1E79C83900205141 /* compat.h in usr|include|platform */,
+				AA0C94701E79C83900205141 /* introspection_private.h in usr|include|platform */,
+				AA0C94711E79C83900205141 /* string.h in usr|include|platform */,
+			);
+			name = "usr|include|platform";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AA0C94501E79C6E600205141 /* usr|local|include|libkern */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/local/include/libkern";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C94751E79C84C00205141 /* module.modulemap in usr|local|include|libkern */,
+				AA0C94761E79C84C00205141 /* OSAtomic.h in usr|local|include|libkern */,
+			);
+			name = "usr|local|include|libkern";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AA0C94521E79C70500205141 /* usr|local|include|os */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = "$(INSTALL_PATH_PREFIX)/usr/local/include/os";
+			dstSubfolderSpec = 0;
+			files = (
+				AA0C94721E79C84100205141 /* internal.h in usr|local|include|os */,
+				AA0C94731E79C84100205141 /* internal_asm.h in usr|local|include|os */,
+				AA0C94741E79C84100205141 /* yield.h in usr|local|include|os */,
+			);
+			name = "usr|local|include|os";
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		AA6868EB1E736427005BF4D1 /* libsystem_platform.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsystem_platform.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -718,80 +837,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		AA686A061E758FB4005BF4D1 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AA686A0C1E758FEB005BF4D1 /* OSAtomic.h in Headers */,
-				AA686A0D1E758FEB005BF4D1 /* OSAtomicDeprecated.h in Headers */,
-				AA686A0E1E758FEB005BF4D1 /* OSAtomicQueue.h in Headers */,
-				AA686A0F1E758FEC005BF4D1 /* OSCacheControl.h in Headers */,
-				AA686A101E758FEC005BF4D1 /* OSSpinLockDeprecated.h in Headers */,
-				AA686A111E758FEC005BF4D1 /* alloc_once_impl.h in Headers */,
-				AA686A121E758FEC005BF4D1 /* base.h in Headers */,
-				AA686A131E758FEC005BF4D1 /* base_private.h in Headers */,
-				AA686A141E758FEC005BF4D1 /* atomic.h in Headers */,
-				AA686A151E758FEC005BF4D1 /* crashlog.h in Headers */,
-				AA686A161E758FEC005BF4D1 /* internal_shared.h in Headers */,
-				AA686A171E758FEC005BF4D1 /* lock.h in Headers */,
-				AA686A181E758FEC005BF4D1 /* lock_private.h in Headers */,
-				AA686A191E758FEC005BF4D1 /* once_private.h in Headers */,
-				AA686A1A1E758FEC005BF4D1 /* semaphore_private.h in Headers */,
-				AA686A1B1E758FEC005BF4D1 /* compat.h in Headers */,
-				AA686A1C1E758FEC005BF4D1 /* introspection_private.h in Headers */,
-				AA686A1D1E758FEC005BF4D1 /* string.h in Headers */,
-				AA686A1E1E758FEC005BF4D1 /* setjmp.h in Headers */,
-				AA686A1F1E758FEC005BF4D1 /* ucontext.h in Headers */,
-				AA686A0B1E758FDD005BF4D1 /* _simple.h in Headers */,
-				AA686A081E758FC9005BF4D1 /* internal.h in Headers */,
-				AA686A091E758FC9005BF4D1 /* internal_asm.h in Headers */,
-				AA686A0A1E758FC9005BF4D1 /* yield.h in Headers */,
-				AA686A071E758FBF005BF4D1 /* OSAtomic.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA686A491E759A50005BF4D1 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AA686A4A1E759A50005BF4D1 /* OSAtomic.h in Headers */,
-				AA686A4B1E759A50005BF4D1 /* OSAtomicDeprecated.h in Headers */,
-				AA686A4C1E759A50005BF4D1 /* OSAtomicQueue.h in Headers */,
-				AA686A4D1E759A50005BF4D1 /* OSCacheControl.h in Headers */,
-				AA686A4E1E759A50005BF4D1 /* OSSpinLockDeprecated.h in Headers */,
-				AA686A4F1E759A50005BF4D1 /* alloc_once_impl.h in Headers */,
-				AA686A501E759A50005BF4D1 /* base.h in Headers */,
-				AA686A511E759A50005BF4D1 /* base_private.h in Headers */,
-				AA686A521E759A50005BF4D1 /* atomic.h in Headers */,
-				AA686A531E759A50005BF4D1 /* crashlog.h in Headers */,
-				AA686A541E759A50005BF4D1 /* internal_shared.h in Headers */,
-				AA686A551E759A50005BF4D1 /* lock.h in Headers */,
-				AA686A561E759A50005BF4D1 /* lock_private.h in Headers */,
-				AA686A571E759A50005BF4D1 /* once_private.h in Headers */,
-				AA686A581E759A50005BF4D1 /* semaphore_private.h in Headers */,
-				AA686A591E759A50005BF4D1 /* compat.h in Headers */,
-				AA686A5A1E759A50005BF4D1 /* introspection_private.h in Headers */,
-				AA686A5B1E759A50005BF4D1 /* string.h in Headers */,
-				AA686A5C1E759A50005BF4D1 /* setjmp.h in Headers */,
-				AA686A5D1E759A50005BF4D1 /* ucontext.h in Headers */,
-				AA686A5E1E759A50005BF4D1 /* _simple.h in Headers */,
-				AA686A5F1E759A50005BF4D1 /* internal.h in Headers */,
-				AA686A601E759A50005BF4D1 /* internal_asm.h in Headers */,
-				AA686A611E759A50005BF4D1 /* yield.h in Headers */,
-				AA686A621E759A50005BF4D1 /* OSAtomic.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA686A691E75ABBF005BF4D1 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		AA6868EA1E736427005BF4D1 /* libplatform */ = {
 			isa = PBXNativeTarget;
@@ -800,11 +845,11 @@
 				AA6868EF1E736497005BF4D1 /* Compile for all architectures */,
 				AA6868E71E736427005BF4D1 /* Sources */,
 				AA6868E81E736427005BF4D1 /* Frameworks */,
-				AA686A061E758FB4005BF4D1 /* Headers */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA0C94461E79C4BE00205141 /* PBXTargetDependency */,
 			);
 			name = libplatform;
 			productName = libsystem_platform.dylib;
@@ -818,11 +863,11 @@
 				AA686A241E759A50005BF4D1 /* Compile for all architectures */,
 				AA686A251E759A50005BF4D1 /* Sources */,
 				AA686A471E759A50005BF4D1 /* Frameworks */,
-				AA686A491E759A50005BF4D1 /* Headers */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA0C94481E79C4C300205141 /* PBXTargetDependency */,
 			);
 			name = "libplatform static";
 			productName = libsystem_platform.dylib;
@@ -836,11 +881,11 @@
 				AA686A911E75AD9D005BF4D1 /* Compile for all architectures */,
 				AA686A671E75ABBF005BF4D1 /* Sources */,
 				AA686A681E75ABBF005BF4D1 /* Frameworks */,
-				AA686A691E75ABBF005BF4D1 /* Headers */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA0C944A1E79C4C600205141 /* PBXTargetDependency */,
 			);
 			name = "libplatform dyld";
 			productName = "libplatform dyld";
@@ -856,6 +901,10 @@
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = ESDarwin;
 				TargetAttributes = {
+					AA0C94411E79C4B300205141 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
 					AA6868EA1E736427005BF4D1 = {
 						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
@@ -882,6 +931,7 @@
 				AA6868EA1E736427005BF4D1 /* libplatform */,
 				AA686A231E759A50005BF4D1 /* libplatform static */,
 				AA686A6A1E75ABBF005BF4D1 /* libplatform dyld */,
+				AA0C94411E79C4B300205141 /* installhdrs */,
 			);
 		};
 /* End PBXProject section */
@@ -1054,7 +1104,41 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		AA0C94461E79C4BE00205141 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0C94411E79C4B300205141 /* installhdrs */;
+			targetProxy = AA0C94451E79C4BE00205141 /* PBXContainerItemProxy */;
+		};
+		AA0C94481E79C4C300205141 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0C94411E79C4B300205141 /* installhdrs */;
+			targetProxy = AA0C94471E79C4C300205141 /* PBXContainerItemProxy */;
+		};
+		AA0C944A1E79C4C600205141 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0C94411E79C4B300205141 /* installhdrs */;
+			targetProxy = AA0C94491E79C4C600205141 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		AA0C94431E79C4B300205141 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INSTALLHDRS_COPY_PHASE = YES;
+				PRODUCT_NAME = installhdrs;
+			};
+			name = Debug;
+		};
+		AA0C94441E79C4B300205141 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INSTALLHDRS_COPY_PHASE = YES;
+				PRODUCT_NAME = installhdrs;
+			};
+			name = Release;
+		};
 		AA6868E21E73632F005BF4D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1235,6 +1319,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AA0C94421E79C4B300205141 /* Build configuration list for PBXAggregateTarget "installhdrs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0C94431E79C4B300205141 /* Debug */,
+				AA0C94441E79C4B300205141 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AA6868C81E73632B005BF4D1 /* Build configuration list for PBXProject "libplatform" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1269,6 +1362,7 @@
 				AA686A6E1E75ABC0005BF4D1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
