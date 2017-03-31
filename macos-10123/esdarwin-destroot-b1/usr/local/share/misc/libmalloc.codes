@@ -1,0 +1,12 @@
+0x33010004	malloc
+0x33010008	free
+0x3301000c	realloc
+0x33010010	memalign
+0x33020004	nano_malloc
+0x33020008	tiny_malloc
+0x3302000c	small_malloc
+0x33020010	large_malloc
+0x33020014	nano_free
+0x33020018	tiny_free
+0x3302001c	small_free
+0x33020020	large_free

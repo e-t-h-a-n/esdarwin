@@ -1,0 +1,15 @@
+#!/bin/sh
+/AppleInternal/CoreOS/tests/dyld/dlopen-basic/run.sh
+/AppleInternal/CoreOS/tests/dyld/dlopen-framework-fallback/run.sh
+/AppleInternal/CoreOS/tests/dyld/dlopen-signing/run.sh
+/AppleInternal/CoreOS/tests/dyld/dyld_abort_payload/run.sh
+/AppleInternal/CoreOS/tests/dyld/dyld_process_info/run.sh
+/AppleInternal/CoreOS/tests/dyld/dyld_process_info_notify/run.sh
+/AppleInternal/CoreOS/tests/dyld/dylib-re-export-old-format/run.sh
+/AppleInternal/CoreOS/tests/dyld/dylib-re-export/run.sh
+/AppleInternal/CoreOS/tests/dyld/dylib-static-link/run.sh
+/AppleInternal/CoreOS/tests/dyld/dylib-static-weak-link/run.sh
+/AppleInternal/CoreOS/tests/dyld/interpose-weak/run.sh
+/AppleInternal/CoreOS/tests/dyld/NSAddImage-basic/run.sh
+/AppleInternal/CoreOS/tests/dyld/restrict-search/run.sh
+/AppleInternal/CoreOS/tests/dyld/thread-local-variables/run.sh
