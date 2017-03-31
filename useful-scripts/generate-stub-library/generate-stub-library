@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+if [[ $1 = "" || $2 = "" || $3 = "" ]]; then
+    echo "Syntax: generate-stub-library libname libraryInstallPath libraryOutputPath [currentVersion]"
+    exit 1
+else
+    libname="$1"
+    install_path="$2"
+    out_path="$3"
+fi
+
+if [[ $4 != "" ]]; then
+    version="$4"
+else
+    version="1.0.0"
+fi
+
+echo "void __ESDARWIN_${libname}_is_closed_source__apple_please_release_the_source_code(void){return;}" | clang -dynamiclib -nostdlib -x c - -o "$out_path" -Wl,-install_name,$install_path -Wl,-compatibility_version,1.0.0 -Wl,-current_version,$version
+
