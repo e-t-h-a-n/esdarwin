@@ -1,3 +1,0 @@
-macos-10123/esdarwin-destroot-b1/usr/local/lib/system/libc.a filter=lfs diff=lfs merge=lfs -text
-macos-10123/esdarwin-destroot-b1/usr/local/lib/system/libc_debug.a filter=lfs diff=lfs merge=lfs -text
-macos-10123/esdarwin-destroot-b1/usr/local/lib/loaderd/libc.a filter=lfs diff=lfs merge=lfs -text
