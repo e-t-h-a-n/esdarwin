@@ -1155,15 +1155,20 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					__ESDARWIN__,
 					"DEBUG=1",
-					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/internal",
 					"$(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders",
 				);
+				LIBPLATFORM_LIBRARIES = "-L/usr/lib/system $(L_DYLD) $(L_COMPILER_RT) $(L_SYSTEM_KERNEL)";
+				L_COMPILER_RT = "-lcompiler_rt";
+				L_DYLD = "-ldyld";
+				L_SYSTEM_KERNEL = "-lsystem_kernel";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-fno-stack-protector";
 				SDKROOT = macosx.internal;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1183,11 +1188,17 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/internal",
 					"$(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders",
 				);
+				LIBPLATFORM_LIBRARIES = "-L/usr/lib/system $(L_DYLD) $(L_COMPILER_RT) $(L_SYSTEM_KERNEL)";
+				L_COMPILER_RT = "-lcompiler_rt";
+				L_DYLD = "-ldyld";
+				L_SYSTEM_KERNEL = "-lsystem_kernel";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "-fno-stack-protector";
 				SDKROOT = macosx.internal;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1198,15 +1209,14 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = dylib;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				INSTALL_PATH = /usr/lib/system;
+				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-Wl,-force_load,$OBJROOT/libplatform-normal-$(CURRENT_ARCH).a",
 					"-Wl,-alias_list,$(SRCROOT)/xcodeconfig/libplatform.aliases",
+					"-Wl,-umbrella,System",
+					"$(LIBPLATFORM_LIBRARIES)",
 				);
 				PRODUCT_NAME = system_platform;
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
@@ -1218,12 +1228,14 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = dylib;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INSTALL_PATH = /usr/lib/system;
+				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-Wl,-force_load,$OBJROOT/libplatform-normal-$(CURRENT_ARCH).a",
 					"-Wl,-alias_list,$(SRCROOT)/xcodeconfig/libplatform.aliases",
+					"-Wl,-umbrella,System",
+					"$(LIBPLATFORM_LIBRARIES)",
 				);
 				PRODUCT_NAME = system_platform;
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
@@ -1233,6 +1245,7 @@
 		AA686A641E759A50005BF4D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1246,14 +1259,17 @@
 					"-Wl,-force_load,$OBJROOT/libplatform-static-$(CURRENT_ARCH).a",
 					"-Wl,-alias_list,$(SRCROOT)/xcodeconfig/libplatform.aliases",
 				);
+				OTHER_LIBTOOLFLAGS = "$(OBJROOT)/libplatform-static-$(CURRENT_ARCH).a";
 				PRODUCT_NAME = system_platform;
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
 		};
 		AA686A651E759A50005BF4D1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1267,14 +1283,17 @@
 					"-Wl,-force_load,$OBJROOT/libplatform-static-$(CURRENT_ARCH).a",
 					"-Wl,-alias_list,$(SRCROOT)/xcodeconfig/libplatform.aliases",
 				);
+				OTHER_LIBTOOLFLAGS = "$(OBJROOT)/libplatform-static-$(CURRENT_ARCH).a";
 				PRODUCT_NAME = system_platform;
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
 		};
 		AA686A6D1E75ABC0005BF4D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1289,14 +1308,17 @@
 					"-Wl,-force_load,$OBJROOT/libplatform-dyld-$(CURRENT_ARCH).a",
 					"-Wl,-alias_list,$(SRCROOT)/xcodeconfig/libplatform.aliases",
 				);
+				OTHER_LIBTOOLFLAGS = "$(OBJROOT)/libplatform-dyld-$(CURRENT_ARCH).a";
 				PRODUCT_NAME = system_platform;
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
 		};
 		AA686A6E1E75ABC0005BF4D1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1311,8 +1333,10 @@
 					"-Wl,-force_load,$OBJROOT/libplatform-dyld-$(CURRENT_ARCH).a",
 					"-Wl,-alias_list,$(SRCROOT)/xcodeconfig/libplatform.aliases",
 				);
+				OTHER_LIBTOOLFLAGS = "$(OBJROOT)/libplatform-dyld-$(CURRENT_ARCH).a";
 				PRODUCT_NAME = system_platform;
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
 		};
