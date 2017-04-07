@@ -1,0 +1,307 @@
+diff -rU 5 A/libdispatch-703.30.5/libdispatch.xcodeproj/project.pbxproj B/libdispatch-703.30.5/libdispatch.xcodeproj/project.pbxproj
+--- A/libdispatch-703.30.5/libdispatch.xcodeproj/project.pbxproj	2016-06-03 19:42:58.000000000 +0100
++++ B/libdispatch-703.30.5/libdispatch.xcodeproj/project.pbxproj	2017-04-07 10:19:53.000000000 +0100
+@@ -85,20 +85,12 @@
+ 		6E21F2E81BBB23FA0000C6A5 /* firehose_server_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E21F2E41BBB23F00000C6A5 /* firehose_server_internal.h */; };
+ 		6E21F2E91BBB240E0000C6A5 /* firehose_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E21F2E51BBB23F00000C6A5 /* firehose_server.c */; };
+ 		6E393F981BD60F8D005A551E /* firehose_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EF0B26A1BA8C4AE007FA4F6 /* firehose_internal.h */; };
+ 		6E90269C1BB9BD50004DC3AD /* firehose.defs in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA9B1AE1B0BD00289540 /* firehose.defs */; settings = {ATTRIBUTES = (Server, ); }; };
+ 		6E9955581C3AF7710071D40C /* venture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9955571C3AF7710071D40C /* venture_private.h */; };
+-		6E99558A1C3AF7900071D40C /* venture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9955571C3AF7710071D40C /* venture_private.h */; };
+-		6E9955CF1C3B218E0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956011C3B21980071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956021C3B21990071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956031C3B219A0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956041C3B219B0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956051C3B219B0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+ 		6E9956071C3B21AA0071D40C /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+ 		6E9956081C3B21B30071D40C /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+-		6E9956091C3B21B40071D40C /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+ 		6E9B6B5F1BB4F3C8009E324D /* firehose_buffer_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9B6B201BB4CC73009E324D /* firehose_buffer_internal.h */; };
+ 		6EA283D71CAB93920041B2E0 /* libdispatch.codes in Copy Trace Definitions */ = {isa = PBXBuildFile; fileRef = 6EA283D01CAB93270041B2E0 /* libdispatch.codes */; };
+ 		6EB60D2C1BBB197B0092FA94 /* firehose_inline_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EB60D291BBB19640092FA94 /* firehose_inline_internal.h */; };
+ 		6EBEC7E51BBDD30C009B1596 /* firehose.defs in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA9B1AE1B0BD00289540 /* firehose.defs */; };
+ 		6EBEC7E61BBDD30D009B1596 /* firehose.defs in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA9B1AE1B0BD00289540 /* firehose.defs */; };
+@@ -158,10 +150,12 @@
+ 		96929D960F3EA2170041FF5D /* queue_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 96929D950F3EA2170041FF5D /* queue_internal.h */; };
+ 		96A8AA870F41E7A400CD570B /* source.c in Sources */ = {isa = PBXBuildFile; fileRef = 96A8AA860F41E7A400CD570B /* source.c */; };
+ 		96BC39BD0F3EBAB100C59689 /* queue_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 96BC39BC0F3EBAB100C59689 /* queue_private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+ 		96C9553B0F3EAEDD000D2CA4 /* once.h in Headers */ = {isa = PBXBuildFile; fileRef = 96C9553A0F3EAEDD000D2CA4 /* once.h */; settings = {ATTRIBUTES = (Public, ); }; };
+ 		96DF70BE0F38FE3C0074BD99 /* once.c in Sources */ = {isa = PBXBuildFile; fileRef = 96DF70BD0F38FE3C0074BD99 /* once.c */; };
++		AA163F641E586BFB0061939F /* venture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9955571C3AF7710071D40C /* venture_private.h */; };
++		AA163F651E586BFB0061939F /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+ 		C00B0DF21C5AEBBE000330B3 /* protocol.defs in Sources */ = {isa = PBXBuildFile; fileRef = FC7BED950E8361E600161930 /* protocol.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
+ 		C00B0DF31C5AEBBE000330B3 /* resolver.c in Sources */ = {isa = PBXBuildFile; fileRef = E44EBE371251656400645D88 /* resolver.c */; };
+ 		C00B0DF41C5AEBBE000330B3 /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = E44EBE3B1251659900645D88 /* init.c */; };
+ 		C00B0DF51C5AEBBE000330B3 /* queue.c in Sources */ = {isa = PBXBuildFile; fileRef = FC7BED8A0E8361E600161930 /* queue.c */; };
+ 		C00B0DF61C5AEBBE000330B3 /* firehose_buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA971AE181D300289540 /* firehose_buffer.c */; };
+@@ -1221,11 +1215,10 @@
+ 				E49F24AC125D57FA0057C971 /* base.h in Headers */,
+ 				E49F24AD125D57FA0057C971 /* object.h in Headers */,
+ 				E44757DC17F4573600B82CA1 /* inline_internal.h in Headers */,
+ 				E49F24AE125D57FA0057C971 /* queue.h in Headers */,
+ 				E49F24AF125D57FA0057C971 /* source.h in Headers */,
+-				6E99558A1C3AF7900071D40C /* venture_private.h in Headers */,
+ 				E4B3C3FF18C50D0E0039F49F /* voucher_activity_private.h in Headers */,
+ 				E49F24B0125D57FA0057C971 /* semaphore.h in Headers */,
+ 				E49F24B1125D57FA0057C971 /* group.h in Headers */,
+ 				E49F24B2125D57FA0057C971 /* once.h in Headers */,
+ 				E49F24B3125D57FA0057C971 /* io.h in Headers */,
+@@ -1236,10 +1229,12 @@
+ 				E49F24B6125D57FA0057C971 /* private.h in Headers */,
+ 				E4D76A9418E325D200B1F98B /* block.h in Headers */,
+ 				E49F24B7125D57FA0057C971 /* queue_private.h in Headers */,
+ 				E49F24B8125D57FA0057C971 /* source_private.h in Headers */,
+ 				E49F24B9125D57FA0057C971 /* benchmark.h in Headers */,
++				AA163F641E586BFB0061939F /* venture_private.h in Headers */,
++				AA163F651E586BFB0061939F /* venture_internal.h in Headers */,
+ 				E49F24BA125D57FA0057C971 /* internal.h in Headers */,
+ 				E49F24BC125D57FA0057C971 /* object_internal.h in Headers */,
+ 				E49F24BB125D57FA0057C971 /* queue_internal.h in Headers */,
+ 				E49F24BE125D57FA0057C971 /* source_internal.h in Headers */,
+ 				E49F24BD125D57FA0057C971 /* semaphore_internal.h in Headers */,
+@@ -1255,11 +1250,10 @@
+ 				6ED64B521BBD8A2100C35F4D /* firehose_buffer_internal.h in Headers */,
+ 				E48EC97D1835BADD00EAC4F1 /* yield.h in Headers */,
+ 				2BE17C6518EA305E002CA4E8 /* layout_private.h in Headers */,
+ 				E49F24C6125D57FA0057C971 /* config.h in Headers */,
+ 				E422A0D612A557B5005E5BDB /* trace.h in Headers */,
+-				6E9956091C3B21B40071D40C /* venture_internal.h in Headers */,
+ 				6EF2CAB41C889D65001ABE83 /* lock.h in Headers */,
+ 				E4BA743C13A8911B0095BDF1 /* getprogname.h in Headers */,
+ 				E4128ED713BA9A1700ABB2CB /* hw_config.h in Headers */,
+ 				6ED64B581BBD8A3E00C35F4D /* firehose_inline_internal.h in Headers */,
+ 				E454569414746F1B00106147 /* object_private.h in Headers */,
+@@ -1593,12 +1587,12 @@
+ 				},
+ 			);
+ 			projectRoot = "";
+ 			targets = (
+ 				D2AAC045055464E500DB518D /* libdispatch */,
+-				E49F24A9125D57FA0057C971 /* libdispatch no resolver */,
+ 				E4EC121612514715000DDBD1 /* libdispatch mp resolved */,
++				E49F24A9125D57FA0057C971 /* libdispatch no resolver */,
+ 				E4EC118F12514302000DDBD1 /* libdispatch up resolved */,
+ 				E4B51595164B2DA300E003AF /* libdispatch introspection */,
+ 				E46DBC1A14EE10C80001F9F6 /* libdispatch up static */,
+ 				C01866A41C5973210040FC07 /* libdispatch mp static */,
+ 				C00B0DF01C5AEBBE000330B3 /* libdispatch dyld stub */,
+@@ -1783,19 +1777,17 @@
+ 			);
+ 			inputPaths = (
+ 				"$(SRCROOT)/xcodescripts/install-headers.sh",
+ 				"$(SRCROOT)/os/object.h",
+ 				"$(SRCROOT)/os/object_private.h",
+-				"$(SRCROOT)/os/venture_private.h",
+ 				"$(SRCROOT)/os/voucher_private.h",
+ 				"$(SRCROOT)/os/voucher_activity_private.h",
+ 			);
+ 			name = "Install Headers";
+ 			outputPaths = (
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PUBLIC_HEADERS_FOLDER_PATH)/object.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/object_private.h",
+-				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/venture_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_activity_private.h",
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 			shellPath = "/bin/bash -e";
+@@ -1809,19 +1801,17 @@
+ 			);
+ 			inputPaths = (
+ 				"$(SRCROOT)/xcodescripts/install-headers.sh",
+ 				"$(SRCROOT)/os/object.h",
+ 				"$(SRCROOT)/os/object_private.h",
+-				"$(SRCROOT)/os/venture_private.h",
+ 				"$(SRCROOT)/os/voucher_private.h",
+ 				"$(SRCROOT)/os/voucher_activity_private.h",
+ 			);
+ 			name = "Install Headers";
+ 			outputPaths = (
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PUBLIC_HEADERS_FOLDER_PATH)/object.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/object_private.h",
+-				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/venture_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_activity_private.h",
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 			shellPath = "/bin/bash -e";
+@@ -1992,11 +1982,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E43570B9126E93380097AB9F /* provider.d in Sources */,
+ 				FC7BEDA40E8361E600161930 /* protocol.defs in Sources */,
+-				6E9955CF1C3B218E0071D40C /* venture.c in Sources */,
+ 				6ED64B471BBD89AF00C35F4D /* firehose.defs in Sources */,
+ 				6ED64B441BBD898700C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F2499125D48D80057C971 /* resolver.c in Sources */,
+ 				E44EBE3E1251659900645D88 /* init.c in Sources */,
+ 				FC7BED990E8361E600161930 /* queue.c in Sources */,
+@@ -2031,11 +2020,10 @@
+ 				E46DBC4314EE10C80001F9F6 /* queue.c in Sources */,
+ 				6EE664271BE2FD5C00ED7B1C /* firehose_buffer.c in Sources */,
+ 				6EBEC7E71BBDD30F009B1596 /* firehose.defs in Sources */,
+ 				E43A72881AF85BE900BAA921 /* block.cpp in Sources */,
+ 				E46DBC4414EE10C80001F9F6 /* semaphore.c in Sources */,
+-				6E9956011C3B21980071D40C /* venture.c in Sources */,
+ 				6EBEC7EA1BBDD326009B1596 /* firehose_reply.defs in Sources */,
+ 				E46DBC4514EE10C80001F9F6 /* once.c in Sources */,
+ 				E44A8E701805C3E0009FFDB6 /* voucher.c in Sources */,
+ 				E46DBC4614EE10C80001F9F6 /* apply.c in Sources */,
+ 				E46DBC4714EE10C80001F9F6 /* object.c in Sources */,
+@@ -2053,11 +2041,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E43570BA126E93380097AB9F /* provider.d in Sources */,
+ 				E49F24C8125D57FA0057C971 /* protocol.defs in Sources */,
+-				6E9956051C3B219B0071D40C /* venture.c in Sources */,
+ 				6ED64B461BBD89AF00C35F4D /* firehose.defs in Sources */,
+ 				6ED64B401BBD898300C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F24C9125D57FA0057C971 /* resolver.c in Sources */,
+ 				E49F24CA125D57FA0057C971 /* init.c in Sources */,
+ 				E49F24CB125D57FA0057C971 /* queue.c in Sources */,
+@@ -2090,11 +2077,10 @@
+ 				E4B515BF164B2DA300E003AF /* resolver.c in Sources */,
+ 				6ED64B4B1BBD89BE00C35F4D /* firehose_reply.defs in Sources */,
+ 				6ED64B481BBD89B100C35F4D /* firehose.defs in Sources */,
+ 				E4B515C0164B2DA300E003AF /* init.c in Sources */,
+ 				E4B515C1164B2DA300E003AF /* queue.c in Sources */,
+-				6E9956021C3B21990071D40C /* venture.c in Sources */,
+ 				E4B515C2164B2DA300E003AF /* semaphore.c in Sources */,
+ 				E4B515C3164B2DA300E003AF /* once.c in Sources */,
+ 				E43A72871AF85BCD00BAA921 /* block.cpp in Sources */,
+ 				E4B515C4164B2DA300E003AF /* apply.c in Sources */,
+ 				E4B515C5164B2DA300E003AF /* object.c in Sources */,
+@@ -2118,11 +2104,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E417A38412A472C4004D659D /* provider.d in Sources */,
+ 				E44EBE5412517EBE00645D88 /* protocol.defs in Sources */,
+-				6E9956031C3B219A0071D40C /* venture.c in Sources */,
+ 				6EBEC7E61BBDD30D009B1596 /* firehose.defs in Sources */,
+ 				6ED64B421BBD898500C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F2424125D3C970057C971 /* resolver.c in Sources */,
+ 				E44EBE5512517EBE00645D88 /* init.c in Sources */,
+ 				E4EC11AE12514302000DDBD1 /* queue.c in Sources */,
+@@ -2150,11 +2135,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E417A38512A472C5004D659D /* provider.d in Sources */,
+ 				E44EBE5612517EBE00645D88 /* protocol.defs in Sources */,
+-				6E9956041C3B219B0071D40C /* venture.c in Sources */,
+ 				6EBEC7E51BBDD30C009B1596 /* firehose.defs in Sources */,
+ 				6ED64B411BBD898400C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F2423125D3C960057C971 /* resolver.c in Sources */,
+ 				E44EBE5712517EBE00645D88 /* init.c in Sources */,
+ 				E4EC121A12514715000DDBD1 /* queue.c in Sources */,
+@@ -2253,10 +2237,11 @@
+ 		};
+ 		1DEB91F108733DB70010E9CD /* Release */ = {
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = E43D93F11097917E004F6A62 /* libdispatch.xcconfig */;
+ 			buildSettings = {
++				SDKROOT = macosx.internal;
+ 			};
+ 			name = Release;
+ 		};
+ 		3F3C9357128E637B0042B1F7 /* Release */ = {
+ 			isa = XCBuildConfiguration;
+@@ -2438,10 +2423,11 @@
+ 		};
+ 		E4EB382D1089033000C33AD4 /* Debug */ = {
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = E43D93F11097917E004F6A62 /* libdispatch.xcconfig */;
+ 			buildSettings = {
++				SDKROOT = macosx.internal;
+ 			};
+ 			name = Debug;
+ 		};
+ 		E4EB382E1089033000C33AD4 /* Debug */ = {
+ 			isa = XCBuildConfiguration;
+
+diff -rU 5 A/libdispatch-703.30.5/src/firehose/firehose_buffer.c B/libdispatch-703.30.5/src/firehose/firehose_buffer.c
+--- A/libdispatch-703.30.5/src/firehose/firehose_buffer.c	2016-07-22 00:03:18.000000000 +0100
++++ B/libdispatch-703.30.5/src/firehose/firehose_buffer.c	2017-04-07 10:19:53.000000000 +0100
+@@ -43,13 +43,14 @@
+ #define dispatch_hardware_pause() __asm__("pause")
+ #elif (defined(__arm__) && defined(_ARM_ARCH_7) && defined(__thumb__)) || \
+ 		defined(__arm64__)
+ #define dispatch_hardware_pause() __asm__("yield")
+ #define dispatch_hardware_wfe()   __asm__("wfe")
+-#else
++#else /* neither __x86_64__, __i386__, __arm__,  *
++	   * _ARM_ARCH_7, __thumb__, nor __arm64__ */
+ #define dispatch_hardware_pause() __asm__("")
+-#endif
++#endif /* __x86_64__ or __i386__ */
+ 
+ #define _dispatch_wait_until(c) do { \
+ 		while (!fastpath(c)) { \
+ 			dispatch_hardware_pause(); \
+ 		} } while (0)
+@@ -75,15 +76,15 @@
+ #include <tracepoint_private.h> // <firehose/tracepoint_private.h>
+ #include <internal/atomic.h> // os/internal/atomic.h
+ #include "os/firehose_buffer_private.h"
+ #include "firehose_buffer_internal.h"
+ #include "firehose_inline_internal.h"
+-#else
++#else /* !KERNEL */
+ #include "internal.h"
+ #include "firehose.h" // MiG
+ #include "firehose_replyServer.h" // MiG
+-#endif
++#endif /* #ifdef KERNEL */
+ 
+ #if OS_FIREHOSE_SPI
+ 
+ #if __has_feature(c_static_assert)
+ _Static_assert(sizeof(((firehose_stream_state_u *)NULL)->fss_gate) ==
+
+diff -rU 5 A/libdispatch-703.30.5/src/internal.h B/libdispatch-703.30.5/src/internal.h
+--- A/libdispatch-703.30.5/src/internal.h	2016-12-15 17:53:16.000000000 +0000
++++ B/libdispatch-703.30.5/src/internal.h	2017-04-07 10:19:53.000000000 +0100
+@@ -133,10 +133,11 @@
+ #define DISPATCH_HIDE_SYMBOL(sym, osx, ios, tvos, watchos)
+ #endif
+ #endif
+ 
+ #include <os/object.h>
++#include <os/base_private.h>
+ #include <dispatch/time.h>
+ #include <dispatch/object.h>
+ #include <dispatch/queue.h>
+ #include <dispatch/block.h>
+ #include <dispatch/source.h>
+@@ -978,11 +979,15 @@
+ #endif // VOUCHER_USE_MACH_VOUCHER
+ 
+ #define _dispatch_hardware_crash() \
+ 		__asm__(""); __builtin_trap() // <rdar://problem/17464981>
+ 
+-#define _dispatch_set_crash_log_cause_and_message(ac, msg)
++#define _dispatch_set_crash_log_cause_and_message(ac, msg) { \
++				(void)(ac);\
++				(void)(msg);\
++				}
++
+ #define _dispatch_set_crash_log_message(msg)
+ #define _dispatch_set_crash_log_message_dynamic(msg)
+ 
+ #if HAVE_MACH
+ // MIG_REPLY_MISMATCH means either:
+
+diff -rU 5 A/libdispatch-703.30.5/xcodescripts/install-headers.sh B/libdispatch-703.30.5/xcodescripts/install-headers.sh
+--- A/libdispatch-703.30.5/xcodescripts/install-headers.sh	2016-03-12 01:11:32.000000000 +0000
++++ B/libdispatch-703.30.5/xcodescripts/install-headers.sh	2017-04-07 10:19:53.000000000 +0100
+@@ -27,6 +27,5 @@
+ mkdir -p "${DSTROOT}${OS_PRIVATE_HEADERS_FOLDER_PATH}" || true
+ cp -X "${SCRIPT_INPUT_FILE_1}" "${DSTROOT}${OS_PUBLIC_HEADERS_FOLDER_PATH}"
+ cp -X "${SCRIPT_INPUT_FILE_2}" "${DSTROOT}${OS_PRIVATE_HEADERS_FOLDER_PATH}"
+ cp -X "${SCRIPT_INPUT_FILE_3}" "${DSTROOT}${OS_PRIVATE_HEADERS_FOLDER_PATH}"
+ cp -X "${SCRIPT_INPUT_FILE_4}" "${DSTROOT}${OS_PRIVATE_HEADERS_FOLDER_PATH}"
+-cp -X "${SCRIPT_INPUT_FILE_5}" "${DSTROOT}${OS_PRIVATE_HEADERS_FOLDER_PATH}"

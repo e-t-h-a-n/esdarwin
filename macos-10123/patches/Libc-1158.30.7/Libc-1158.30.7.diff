@@ -1,0 +1,89 @@
+Only in b/Libc-1158.30.7: .DS_Store
+diff -rU3 a/Libc-1158.30.7/Libc.xcodeproj/project.pbxproj b/Libc-1158.30.7/Libc.xcodeproj/project.pbxproj
+--- a/Libc-1158.30.7/Libc.xcodeproj/project.pbxproj	2016-12-15 17:56:56.000000000 +0000
++++ b/Libc-1158.30.7/Libc.xcodeproj/project.pbxproj	2017-03-08 22:20:43.000000000 +0000
+@@ -5778,6 +5778,7 @@
+ 		928BD0FE1D7606EA00EC01FC /* timingsafe_bcmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timingsafe_bcmp.c; sourceTree = "<group>"; };
+ 		928BD1091D7608A400EC01FC /* environ.7 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = environ.7; sourceTree = "<group>"; };
+ 		92ABC7E81D375FC2000DF880 /* compatibility_hacks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = compatibility_hacks.c; sourceTree = "<group>"; };
++		AA163CE61E5483C30061939F /* CrashReporterClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrashReporterClient.h; sourceTree = "<group>"; };
+ 		B122F2AD1432B8E600AF95D0 /* libTRE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTRE.a; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		B122F2AF1432B95B00AF95D0 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+ 		B122F2B11432B95B00AF95D0 /* regcomp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regcomp.c; sourceTree = "<group>"; };
+@@ -7831,6 +7832,7 @@
+ 		C9B5384F138D9E990028D27C /* include */ = {
+ 			isa = PBXGroup;
+ 			children = (
++				AA163CE61E5483C30061939F /* CrashReporterClient.h */,
+ 				C9B53850138D9E990028D27C /* _locale.h */,
+ 				FC60BAD016555A4A00033196 /* _types */,
+ 				C9B53852138D9E990028D27C /* _types.h */,
+@@ -15992,6 +15994,7 @@
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = C9C2A948138DF7DD00287F00 /* libc.xcconfig */;
+ 			buildSettings = {
++				SDKROOT = macosx.internal;
+ 			};
+ 			name = Debug;
+ 		};
+@@ -15999,6 +16002,7 @@
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = C9C2A948138DF7DD00287F00 /* libc.xcconfig */;
+ 			buildSettings = {
++				SDKROOT = macosx.internal;
+ 			};
+ 			name = Release;
+ 		};
+Only in b/Libc-1158.30.7/Libc.xcodeproj: project.xcworkspace
+Only in b/Libc-1158.30.7/Libc.xcodeproj: xcuserdata
+Only in b/Libc-1158.30.7: build
+Only in b/Libc-1158.30.7/compat-43: .DS_Store
+Only in b/Libc-1158.30.7/include: CrashReporterClient.h
+diff -rU3 a/Libc-1158.30.7/secure/chk_fail.c b/Libc-1158.30.7/secure/chk_fail.c
+--- a/Libc-1158.30.7/secure/chk_fail.c	2016-12-15 17:56:55.000000000 +0000
++++ b/Libc-1158.30.7/secure/chk_fail.c	2017-03-08 22:20:44.000000000 +0000
+@@ -28,3 +28,14 @@
+ #include <stdlib.h>
+ #include <TargetConditionals.h>
+ 
++__attribute__ ((visibility ("hidden")))
++int __chk_assert_no_overlap() { return 1; }
++
++__attribute__ ((visibility ("hidden")))
++int __chk_overlap() { return 1; }
++
++__attribute__ ((visibility ("hidden")))
++int __chk_fail_overflow() { return 1; }
++
++__attribute__ ((visibility ("hidden")))
++int __chk_init() { return 1; };
+diff -rU3 a/Libc-1158.30.7/stdlib/FreeBSD/exit.c b/Libc-1158.30.7/stdlib/FreeBSD/exit.c
+--- a/Libc-1158.30.7/stdlib/FreeBSD/exit.c	2016-12-15 17:56:55.000000000 +0000
++++ b/Libc-1158.30.7/stdlib/FreeBSD/exit.c	2017-03-08 22:20:44.000000000 +0000
+@@ -54,4 +54,4 @@
+  */
+ void
+ exit(int status)
+-{
++{}
+diff -rU3 a/Libc-1158.30.7/xcodescripts/libc.xcconfig b/Libc-1158.30.7/xcodescripts/libc.xcconfig
+--- a/Libc-1158.30.7/xcodescripts/libc.xcconfig	2016-12-15 17:56:56.000000000 +0000
++++ b/Libc-1158.30.7/xcodescripts/libc.xcconfig	2017-03-08 22:20:45.000000000 +0000
+@@ -47,7 +47,7 @@
+ PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include
+ 
+ // Simulator
+-BASE_PREPROCESSOR_MACROS = __LIBC__ __DARWIN_UNIX03=1 __DARWIN_64_BIT_INO_T=1 __DARWIN_NON_CANCELABLE=1 __DARWIN_VERS_1050=1 _FORTIFY_SOURCE=0
++BASE_PREPROCESSOR_MACROS = __LIBC__ __DARWIN_UNIX03=1 __DARWIN_64_BIT_INO_T=1 __DARWIN_NON_CANCELABLE=1 __DARWIN_VERS_1050=1 _FORTIFY_SOURCE=0 LIBC_NO_LIBCRASHREPORTERCLIENT
+ OTHER_CFLAGS = -fdollars-in-identifiers -fno-common -fverbose-asm $($(TARGET_NAME)_CFLAGS) $(VARIANT_PREPROCESSOR_MACROS)
+ OTHER_CFLAGS_debug = -fstack-protector -fno-inline -O0 -DDEBUG=1
+ SIM_SUFFIX[sdk=*simulator*] = _sim
+@@ -56,7 +56,7 @@
+ GCC_PREPROCESSOR_DEFINITIONS[sdk=iphone*] = $(BASE_PREPROCESSOR_MACROS) LIBC_NO_LIBCRASHREPORTERCLIENT=1
+ 
+ // libsystem_c.dylib linking
+-CR_LDFLAGS = -lCrashReporterClient
++CR_LDFLAGS = 
+ LIBCOMPILER_RT_LDFLAGS = -lcompiler_rt
+ LIBMALLOC_LDFLAGS = -lsystem_malloc
+ LIBPLATFORM_LDFLAGS = -lsystem$(SIM_SUFFIX)_platform
