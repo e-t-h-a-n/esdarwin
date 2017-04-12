@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# darwin-header-installer
-# A small script that runs "installhdrs" for darwin projects
-# that groups the resulting headers by project and also puts
-# them all into one file that can be merged onto an Xcode macOS SDK.
-
 # Colours
 # Foreground Colours
 
@@ -71,6 +66,8 @@ SGR_RESET_NEGATIVE="\033[27m"
 SGR_RESET_CONCEALED="\033[28m"
 SGR_RESET_CROSSED_OUT="\033[29m"
 
+#endif /* __IOX_GET_DEVICES_H */
+
 # Statuses
 ERROR="$SGR_BOLD""$SGR_SLOW_BLINK""$FG_LIGHT_WHITE""$BG_LIGHT_RED""[ERROR]:""$SGR_RESET""   "
 RUNCMD="$FG_DARK_BLACK""$BG_LIGHT_YELLOW""[RUNCMD]:""$SGR_RESET""  ""$FG_LIGHT_WHITE""$BG_LIGHT_BLUE"
@@ -115,30 +112,6 @@ for project in $PROJECTS/*; do
         # Change directory into project
         cd "$project"
 
-        # Do not do this as root! (It'll just
-        # hang, it's why we use sudo internally!)
-        echo -e "$INFO""Getting project data for $ProjectName (version: $ProjectVersion)"
-        JSONTargets=$(xcodebuild -project "$xcproject" -list -json)
-
-        # echo -e "$INFO""Reading targets from JSON project data"
-        # Targets=$(echo "$JSONTargets" | python3 -c "import sys, json; [print(i) for i in json.load(sys.stdin)['project']['targets']]")
-        # for target in $Targets; do
-        #     # Install to individual path
-        #     echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} -target $target installhdrs SRCROOT=\"$project\" DSTROOT=\"$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion\"""$EndRUNCMD"
-        #     sudo xcodebuild -sdk macosx -project "$xcproject" -target "$target" installhdrs SRCROOT="$project" DSTROOT="$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion"
-        #     indivInstall=$?
-        #
-        #     # Install to combined path
-        #     echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} -target $target installhdrs SRCROOT=\"$project\" DSTROOT=\"$COMBINED_HEADER_OUT\"""$EndRUNCMD"
-        #     sudo xcodebuild -sdk macosx -project "$xcproject" -target "$target" installhdrs SRCROOT="$project" DSTROOT="$COMBINED_HEADER_OUT"
-        #     combiInstall=$?
-        #
-        #     if [[ indivInstall -eq 0 && combiInstall -eq 0 ]]; then
-        #         echo -e "$SUCCESS""Finished target \"$target\" of $ProjectName (version: $ProjectVersion)"
-        #     else
-        #         echo -e "$FAIL""One or more commands failed for target \"$target\" of $ProjectName (version $ProjectVersion)"
-        #     fi
-
         # Install to individual path
         echo -e "$RUNCMD""sudo xcodebuild -sdk macosx -project $ProjectNameAndVersion/${xcproject##*/} installhdrs SRCROOT=\"$project\" DSTROOT=\"$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion\"""$EndRUNCMD"
         sudo xcodebuild -sdk macosx -project "$xcproject" -alltargets installhdrs SRCROOT="$project" DSTROOT="$INDIVIDUAL_HEADER_OUT/$ProjectNameAndVersion"
@@ -149,9 +122,12 @@ for project in $PROJECTS/*; do
         sudo xcodebuild -sdk macosx -project "$xcproject" -alltargets installhdrs SRCROOT="$project" DSTROOT="$COMBINED_HEADER_OUT"
         combiInstall=$?
 
-        done
-        echo -e "$INFO""Done for $ProjectName (version: $ProjectVersion)"
-
+        if [[ indivInstall -eq 0 && combiInstall -eq 0 ]]; then
+            echo -e "$SUCCESS""Finished $ProjectName (version: $ProjectVersion)"
+        else
+            echo -e "$FAIL""One or more commands failed for $ProjectName (version $ProjectVersion)"
+        fi
+        
         # Don't use Makefiles afterwards.
         HAS_USED_XCODEBUILD="Yes"
 
