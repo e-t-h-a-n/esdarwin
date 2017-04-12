@@ -25,7 +25,11 @@
 #define __ASL_MSG_H__
 
 #include <stdint.h>
-#include <xpc/xpc.h>
+
+#ifndef __ESDARWIN__
+    #include <xpc/xpc.h>
+#endif /* __ESDARWIN__ */
+
 #include <asl.h>
 #include <asl_string.h>
 #include <asl_core.h>
@@ -138,7 +142,9 @@ asl_string_t * asl_string_append_asl_msg(asl_string_t *str, asl_msg_t *msg) __AP
 
 int asl_msg_cmp(asl_msg_t *a, asl_msg_t *b) __API_DEPRECATED("os_log(3) has replaced asl(3)", macosx(10.10,10.12), ios(7.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
 
-void _asl_log_args_to_xpc(asl_object_t client, asl_object_t msg, xpc_object_t dict); //TODO: ADD AVAILABLITY INFO
+#ifndef __ESDARWIN__
+    void _asl_log_args_to_xpc(asl_object_t client, asl_object_t msg, xpc_object_t dict); //TODO: ADD AVAILABLITY INFO
+#endif /* __ESDARWIN__ */
 
 __END_DECLS
 

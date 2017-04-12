@@ -1,0 +1,7 @@
+#compdef run-help
+local d expl
+local HELPDIR=${HELPDIR:-/eHDD/Documents/Programming/darwin/macos-10123/sources/zsh-70/../../builds/zsh-70/usr/share/zsh/5.2/help}
+[[ -d $HELPDIR ]] && {
+	d=($HELPDIR/*(:t))
+	(($#d)) && d+=('.' ':') && _wanted commands expl 'command' compadd -a d
+} || _man

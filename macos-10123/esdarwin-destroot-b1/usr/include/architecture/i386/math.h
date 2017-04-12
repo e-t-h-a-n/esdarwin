@@ -459,6 +459,35 @@ extern long double powl(long double, long double);
 extern long double sqrtl(long double);
 extern long double erfl(long double);
 extern long double erfcl(long double);
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * __ESDARWIN__: Patch Report (for patch #1 in this file)                *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Reason: _exp10, __exp10, and ___exp10 are not defined in Libm anymore *
+ * Issue first encountered when building ICU-57149.0.1 for CF-1153.18.   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+#ifeq 1 0
+
+double _exp10(double v) {
+    volatile double base = 10;
+    return pow(base, v);
+}
+
+double __exp10(double v) {
+    volatile double base = 10;
+    return pow(base, v);
+}
+
+double ___exp10(double v) {
+    volatile double base = 10;
+    return pow(base, v);
+}
+
+#endif /* 1 eq 0 */
+
+/* End of __ESDARWIN__ Patch #1 */
+
 	
 /*	lgammal is not thread-safe.
  *	The thread-safe variant lgammal_r is available on OS X 10.6 and later.

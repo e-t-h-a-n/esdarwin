@@ -3,11 +3,19 @@
 ## Important Information:
 
 - This is in _very_ early stages!
-- Some of the `dylib`s have incorrect versions, I'm correcting this now though.
-- This doesn't contain the kernel extensions (`kexts`) needed to turn this into a virtual machine. (I'll work on this soon, though).
-- I haven't released patches / documentation on how to build most of the projects here (open up a pull request or send an email to me at ethansherriff@hotmail.co.uk if you ever need anything).
+- This doesn't contain the kernel extensions (`kexts`) needed to turn this into a virtual machine. (I'm working on a VM with some of the folks at [PureDarwin](https://github.com/PureDarwin/PureDarwin), though).
+- I haven't made patches / documentation on how to build most of the projects here (open up a pull request or send an email to me at ethansherriff@hotmail.co.uk if you ever need anything).
 - When you exit a program it ends in a segmentation fault (yeah, I **really** need to debug this, but it'll be fine for now).
-- Lots of system libraries depend on a couple of "stubs". I only made these to please dyld and "work around" some "image not found" errors, so I will (sooner or later) remove the links to these stubs by editing the Xcode projects. Generating the stub dylibs is done by using the `generate-stub-libraries` script under `useful-scripts/`, if you're interested :).
+- This has some missing projects / libraries in it, so not all applications will run correctly (expect lots of error messages from dyld): 
+
+
+        dyld: Library not loaded... (/usr/lib/system/lib*.dylib)
+            Referenced from: /an/application/you/are/trying/to/run *or* /usr/lib/libSystem.B.dylib
+            Reason: image not found
+
+
+- `Libsystem` is missing `CommonCrypto` and `coreTLS`, because they depened on `corecrypto`, which has lots of subcomponents missing, and is not _completely_ open source (i.e. the license only gives you 90 days to build and "internally deploy" `corecrypto` in your organisation - or something along those lines).
+- Some login-related libraries / projects are missing, so bash will say "I have no name!" instead of displaying your actual username.
 
 ## Compressed Libraries:
 
