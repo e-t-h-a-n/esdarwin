@@ -1,0 +1,94 @@
+diff -rU 5 A/Libc-1158.50.2/gen/FreeBSD/arc4random.c B/Libc-1158.50.2/gen/FreeBSD/arc4random.c
+--- A/Libc-1158.50.2/gen/FreeBSD/arc4random.c	2016-07-11 21:25:55.000000000 +0100
++++ B/Libc-1158.50.2/gen/FreeBSD/arc4random.c	2017-04-14 18:40:49.000000000 +0100
+@@ -106,10 +106,14 @@
+ static uint32_t rand_buffer[CACHE_LENGTH];
+ 
+ static void
+ arc4_init(void)
+ {
++	/* __ESDARWIN__:                                              *
++	 * We can't use arc4_init because it uses corecrypto          *
++	 * TODO: Convert this to use something other than corecrypto. */
++	#ifndef __ESDARWIN__
+ 	if (rng_state != NULL) return;
+ 
+ 	uint8_t entropy[BUFFERSIZE];
+ 	int ret;
+ 	rng_custom.ecb = ccaes_ecb_encrypt_mode();
+@@ -128,10 +132,13 @@
+ 	os_assert_zero(ret);
+ 
+ 	memset_s(entropy, sizeof(entropy), 0, sizeof(entropy));
+ 
+ 	arc4_count = INITIAL_COUNT;
++	#else /* __ESDARWIN__ */
++	return;
++	#endif /* __ESDARWIN__ */
+ }
+ 
+ static void
+ arc4_stir(void)
+ {
+diff -rU 5 A/Libc-1158.50.2/secure/chk_fail.c B/Libc-1158.50.2/secure/chk_fail.c
+--- A/Libc-1158.50.2/secure/chk_fail.c	2017-03-29 21:13:50.000000000 +0100
++++ B/Libc-1158.50.2/secure/chk_fail.c	2017-04-14 18:38:36.000000000 +0100
+@@ -26,5 +26,9 @@
+ #include <sys/param.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <TargetConditionals.h>
+ 
++__attribute__((visibility ("hidden"))) int __chk_assert_no_overlap() {return 1;}
++__attribute__((visibility ("hidden"))) int __chk_overlap() {return 1;}
++__attribute__((visibility ("hidden"))) int __chk_fail_overflow() {return 1;}
++__attribute__((visibility ("hidden"))) int __chk_init() {return 1;}
+diff -rU 5 A/Libc-1158.50.2/stdlib/FreeBSD/exit.c B/Libc-1158.50.2/stdlib/FreeBSD/exit.c
+--- A/Libc-1158.50.2/stdlib/FreeBSD/exit.c	2017-03-29 21:13:50.000000000 +0100
++++ B/Libc-1158.50.2/stdlib/FreeBSD/exit.c	2017-04-14 18:38:38.000000000 +0100
+@@ -53,5 +53,7 @@
+  * Exit, flushing stdio buffers if necessary.
+  */
+ void
+ exit(int status)
+ {
++	_exit(status);
++}
+diff -rU 5 A/Libc-1158.50.2/xcodescripts/libc.xcconfig B/Libc-1158.50.2/xcodescripts/libc.xcconfig
+--- A/Libc-1158.50.2/xcodescripts/libc.xcconfig	2017-03-29 21:13:51.000000000 +0100
++++ B/Libc-1158.50.2/xcodescripts/libc.xcconfig	2017-04-14 18:38:39.000000000 +0100
+@@ -45,31 +45,32 @@
+ INSTALL_PATH = /usr/lib/system
+ PUBLIC_HEADERS_FOLDER_PATH = /usr/include
+ PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include
+ 
+ // Simulator
+-BASE_PREPROCESSOR_MACROS = __LIBC__ __DARWIN_UNIX03=1 __DARWIN_64_BIT_INO_T=1 __DARWIN_NON_CANCELABLE=1 __DARWIN_VERS_1050=1 _FORTIFY_SOURCE=0
++BASE_PREPROCESSOR_MACROS = __LIBC__ __DARWIN_UNIX03=1 __DARWIN_64_BIT_INO_T=1 __DARWIN_NON_CANCELABLE=1 __DARWIN_VERS_1050=1 _FORTIFY_SOURCE=0 __ESDARWIN__
+ OTHER_CFLAGS = -fdollars-in-identifiers -fno-common -fverbose-asm $($(TARGET_NAME)_CFLAGS) $(VARIANT_PREPROCESSOR_MACROS)
+ OTHER_CFLAGS_debug = -fstack-protector -fno-inline -O0 -DDEBUG=1
+ SIM_SUFFIX[sdk=*simulator*] = _sim
+ 
+ GCC_PREPROCESSOR_DEFINITIONS = $(BASE_PREPROCESSOR_MACROS)
+ GCC_PREPROCESSOR_DEFINITIONS[sdk=iphone*] = $(BASE_PREPROCESSOR_MACROS) LIBC_NO_LIBCRASHREPORTERCLIENT=1
+ 
+ // libsystem_c.dylib linking
+-CR_LDFLAGS = -lCrashReporterClient
++//CR_LDFLAGS = -lCrashReporterClient
+ LIBCOMPILER_RT_LDFLAGS = -lcompiler_rt
+ LIBMALLOC_LDFLAGS = -lsystem_malloc
+ LIBPLATFORM_LDFLAGS = -lsystem$(SIM_SUFFIX)_platform
+ LIBPTHREAD_LDFLAGS = -lsystem$(SIM_SUFFIX)_pthread
+ LIBSYSCALL_LDFLAGS = -lsystem$(SIM_SUFFIX)_kernel
+ LIBM_LDFLAGS = -lsystem$(SIM_SUFFIX)_m
+ LIBDYLD_LDFLAGS = -ldyld
+ LIBSYSTEM_C_LDFLAGS = -all_load -nostdlib -L/usr/lib/system -umbrella System $(CR_LDFLAGS) $(LIBCOMPILER_RT_LDFLAGS) $(LIBDYLD_LDFLAGS) $(LIBSYSCALL_LDFLAGS) $(LIBM_LDFLAGS) $(LIBMALLOC_LDFLAGS) $(LIBPLATFORM_LDFLAGS) $(LIBPTHREAD_LDFLAGS) $(UPWARD_LDFLAGS) -Wl,-interposable_list,$(DERIVED_FILES_DIR)/interposable.list -Wl,-unexported_symbols_list,$(DERIVED_FILES_DIR)/unexport.list -Wl,-alias_list,$(SRCROOT)/xcodescripts/alias.list -Wl,-order_file,$(SRCROOT)/xcodescripts/Libc.order -Wl,-sectalign,__DATA,__data,1000 @$(BUILT_PRODUCTS_DIR)/$(CURRENT_VARIANT).linklist
+ 
+ // TODO: Remove upward links - mostly <rdar://problem/13183469>, macho is for assumes.c
+-UPWARD_LDFLAGS = -Wl,-upward-ldispatch -Wl,-upward-llaunch -Wl,-upward-lmacho -Wl,-upward-lsystem_asl -Wl,-upward-lsystem_blocks -Wl,-upward-lsystem_info -Wl,-upward-lsystem_notify -Wl,-upward-lxpc -Wl,-upward-lcorecrypto
++UPWARD_LDFLAGS = -Wl,-upward-ldispatch -Wl,-upward-llaunch -Wl,-upward-lmacho -Wl,-upward-lsystem_asl -Wl,-upward-lsystem_blocks -Wl,-upward-lsystem_info -Wl,-upward-lsystem_notify
+ UPWARD_LDFLAGS[sdk=*simulator*] = -Wl,-upward-ldispatch -Wl,-upward-lmacho_sim -Wl,-upward-lsystem_asl -Wl,-upward-lsystem_sim_blocks -Wl,-upward-lsystem_sim_info -Wl,-upward-lsystem_notify -Wl,-upward-lxpc -Wl,-upward-lcorecrypto
+ 
+ // libPlatform.a architectures
+ ARCH_FAMILY = $(ARCH_FAMILY_$(CURRENT_ARCH))
+ ARCH_FAMILY_x86_64 = x86_64

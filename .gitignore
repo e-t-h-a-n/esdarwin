@@ -1,2 +1,7 @@
+# Not open-source :(
 **/libcorecrypto.dylib*
+
+# Libc.a libraries can be massive
+**/libc*.a
+
 

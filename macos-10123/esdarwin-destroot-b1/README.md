@@ -5,7 +5,6 @@
 - This is in _very_ early stages!
 - This doesn't contain the kernel extensions (`kexts`) needed to turn this into a virtual machine. (I'm working on a VM with some of the folks at [PureDarwin](https://github.com/PureDarwin/PureDarwin), though).
 - I haven't made patches / documentation on how to build most of the projects here (open up a pull request or send an email to me at ethansherriff@hotmail.co.uk if you ever need anything).
-- When you exit a program it ends in a segmentation fault (yeah, I **really** need to debug this, but it'll be fine for now).
 - This has some missing projects / libraries in it, so not all applications will run correctly (expect lots of error messages from dyld): 
 
 
@@ -14,7 +13,7 @@
             Reason: image not found
 
 
-- `Libsystem` is missing `CommonCrypto` and `coreTLS`, because they depened on `corecrypto`, which has lots of subcomponents missing, and is not _completely_ open source (i.e. the license only gives you 90 days to build and "internally deploy" `corecrypto` in your organisation - or something along those lines).
+- `Libsystem` is missing `CommonCrypto` and `coreTLS`, because they depened on `corecrypto`, which has lots of subcomponents missing, and is not _completely_ open source (i.e. the license only gives you 90 days to build and "internally deploy" `corecrypto` in your organisation - or something along those lines). 
 - Some login-related libraries / projects are missing, so bash will say "I have no name!" instead of displaying your actual username.
 
 ## Compressed Libraries:
