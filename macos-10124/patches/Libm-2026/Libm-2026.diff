@@ -1,7 +1,24 @@
-diff -rU5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel.a.alias
---- A/Libm-2026/Exports/libm_Intel.a.alias	2010-10-28 18:07:44.000000000 +0100
-+++ B/Libm-2026/Exports/libm_Intel.a.alias	2017-04-13 17:10:09.000000000 +0100
-@@ -295,5 +295,7 @@
+diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel.a.alias
+--- A/Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 02:36:01.000000000 +0100
+@@ -169,11 +169,15 @@
+ 
+ #libm.a(nextafter.o):
+ _nextafter	_nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+-_pow	_pow$fenv_access_off
++_pow        _pow$fenv_access_off
++_exp10      _exp10$fenv_access_off
++__exp10     __exp10$fenv_access_off
++___exp10    ___exp10$fenv_access_off
++____exp10   ____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):	#libm.a(remmod.o):$fenv_access_off
+ _fmod	_fmod$fenv_access_off
+ _fmodf	_fmodf$fenv_access_off
+ _remainder	_remainder$fenv_access_off
+@@ -295,5 +299,7 @@
  _truncl	_truncl$fenv_access_off
  
  #libm.a(s_cbrt.o):	#libm.a(s_cbrt.o):$fenv_access_off
@@ -9,9 +26,9 @@ diff -rU5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel.
  
 +#libm.a(fpmacros.o):
 +___fpclassify	___fpclassifyl
-diff -rU5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a.exp
---- A/Libm-2026/Exports/libm_Intel.a.exp	2008-11-11 22:39:05.000000000 +0000
-+++ B/Libm-2026/Exports/libm_Intel.a.exp	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a.exp
+--- A/Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 02:36:01.000000000 +0100
 @@ -258,10 +258,11 @@
  
  #libm.a(fpmacros.o):
@@ -24,7 +41,26 @@ diff -rU5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a.
  ___isfinited
  ___isfinitef
  ___isinf
-@@ -601,10 +602,12 @@
+@@ -337,10 +338,18 @@
+ _nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+ _pow
+ _pow$fenv_access_off
++_exp10
++_exp10$fenv_access_off
++__exp10
++__exp10$fenv_access_off
++___exp10
++___exp10$fenv_access_off
++____exp10
++____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):
+ _fmod
+ _fmod$fenv_access_off
+ _fmodf
+@@ -601,10 +610,12 @@
  #__d3add
  #__d3div
  #__d3mul
@@ -37,10 +73,25 @@ diff -rU5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a.
  #libm.a(s_cbrt.o):
  _cbrt
  _cbrt$fenv_access_off
-diff -rU5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/libm_static_Intel.a.alias
---- A/Libm-2026/Exports/libm_static_Intel.a.alias	2010-10-28 18:07:44.000000000 +0100
-+++ B/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-13 17:10:09.000000000 +0100
-@@ -294,5 +294,7 @@
+diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/libm_static_Intel.a.alias
+--- A/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 02:36:01.000000000 +0100
+@@ -168,10 +168,14 @@
+ #libm.a(nextafter.o):
+ _nextafter	_nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+ _pow	_pow$fenv_access_off
++_exp10      _exp10$fenv_access_off
++__exp10     __exp10$fenv_access_off
++___exp10    ___exp10$fenv_access_off
++____exp10   ____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):
+ _fmod	_fmod$fenv_access_off
+ _fmodf	_fmodf$fenv_access_off
+ _remainder	_remainder$fenv_access_off
+@@ -294,5 +298,7 @@
  #_nan	_nan$fenv_access_off
  #_nanf	_nanf$fenv_access_off
  #_remquo	_remquo$fenv_access_off
@@ -48,9 +99,9 @@ diff -rU5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/libm
  #___Libm_version
 +
 +___fpclassify	___fpclassifyl
-diff -rU5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_static_Intel.a.exp
---- A/Libm-2026/Exports/libm_static_Intel.a.exp	2008-11-11 22:39:05.000000000 +0000
-+++ B/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_static_Intel.a.exp
+--- A/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 02:36:01.000000000 +0100
 @@ -266,10 +266,11 @@
  
  #libm.a(fpmacros.o):
@@ -63,9 +114,28 @@ diff -rU5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_s
  ___isfinited
  ___isfinitef
  ___isinf
-diff -rU5 A/Libm-2026/Exports/libmathCommonIntel.alias B/Libm-2026/Exports/libmathCommonIntel.alias
---- A/Libm-2026/Exports/libmathCommonIntel.alias	2008-11-11 22:39:05.000000000 +0000
-+++ B/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-13 17:10:09.000000000 +0100
+@@ -348,10 +349,18 @@
+ _nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+ _pow
+ _pow$fenv_access_off
++_exp10
++_exp10$fenv_access_off
++__exp10
++__exp10$fenv_access_off
++___exp10
++___exp10$fenv_access_off
++____exp10
++____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):
+ _fmod
+ _fmodf
+ _remainder
+diff -rU 5 A/Libm-2026/Exports/libmathCommonIntel.alias B/Libm-2026/Exports/libmathCommonIntel.alias
+--- A/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 02:36:01.000000000 +0100
 @@ -1,7 +1,8 @@
 -_exp2	_exp2$fenv_access_off
 -_fdim	_fdim$fenv_access_off
@@ -83,9 +153,9 @@ diff -rU5 A/Libm-2026/Exports/libmathCommonIntel.alias B/Libm-2026/Exports/libma
 +_modff	      _modff$fenv_access_off
 +_remquo	      _remquo$fenv_access_off
 +___fpclassify ___fpclassifyl
-diff -rU5 A/Libm-2026/Exports/libmathCommonIntel.exp B/Libm-2026/Exports/libmathCommonIntel.exp
---- A/Libm-2026/Exports/libmathCommonIntel.exp	2008-11-11 22:39:05.000000000 +0000
-+++ B/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Exports/libmathCommonIntel.exp B/Libm-2026/Exports/libmathCommonIntel.exp
+--- A/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 02:36:01.000000000 +0100
 @@ -16,14 +16,19 @@
  _fmin
  _log2
@@ -106,9 +176,9 @@ diff -rU5 A/Libm-2026/Exports/libmathCommonIntel.exp B/Libm-2026/Exports/libmath
  __FE_DFL_DISABLE_SSE_DENORMS_ENV
  
  #STDC FENV_ACCESS off entrypoints
-diff -rU5 A/Libm-2026/Libm.xcodeproj/project.pbxproj B/Libm-2026/Libm.xcodeproj/project.pbxproj
---- A/Libm-2026/Libm.xcodeproj/project.pbxproj	2010-10-28 18:07:44.000000000 +0100
-+++ B/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Libm.xcodeproj/project.pbxproj B/Libm-2026/Libm.xcodeproj/project.pbxproj
+--- A/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 02:36:01.000000000 +0100
 @@ -45,14 +45,12 @@
  				3BFD5A9B0AB80372005DA5F1 /* PBXTargetDependency */,
  				3BE6DAD30ABF4E6E00B91802 /* PBXTargetDependency */,
@@ -816,9 +886,11 @@ diff -rU5 A/Libm-2026/Libm.xcodeproj/project.pbxproj B/Libm-2026/Libm.xcodeproj/
  				3B304C690ABFB03F00994776 /* Default */,
  			);
  			defaultConfigurationIsVisible = 0;
-diff -rU5 A/Libm-2026/Source/Intel/frexp.s B/Libm-2026/Source/Intel/frexp.s
---- A/Libm-2026/Source/Intel/frexp.s	2010-10-28 18:07:44.000000000 +0100
-+++ B/Libm-2026/Source/Intel/frexp.s	2017-04-13 17:10:09.000000000 +0100
+Only in B/Libm-2026/Libm.xcodeproj: project.xcworkspace
+Only in B/Libm-2026/Libm.xcodeproj: xcuserdata
+diff -rU 5 A/Libm-2026/Source/Intel/frexp.s B/Libm-2026/Source/Intel/frexp.s
+--- A/Libm-2026/Source/Intel/frexp.s	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Source/Intel/frexp.s	2017-04-16 02:36:01.000000000 +0100
 @@ -161,11 +161,11 @@
      fldz                                    //  { 0, 0 or denormal }
      fucomip %st(1), %st(0)                  //  { 0 or denormal }
@@ -858,9 +930,9 @@ diff -rU5 A/Libm-2026/Source/Intel/frexp.s B/Libm-2026/Source/Intel/frexp.s
      //extract exponent
      andl    $0x7fff,                        %eax
      addl    $(-16383-16382-63+1),           %eax
-diff -rU5 A/Libm-2026/Source/Intel/hypot.s B/Libm-2026/Source/Intel/hypot.s
---- A/Libm-2026/Source/Intel/hypot.s	2009-10-12 23:45:39.000000000 +0100
-+++ B/Libm-2026/Source/Intel/hypot.s	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Source/Intel/hypot.s B/Libm-2026/Source/Intel/hypot.s
+--- A/Libm-2026/Source/Intel/hypot.s	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Source/Intel/hypot.s	2017-04-16 02:36:01.000000000 +0100
 @@ -53,29 +53,29 @@
      ret
  
@@ -895,47 +967,9 @@ diff -rU5 A/Libm-2026/Source/Intel/hypot.s B/Libm-2026/Source/Intel/hypot.s
      
  #else // defined __i386__
  
-diff -rU5 A/Libm-2026/Source/Intel/math.h B/Libm-2026/Source/Intel/math.h
---- A/Libm-2026/Source/Intel/math.h	2010-10-28 20:34:30.000000000 +0100
-+++ B/Libm-2026/Source/Intel/math.h	2017-04-13 17:10:09.000000000 +0100
-@@ -457,10 +457,34 @@
- extern long double hypotl(long double, long double);
- extern long double powl(long double, long double);
- extern long double sqrtl(long double);
- extern long double erfl(long double);
- extern long double erfcl(long double);
-+
-+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-+ * __ESDARWIN__: Patch Report (for patch #1 in this file)                *
-+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-+ * Reason: _exp10, __exp10, and ___exp10 are not defined in Libm anymore *
-+ * Issue first encountered when building ICU-57149.0.1 for CF-1153.18.   *
-+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-+/*
-+ * double _exp10(double v) {
-+ *     volatile double base = 10;
-+ *     return pow(base, v);
-+ * }
-+ *
-+ * double __exp10(double v) {
-+ *     volatile double base = 10;
-+ *     return pow(base, v);
-+ * }
-+ *
-+ * double ___exp10(double v) {
-+ *     volatile double base = 10;
-+ *     return pow(base, v);
-+ * }
-+ */
-+/* End of __ESDARWIN__ Patch #1 */
- 	
- /*	lgammal is not thread-safe.
-  *	The thread-safe variant lgammal_r is available on OS X 10.6 and later.
-  *
-  *	To use the thread-safe variant, you must define the _REENTRANT symbol.
-diff -rU5 A/Libm-2026/Source/Intel/modff.s B/Libm-2026/Source/Intel/modff.s
---- A/Libm-2026/Source/Intel/modff.s	2008-11-11 22:39:05.000000000 +0000
-+++ B/Libm-2026/Source/Intel/modff.s	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Source/Intel/modff.s B/Libm-2026/Source/Intel/modff.s
+--- A/Libm-2026/Source/Intel/modff.s	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Source/Intel/modff.s	2017-04-16 02:36:01.000000000 +0100
 @@ -83,11 +83,11 @@
  3:  //Nan
  #if defined( __i386__)
@@ -949,9 +983,9 @@ diff -rU5 A/Libm-2026/Source/Intel/modff.s B/Libm-2026/Source/Intel/modff.s
  #endif
      ret
  
-diff -rU5 A/Libm-2026/Source/Intel/nearbyint.s B/Libm-2026/Source/Intel/nearbyint.s
---- A/Libm-2026/Source/Intel/nearbyint.s	2010-01-18 18:20:43.000000000 +0000
-+++ B/Libm-2026/Source/Intel/nearbyint.s	2017-04-13 17:10:09.000000000 +0100
+diff -rU 5 A/Libm-2026/Source/Intel/nearbyint.s B/Libm-2026/Source/Intel/nearbyint.s
+--- A/Libm-2026/Source/Intel/nearbyint.s	2017-04-16 02:32:10.000000000 +0100
++++ B/Libm-2026/Source/Intel/nearbyint.s	2017-04-16 02:36:01.000000000 +0100
 @@ -3,11 +3,11 @@
  //  returns the argument rounded to an integral value using the prevailing
  //  rounding mode, and without raising the inexact flag (C99 7.12.9.4).
@@ -965,3 +999,46 @@ diff -rU5 A/Libm-2026/Source/Intel/nearbyint.s B/Libm-2026/Source/Intel/nearbyin
  .align 4
  .globl _nearbyint
  _nearbyint:
+diff -rU 5 A/Libm-2026/Source/Intel/xmm_power.c B/Libm-2026/Source/Intel/xmm_power.c
+--- A/Libm-2026/Source/Intel/xmm_power.c	2017-04-16 02:32:11.000000000 +0100
++++ B/Libm-2026/Source/Intel/xmm_power.c	2017-04-16 02:36:01.000000000 +0100
+@@ -1429,10 +1429,39 @@
+ #endif
+ 
+     return z;
+ }
+ 
++/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
++ * __ESDARWIN__: Patch Report (for patch #1 in this file)                *
++ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
++ * Reason: _exp10, __exp10, and ___exp10 are not defined in Libm anymore *
++ * Issue first encountered when building ICU-57149.0.1 for CF-1153.18.   *
++ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
++
++double exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++double _exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++double __exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++double ___exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++/* End of __ESDARWIN__ Patch #1 */
++
+ #include <math.h>
+ #include <float.h>
+ 
+ //
+ //	This is not the worlds best power function.  It is merely a simple one that 
