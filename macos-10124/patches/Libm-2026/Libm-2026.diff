@@ -1,7 +1,24 @@
-diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel.a.alias
---- A/Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 02:36:01.000000000 +0100
-@@ -169,11 +169,15 @@
+diff -rU5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel.a.alias
+--- A/Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 12:00:49.000000000 +0100
+@@ -96,14 +96,16 @@
+ _sinhf	_sinhf$fenv_access_off
+ _sqrtf	_sqrtf$fenv_access_off
+ _tanf	_tanf$fenv_access_off
+ _tanhf	_tanhf$fenv_access_off
+ _tgammaf	_tgammaf$fenv_access_off
++__sincosf_stret __sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos	_cos$fenv_access_off
+ _sin	_sin$fenv_access_off
++__sincos_stret   __sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):	
+ _atan	_atan$fenv_access_off
+ 
+ #libm.a(ashachath.o):
+@@ -169,11 +171,15 @@
  
  #libm.a(nextafter.o):
  _nextafter	_nextafter$fenv_access_off
@@ -18,7 +35,7 @@ diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel
  _fmod	_fmod$fenv_access_off
  _fmodf	_fmodf$fenv_access_off
  _remainder	_remainder$fenv_access_off
-@@ -295,5 +299,7 @@
+@@ -295,5 +301,7 @@
  _truncl	_truncl$fenv_access_off
  
  #libm.a(s_cbrt.o):	#libm.a(s_cbrt.o):$fenv_access_off
@@ -26,10 +43,31 @@ diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.alias B/Libm-2026/Exports/libm_Intel
  
 +#libm.a(fpmacros.o):
 +___fpclassify	___fpclassifyl
-diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a.exp
---- A/Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 02:36:01.000000000 +0100
-@@ -258,10 +258,11 @@
+diff -rU5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a.exp
+--- A/Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 12:00:49.000000000 +0100
+@@ -190,16 +190,20 @@
+ _tanf$fenv_access_off
+ _tanhf
+ _tanhf$fenv_access_off
+ _tgammaf
+ _tgammaf$fenv_access_off
++__sincosf_stret
++__sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos
+ _cos$fenv_access_off
+ _sin
+ _sin$fenv_access_off
++__sincos_stret
++__sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):
+ _atan
+ _atan$fenv_access_off
+ #_atanCore
+@@ -258,10 +262,11 @@
  
  #libm.a(fpmacros.o):
  ___fpclassify
@@ -41,7 +79,7 @@ diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a
  ___isfinited
  ___isfinitef
  ___isinf
-@@ -337,10 +338,18 @@
+@@ -337,10 +342,18 @@
  _nextafter$fenv_access_off
  
  #libm.a(power.o):
@@ -60,7 +98,7 @@ diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a
  _fmod
  _fmod$fenv_access_off
  _fmodf
-@@ -601,10 +610,12 @@
+@@ -601,10 +614,12 @@
  #__d3add
  #__d3div
  #__d3mul
@@ -73,10 +111,27 @@ diff -rU 5 A/Libm-2026/Exports/libm_Intel.a.exp B/Libm-2026/Exports/libm_Intel.a
  #libm.a(s_cbrt.o):
  _cbrt
  _cbrt$fenv_access_off
-diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/libm_static_Intel.a.alias
---- A/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 02:36:01.000000000 +0100
-@@ -168,10 +168,14 @@
+diff -rU5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/libm_static_Intel.a.alias
+--- A/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 12:00:49.000000000 +0100
+@@ -94,14 +94,16 @@
+ _sinhf	_sinhf$fenv_access_off
+ _sqrtf	_sqrtf$fenv_access_off
+ _tanf	_tanf$fenv_access_off
+ _tanhf	_tanhf$fenv_access_off
+ _tgammaf	_tgammaf$fenv_access_off
++__sincosf_stret __sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos	_cos$fenv_access_off
+ _sin	_sin$fenv_access_off
++__sincos_stret  __sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):
+ _atan	_atan$fenv_access_off
+ 
+ #libm.a(ashachath.o):	
+@@ -168,10 +170,14 @@
  #libm.a(nextafter.o):
  _nextafter	_nextafter$fenv_access_off
  
@@ -91,7 +146,7 @@ diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/lib
  _fmod	_fmod$fenv_access_off
  _fmodf	_fmodf$fenv_access_off
  _remainder	_remainder$fenv_access_off
-@@ -294,5 +298,7 @@
+@@ -294,5 +300,7 @@
  #_nan	_nan$fenv_access_off
  #_nanf	_nanf$fenv_access_off
  #_remquo	_remquo$fenv_access_off
@@ -99,10 +154,32 @@ diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.alias B/Libm-2026/Exports/lib
  #___Libm_version
 +
 +___fpclassify	___fpclassifyl
-diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_static_Intel.a.exp
---- A/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 02:36:01.000000000 +0100
-@@ -266,10 +266,11 @@
+diff -rU5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_static_Intel.a.exp
+--- A/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 12:00:49.000000000 +0100
+@@ -193,17 +193,20 @@
+ _sinhf$fenv_access_off
+ _sqrtf$fenv_access_off
+ _tanf$fenv_access_off
+ _tanhf$fenv_access_off
+ _tgammaf$fenv_access_off
++__sincosf_stret
++__sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos
+ _sin
+-
+ _cos$fenv_access_off
+ _sin$fenv_access_off
++__sincos_stret
++__sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):
+ _atan
+ _atan$fenv_access_off
+ 
+@@ -266,10 +269,11 @@
  
  #libm.a(fpmacros.o):
  ___fpclassify
@@ -114,7 +191,7 @@ diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_
  ___isfinited
  ___isfinitef
  ___isinf
-@@ -348,10 +349,18 @@
+@@ -348,10 +352,18 @@
  _nextafter$fenv_access_off
  
  #libm.a(power.o):
@@ -133,9 +210,9 @@ diff -rU 5 A/Libm-2026/Exports/libm_static_Intel.a.exp B/Libm-2026/Exports/libm_
  _fmod
  _fmodf
  _remainder
-diff -rU 5 A/Libm-2026/Exports/libmathCommonIntel.alias B/Libm-2026/Exports/libmathCommonIntel.alias
---- A/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Exports/libmathCommonIntel.alias B/Libm-2026/Exports/libmathCommonIntel.alias
+--- A/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 12:00:49.000000000 +0100
 @@ -1,7 +1,8 @@
 -_exp2	_exp2$fenv_access_off
 -_fdim	_fdim$fenv_access_off
@@ -153,9 +230,9 @@ diff -rU 5 A/Libm-2026/Exports/libmathCommonIntel.alias B/Libm-2026/Exports/libm
 +_modff	      _modff$fenv_access_off
 +_remquo	      _remquo$fenv_access_off
 +___fpclassify ___fpclassifyl
-diff -rU 5 A/Libm-2026/Exports/libmathCommonIntel.exp B/Libm-2026/Exports/libmathCommonIntel.exp
---- A/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Exports/libmathCommonIntel.exp B/Libm-2026/Exports/libmathCommonIntel.exp
+--- A/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 12:00:49.000000000 +0100
 @@ -16,14 +16,19 @@
  _fmin
  _log2
@@ -176,9 +253,9 @@ diff -rU 5 A/Libm-2026/Exports/libmathCommonIntel.exp B/Libm-2026/Exports/libmat
  __FE_DFL_DISABLE_SSE_DENORMS_ENV
  
  #STDC FENV_ACCESS off entrypoints
-diff -rU 5 A/Libm-2026/Libm.xcodeproj/project.pbxproj B/Libm-2026/Libm.xcodeproj/project.pbxproj
---- A/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Libm.xcodeproj/project.pbxproj B/Libm-2026/Libm.xcodeproj/project.pbxproj
+--- A/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 12:00:49.000000000 +0100
 @@ -45,14 +45,12 @@
  				3BFD5A9B0AB80372005DA5F1 /* PBXTargetDependency */,
  				3BE6DAD30ABF4E6E00B91802 /* PBXTargetDependency */,
@@ -886,11 +963,9 @@ diff -rU 5 A/Libm-2026/Libm.xcodeproj/project.pbxproj B/Libm-2026/Libm.xcodeproj
  				3B304C690ABFB03F00994776 /* Default */,
  			);
  			defaultConfigurationIsVisible = 0;
-Only in B/Libm-2026/Libm.xcodeproj: project.xcworkspace
-Only in B/Libm-2026/Libm.xcodeproj: xcuserdata
-diff -rU 5 A/Libm-2026/Source/Intel/frexp.s B/Libm-2026/Source/Intel/frexp.s
---- A/Libm-2026/Source/Intel/frexp.s	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Source/Intel/frexp.s	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Source/Intel/frexp.s B/Libm-2026/Source/Intel/frexp.s
+--- A/Libm-2026/Source/Intel/frexp.s	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Source/Intel/frexp.s	2017-04-16 12:00:49.000000000 +0100
 @@ -161,11 +161,11 @@
      fldz                                    //  { 0, 0 or denormal }
      fucomip %st(1), %st(0)                  //  { 0 or denormal }
@@ -930,9 +1005,9 @@ diff -rU 5 A/Libm-2026/Source/Intel/frexp.s B/Libm-2026/Source/Intel/frexp.s
      //extract exponent
      andl    $0x7fff,                        %eax
      addl    $(-16383-16382-63+1),           %eax
-diff -rU 5 A/Libm-2026/Source/Intel/hypot.s B/Libm-2026/Source/Intel/hypot.s
---- A/Libm-2026/Source/Intel/hypot.s	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Source/Intel/hypot.s	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Source/Intel/hypot.s B/Libm-2026/Source/Intel/hypot.s
+--- A/Libm-2026/Source/Intel/hypot.s	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Source/Intel/hypot.s	2017-04-16 12:00:49.000000000 +0100
 @@ -53,29 +53,29 @@
      ret
  
@@ -967,9 +1042,9 @@ diff -rU 5 A/Libm-2026/Source/Intel/hypot.s B/Libm-2026/Source/Intel/hypot.s
      
  #else // defined __i386__
  
-diff -rU 5 A/Libm-2026/Source/Intel/modff.s B/Libm-2026/Source/Intel/modff.s
---- A/Libm-2026/Source/Intel/modff.s	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Source/Intel/modff.s	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Source/Intel/modff.s B/Libm-2026/Source/Intel/modff.s
+--- A/Libm-2026/Source/Intel/modff.s	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Source/Intel/modff.s	2017-04-16 12:00:49.000000000 +0100
 @@ -83,11 +83,11 @@
  3:  //Nan
  #if defined( __i386__)
@@ -983,9 +1058,9 @@ diff -rU 5 A/Libm-2026/Source/Intel/modff.s B/Libm-2026/Source/Intel/modff.s
  #endif
      ret
  
-diff -rU 5 A/Libm-2026/Source/Intel/nearbyint.s B/Libm-2026/Source/Intel/nearbyint.s
---- A/Libm-2026/Source/Intel/nearbyint.s	2017-04-16 02:32:10.000000000 +0100
-+++ B/Libm-2026/Source/Intel/nearbyint.s	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Source/Intel/nearbyint.s B/Libm-2026/Source/Intel/nearbyint.s
+--- A/Libm-2026/Source/Intel/nearbyint.s	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Source/Intel/nearbyint.s	2017-04-16 12:00:49.000000000 +0100
 @@ -3,11 +3,11 @@
  //  returns the argument rounded to an integral value using the prevailing
  //  rounding mode, and without raising the inexact flag (C99 7.12.9.4).
@@ -999,9 +1074,46 @@ diff -rU 5 A/Libm-2026/Source/Intel/nearbyint.s B/Libm-2026/Source/Intel/nearbyi
  .align 4
  .globl _nearbyint
  _nearbyint:
-diff -rU 5 A/Libm-2026/Source/Intel/xmm_power.c B/Libm-2026/Source/Intel/xmm_power.c
---- A/Libm-2026/Source/Intel/xmm_power.c	2017-04-16 02:32:11.000000000 +0100
-+++ B/Libm-2026/Source/Intel/xmm_power.c	2017-04-16 02:36:01.000000000 +0100
+diff -rU5 A/Libm-2026/Source/Intel/sincostan.c B/Libm-2026/Source/Intel/sincostan.c
+--- A/Libm-2026/Source/Intel/sincostan.c	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Source/Intel/sincostan.c	2017-04-16 12:00:49.000000000 +0100
+@@ -1098,5 +1098,33 @@
+ 		default:
+ 		case 0:	case 2: return + sinp(r) / cosp(r);
+ 		case 1:	case 3: return - cosp(r) / sinp(r);
+ 	}
+ }
++
++struct _sincos_return_s {
++    double sinResult;
++    double cosResult;
++};
++
++struct _sincosf_return_s {
++    float sinResult;
++    float cosResult;
++};
++
++struct _sincos_return_s _sincos_stret(double x) {
++    struct _sincos_return_s ret;
++
++    ret.sinResult=sin(x);
++    ret.cosResult=cos(x);
++
++    return ret;
++}
++
++struct _sincosf_return_s _sincosf_stret(float x) {
++    struct _sincosf_return_s ret;
++
++    ret.sinResult=sinf(x);
++    ret.cosResult=cosf(x);
++
++    return ret;
++}
+diff -rU5 A/Libm-2026/Source/Intel/xmm_power.c B/Libm-2026/Source/Intel/xmm_power.c
+--- A/Libm-2026/Source/Intel/xmm_power.c	2017-04-16 11:59:53.000000000 +0100
++++ B/Libm-2026/Source/Intel/xmm_power.c	2017-04-16 12:00:49.000000000 +0100
 @@ -1429,10 +1429,39 @@
  #endif
  
