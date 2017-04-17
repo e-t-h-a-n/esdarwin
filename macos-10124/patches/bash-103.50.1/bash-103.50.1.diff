@@ -1,0 +1,30 @@
+diff -rU5 A/bash-103.50.1/bash-3.2/shell.c B/bash-103.50.1/bash-3.2/shell.c
+--- A/bash-103.50.1/bash-3.2/shell.c	2017-04-17 19:04:14.000000000 +0100
++++ B/bash-103.50.1/bash-3.2/shell.c	2017-04-17 19:10:53.000000000 +0100
+@@ -43,11 +43,10 @@
+ #  include <unistd.h>
+ #endif
+ 
+ #if defined(__APPLE__)
+ #include <get_compat.h>
+-#include <rootless.h>
+ #endif /* __APPLE__ */
+ 
+ #include "bashintl.h"
+ 
+ #define NEED_SH_SETLINEBUF_DECL		/* used in externs.h */
+@@ -487,14 +486,10 @@
+     if (-1 == setuid(euid))
+       internal_error( _("setuid(%u) failed: %s"), euid, strerror(errno));
+     if (-1 == setreuid(ruid, euid))
+       internal_error( _("setreuid(%u,%u) failed: %s"), ruid, euid, strerror(errno));   
+   }
+-  int rootless = rootless_restricted_environment();
+-  if (-1 == rootless)
+-    internal_error( _("Unable to determine rootless status: %s"), strerror(errno));
+-  running_setuid |= rootless;
+ #else  /* !__APPLE__ */
+   if (running_setuid && privileged_mode == 0)
+     disable_priv_mode ();
+ #endif	/* __APPLE__ */
+   /* Need to get the argument to a -c option processed in the
