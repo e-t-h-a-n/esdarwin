@@ -1,0 +1,1156 @@
+diff -rU5 Libm-2026/Exports/libm_Intel.a.alias Libm-2026/Exports/libm_Intel.a.alias
+--- Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Exports/libm_Intel.a.alias	2017-04-16 12:00:49.000000000 +0100
+@@ -96,14 +96,16 @@
+ _sinhf	_sinhf$fenv_access_off
+ _sqrtf	_sqrtf$fenv_access_off
+ _tanf	_tanf$fenv_access_off
+ _tanhf	_tanhf$fenv_access_off
+ _tgammaf	_tgammaf$fenv_access_off
++__sincosf_stret __sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos	_cos$fenv_access_off
+ _sin	_sin$fenv_access_off
++__sincos_stret   __sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):	
+ _atan	_atan$fenv_access_off
+ 
+ #libm.a(ashachath.o):
+@@ -169,11 +171,15 @@
+ 
+ #libm.a(nextafter.o):
+ _nextafter	_nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+-_pow	_pow$fenv_access_off
++_pow        _pow$fenv_access_off
++_exp10      _exp10$fenv_access_off
++__exp10     __exp10$fenv_access_off
++___exp10    ___exp10$fenv_access_off
++____exp10   ____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):	#libm.a(remmod.o):$fenv_access_off
+ _fmod	_fmod$fenv_access_off
+ _fmodf	_fmodf$fenv_access_off
+ _remainder	_remainder$fenv_access_off
+@@ -295,5 +301,7 @@
+ _truncl	_truncl$fenv_access_off
+ 
+ #libm.a(s_cbrt.o):	#libm.a(s_cbrt.o):$fenv_access_off
+ _cbrt	_cbrt$fenv_access_off
+ 
++#libm.a(fpmacros.o):
++___fpclassify	___fpclassifyl
+diff -rU5 Libm-2026/Exports/libm_Intel.a.exp Libm-2026/Exports/libm_Intel.a.exp
+--- Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Exports/libm_Intel.a.exp	2017-04-16 12:00:49.000000000 +0100
+@@ -190,16 +190,20 @@
+ _tanf$fenv_access_off
+ _tanhf
+ _tanhf$fenv_access_off
+ _tgammaf
+ _tgammaf$fenv_access_off
++__sincosf_stret
++__sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos
+ _cos$fenv_access_off
+ _sin
+ _sin$fenv_access_off
++__sincos_stret
++__sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):
+ _atan
+ _atan$fenv_access_off
+ #_atanCore
+@@ -258,10 +262,11 @@
+ 
+ #libm.a(fpmacros.o):
+ ___fpclassify
+ ___fpclassifyd
+ ___fpclassifyf
++___fpclassifyl
+ ___inff
+ ___isfinite
+ ___isfinited
+ ___isfinitef
+ ___isinf
+@@ -337,10 +342,18 @@
+ _nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+ _pow
+ _pow$fenv_access_off
++_exp10
++_exp10$fenv_access_off
++__exp10
++__exp10$fenv_access_off
++___exp10
++___exp10$fenv_access_off
++____exp10
++____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):
+ _fmod
+ _fmod$fenv_access_off
+ _fmodf
+@@ -601,10 +614,12 @@
+ #__d3add
+ #__d3div
+ #__d3mul
+ 
+ #libm.a(nanl64.o):
++#_nan
++#_nanf
+ _nanl
+ 
+ #libm.a(s_cbrt.o):
+ _cbrt
+ _cbrt$fenv_access_off
+diff -rU5 Libm-2026/Exports/libm_static_Intel.a.alias Libm-2026/Exports/libm_static_Intel.a.alias
+--- Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Exports/libm_static_Intel.a.alias	2017-04-16 12:00:49.000000000 +0100
+@@ -94,14 +94,16 @@
+ _sinhf	_sinhf$fenv_access_off
+ _sqrtf	_sqrtf$fenv_access_off
+ _tanf	_tanf$fenv_access_off
+ _tanhf	_tanhf$fenv_access_off
+ _tgammaf	_tgammaf$fenv_access_off
++__sincosf_stret __sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos	_cos$fenv_access_off
+ _sin	_sin$fenv_access_off
++__sincos_stret  __sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):
+ _atan	_atan$fenv_access_off
+ 
+ #libm.a(ashachath.o):	
+@@ -168,10 +170,14 @@
+ #libm.a(nextafter.o):
+ _nextafter	_nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+ _pow	_pow$fenv_access_off
++_exp10      _exp10$fenv_access_off
++__exp10     __exp10$fenv_access_off
++___exp10    ___exp10$fenv_access_off
++____exp10   ____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):
+ _fmod	_fmod$fenv_access_off
+ _fmodf	_fmodf$fenv_access_off
+ _remainder	_remainder$fenv_access_off
+@@ -294,5 +300,7 @@
+ #_nan	_nan$fenv_access_off
+ #_nanf	_nanf$fenv_access_off
+ #_remquo	_remquo$fenv_access_off
+ 
+ #___Libm_version
++
++___fpclassify	___fpclassifyl
+diff -rU5 Libm-2026/Exports/libm_static_Intel.a.exp Libm-2026/Exports/libm_static_Intel.a.exp
+--- Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Exports/libm_static_Intel.a.exp	2017-04-16 12:00:49.000000000 +0100
+@@ -193,17 +193,20 @@
+ _sinhf$fenv_access_off
+ _sqrtf$fenv_access_off
+ _tanf$fenv_access_off
+ _tanhf$fenv_access_off
+ _tgammaf$fenv_access_off
++__sincosf_stret
++__sincosf_stret$fenv_access_off
+ 
+ #libm.a(FastSinCos.o):
+ _cos
+ _sin
+-
+ _cos$fenv_access_off
+ _sin$fenv_access_off
++__sincos_stret
++__sincos_stret$fenv_access_off
+ 
+ #libm.a(arctg.o):
+ _atan
+ _atan$fenv_access_off
+ 
+@@ -266,10 +269,11 @@
+ 
+ #libm.a(fpmacros.o):
+ ___fpclassify
+ ___fpclassifyd
+ ___fpclassifyf
++___fpclassifyl
+ ___inff
+ ___isfinite
+ ___isfinited
+ ___isfinitef
+ ___isinf
+@@ -348,10 +352,18 @@
+ _nextafter$fenv_access_off
+ 
+ #libm.a(power.o):
+ _pow
+ _pow$fenv_access_off
++_exp10
++_exp10$fenv_access_off
++__exp10
++__exp10$fenv_access_off
++___exp10
++___exp10$fenv_access_off
++____exp10
++____exp10$fenv_access_off
+ 
+ #libm.a(remmod.o):
+ _fmod
+ _fmodf
+ _remainder
+diff -rU5 Libm-2026/Exports/libmathCommonIntel.alias Libm-2026/Exports/libmathCommonIntel.alias
+--- Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Exports/libmathCommonIntel.alias	2017-04-16 12:00:49.000000000 +0100
+@@ -1,7 +1,8 @@
+-_exp2	_exp2$fenv_access_off
+-_fdim	_fdim$fenv_access_off
+-_fmax	_fmax$fenv_access_off
+-_fmin	_fmin$fenv_access_off
+-_log2	_log2$fenv_access_off
+-_modff	_modff$fenv_access_off
+-_remquo	_remquo$fenv_access_off
+\ No newline at end of file
++_exp2         _exp2$fenv_access_off
++_fdim         _fdim$fenv_access_off
++_fmax         _fmax$fenv_access_off
++_fmin         _fmin$fenv_access_off
++_log2	      _log2$fenv_access_off
++_modff	      _modff$fenv_access_off
++_remquo	      _remquo$fenv_access_off
++___fpclassify ___fpclassifyl
+diff -rU5 Libm-2026/Exports/libmathCommonIntel.exp Libm-2026/Exports/libmathCommonIntel.exp
+--- Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Exports/libmathCommonIntel.exp	2017-04-16 12:00:49.000000000 +0100
+@@ -16,14 +16,19 @@
+ _fmin
+ _log2
+ _modff
+ _nan
+ _nanf
++#_nanl
+ _nextafterd
+ _nextafterf
+ _remquo
+ __FE_DFL_ENV
++#___fpclassify
++#___fpclassifyd
++#___fpclassifyf
++#___fpclassifyl
+ 
+ #i386 specific
+ __FE_DFL_DISABLE_SSE_DENORMS_ENV
+ 
+ #STDC FENV_ACCESS off entrypoints
+diff -rU5 Libm-2026/Libm.xcodeproj/project.pbxproj Libm-2026/Libm.xcodeproj/project.pbxproj
+--- Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Libm.xcodeproj/project.pbxproj	2017-04-16 12:00:49.000000000 +0100
+@@ -45,14 +45,12 @@
+ 				3BFD5A9B0AB80372005DA5F1 /* PBXTargetDependency */,
+ 				3BE6DAD30ABF4E6E00B91802 /* PBXTargetDependency */,
+ 				3BE6DAD10ABF4E6E00B91802 /* PBXTargetDependency */,
+ 				3BE6DB6B0ABF51A700B91802 /* PBXTargetDependency */,
+ 				3B304C260ABFAD3000994776 /* PBXTargetDependency */,
+-				3B304C240ABFAD3000994776 /* PBXTargetDependency */,
+ 				3B304B4D0ABF98E100994776 /* PBXTargetDependency */,
+ 				3B304C870ABFB10900994776 /* PBXTargetDependency */,
+-				3B304C850ABFB10900994776 /* PBXTargetDependency */,
+ 			);
+ 			name = libm;
+ 			productName = libm;
+ 		};
+ 		3BFD5C090AB80587005DA5F1 /* libmx */ = {
+@@ -253,11 +251,10 @@
+ 		3B304BCC0ABFA10F00994776 /* LogDD.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BFD53C70AB74DCE005DA5F1 /* LogDD.c */; };
+ 		3B304BCD0ABFA10F00994776 /* LogTableLD.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BFD53D50AB74DCE005DA5F1 /* LogTableLD.c */; };
+ 		3B304BCE0ABFA10F00994776 /* PowerDD.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BFD53BE0AB74DCE005DA5F1 /* PowerDD.c */; };
+ 		3B304BCF0ABFA10F00994776 /* SqrtDD.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BFD53B50AB74DCE005DA5F1 /* SqrtDD.c */; };
+ 		3B304BD00ABFA10F00994776 /* SinCosTanDD.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BFD53BA0AB74DCE005DA5F1 /* SinCosTanDD.c */; };
+-		3B304BFC0ABFAB0100994776 /* libmathCommon.A.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BE6DC510ABF55B600B91802 /* libmathCommon.A.o */; };
+ 		3B304C1C0ABFACED00994776 /* libmathCommon.A.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BE6DC510ABF55B600B91802 /* libmathCommon.A.o */; };
+ 		3B304C390ABFAE5800994776 /* containsNothingIntel.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304C380ABFAE5800994776 /* containsNothingIntel.c */; };
+ 		3B304C3E0ABFAE8D00994776 /* containsNothingIntel.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304C380ABFAE5800994776 /* containsNothingIntel.c */; };
+ 		3B304C630ABFB03F00994776 /* containsNothingIntel.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304C380ABFAE5800994776 /* containsNothingIntel.c */; };
+ 		3B304C6B0ABFB06B00994776 /* libmathCommon.A_debug.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B304B120ABF964E00994776 /* libmathCommon.A_debug.o */; };
+@@ -267,11 +264,10 @@
+ 		3B304CDC0ABFB89B00994776 /* containsNothingIntel.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304C380ABFAE5800994776 /* containsNothingIntel.c */; };
+ 		3B304CDD0ABFB8A500994776 /* containsNothingIntel.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304C380ABFAE5800994776 /* containsNothingIntel.c */; };
+ 		3B304CF30ABFBAE500994776 /* containsNothingPowerPC.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304CF20ABFBACC00994776 /* containsNothingPowerPC.c */; };
+ 		3B304CF40ABFBAF100994776 /* containsNothingPowerPC.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304CF20ABFBACC00994776 /* containsNothingPowerPC.c */; };
+ 		3B304CF50ABFBAFC00994776 /* containsNothingPowerPC.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304CF20ABFBACC00994776 /* containsNothingPowerPC.c */; };
+-		3B304CF60ABFC1D100994776 /* containsNothingPowerPC.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B304CF20ABFBACC00994776 /* containsNothingPowerPC.c */; };
+ 		3B4C421B0C2B446A00EB186B /* lroundf.s in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C421A0C2B446A00EB186B /* lroundf.s */; };
+ 		3B4C421C0C2B446B00EB186B /* lroundf.s in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C421A0C2B446A00EB186B /* lroundf.s */; };
+ 		3B4C421D0C2B446B00EB186B /* lroundf.s in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C421A0C2B446A00EB186B /* lroundf.s */; };
+ 		3B4C421E0C2B446B00EB186B /* lroundf.s in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C421A0C2B446A00EB186B /* lroundf.s */; };
+ 		3B4C6F030C45ECB00048512E /* nextafter.s in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C6F010C45ECB00048512E /* nextafter.s */; };
+@@ -2497,31 +2493,17 @@
+ 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+ 			proxyType = 1;
+ 			remoteGlobalIDString = 3B304BB60ABFA10F00994776;
+ 			remoteInfo = libmx_profile.dylib;
+ 		};
+-		3B304C090ABFAC0600994776 /* PBXContainerItemProxy */ = {
+-			isa = PBXContainerItemProxy;
+-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+-			proxyType = 1;
+-			remoteGlobalIDString = 3BE6DBC60ABF55B600B91802;
+-			remoteInfo = libmathCommon;
+-		};
+ 		3B304C1D0ABFACF300994776 /* PBXContainerItemProxy */ = {
+ 			isa = PBXContainerItemProxy;
+ 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+ 			proxyType = 1;
+ 			remoteGlobalIDString = 3BE6DBC60ABF55B600B91802;
+ 			remoteInfo = libmathCommon;
+ 		};
+-		3B304C230ABFAD3000994776 /* PBXContainerItemProxy */ = {
+-			isa = PBXContainerItemProxy;
+-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+-			proxyType = 1;
+-			remoteGlobalIDString = 3B304C180ABFAC8600994776;
+-			remoteInfo = libmCommon.a;
+-		};
+ 		3B304C250ABFAD3000994776 /* PBXContainerItemProxy */ = {
+ 			isa = PBXContainerItemProxy;
+ 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+ 			proxyType = 1;
+ 			remoteGlobalIDString = 3B304BFA0ABFAAE400994776;
+@@ -2539,17 +2521,10 @@
+ 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+ 			proxyType = 1;
+ 			remoteGlobalIDString = 3B304AF20ABF964E00994776;
+ 			remoteInfo = libmathCommon_debug.o;
+ 		};
+-		3B304C840ABFB10900994776 /* PBXContainerItemProxy */ = {
+-			isa = PBXContainerItemProxy;
+-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+-			proxyType = 1;
+-			remoteGlobalIDString = 3B304C740ABFB0C700994776;
+-			remoteInfo = libmCommon_debug.a;
+-		};
+ 		3B304C860ABFB10900994776 /* PBXContainerItemProxy */ = {
+ 			isa = PBXContainerItemProxy;
+ 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+ 			proxyType = 1;
+ 			remoteGlobalIDString = 3B304C5F0ABFB03F00994776;
+@@ -2728,10 +2703,24 @@
+ 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+ 			proxyType = 1;
+ 			remoteGlobalIDString = 3BC3BDBF0CD1AFDE00D8F88A;
+ 			remoteInfo = UpdateVersionInfo;
+ 		};
++		AA06E7E01E81F07900BBA326 /* PBXContainerItemProxy */ = {
++			isa = PBXContainerItemProxy;
++			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
++			proxyType = 1;
++			remoteGlobalIDString = 3BFD54F20AB786E8005DA5F1;
++			remoteInfo = Libm.a;
++		};
++		AA06E7E51E81F23C00BBA326 /* PBXContainerItemProxy */ = {
++			isa = PBXContainerItemProxy;
++			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
++			proxyType = 1;
++			remoteGlobalIDString = 3BE6DBC60ABF55B600B91802;
++			remoteInfo = libmathCommon.o;
++		};
+ /* End PBXContainerItemProxy section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+ 		3BFD53520AB73ECB005DA5F1 /* Copy top level */ = {
+ 			isa = PBXCopyFilesBuildPhase;
+@@ -3400,16 +3389,16 @@
+ 		3B24B42D0BBC840000ED18AA /* nearbyint.s */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.asm; name = nearbyint.s; path = Source/Intel/nearbyint.s; sourceTree = "<group>"; };
+ 		3B2973660CFD2B9C005962A1 /* lrintl.s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; name = lrintl.s; path = Source/Intel/lrintl.s; sourceTree = "<group>"; };
+ 		3B3049E60ABF8AD800994776 /* libmathCommon_static.o */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.objfile"; includeInIndex = 0; path = libmathCommon_static.o; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304A890ABF91FE00994776 /* libmx.A_debug.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmx.A_debug.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304B120ABF964E00994776 /* libmathCommon.A_debug.o */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.objfile"; includeInIndex = 0; path = libmathCommon.A_debug.o; sourceTree = BUILT_PRODUCTS_DIR; };
+-		3B304B400ABF970E00994776 /* libmathCommon.A_profile.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.objfile"; includeInIndex = 0; path = libmathCommon.A_profile.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
++		3B304B400ABF970E00994776 /* libsystem_m_profile.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.objfile"; includeInIndex = 0; path = libsystem_m_profile.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304BD70ABFA10F00994776 /* libmx.A_profile.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmx.A_profile.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+-		3B304BFB0ABFAAE400994776 /* libmathCommon.A.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmathCommon.A.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
++		3B304BFB0ABFAAE400994776 /* libsystem_m.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsystem_m.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304C190ABFAC8600994776 /* libmCommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmCommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304C380ABFAE5800994776 /* containsNothingIntel.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = containsNothingIntel.c; path = Source/Intel/containsNothingIntel.c; sourceTree = "<group>"; };
+-		3B304C6A0ABFB03F00994776 /* libmathCommon.A_debug.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmathCommon.A_debug.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
++		3B304C6A0ABFB03F00994776 /* libsystem_m_debug.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsystem_m_debug.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304C7E0ABFB0C700994776 /* libmCommon_debug.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmCommon_debug.a; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3B304CF20ABFBACC00994776 /* containsNothingPowerPC.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = containsNothingPowerPC.c; path = Source/PowerPC/containsNothingPowerPC.c; sourceTree = "<group>"; };
+ 		3B4C421A0C2B446A00EB186B /* lroundf.s */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.asm; name = lroundf.s; path = Source/Intel/lroundf.s; sourceTree = "<group>"; };
+ 		3B4C6F010C45ECB00048512E /* nextafter.s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; name = nextafter.s; path = Source/Intel/nextafter.s; sourceTree = "<group>"; };
+ 		3B4C6F020C45ECB00048512E /* nextafterf.s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; name = nextafterf.s; path = Source/Intel/nextafterf.s; sourceTree = "<group>"; };
+@@ -3505,11 +3494,11 @@
+ 		3BFD54260AB74DEF005DA5F1 /* complex.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = complex.c; path = Source/Intel/complex.c; sourceTree = "<group>"; };
+ 		3BFD54980AB766F5005DA5F1 /* DD.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = DD.h; path = Source/PowerPC/DD.h; sourceTree = "<group>"; };
+ 		3BFD54990AB766F5005DA5F1 /* fenv_private.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = fenv_private.h; path = Source/PowerPC/fenv_private.h; sourceTree = "<group>"; };
+ 		3BFD549A0AB766F5005DA5F1 /* math_private.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = math_private.h; path = Source/PowerPC/math_private.h; sourceTree = "<group>"; };
+ 		3BFD549B0AB766F5005DA5F1 /* fp_private.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = fp_private.h; path = Source/PowerPC/fp_private.h; sourceTree = "<group>"; };
+-		3BFD54F30AB786E8005DA5F1 /* libm.o */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.objfile"; includeInIndex = 0; path = libm.o; sourceTree = BUILT_PRODUCTS_DIR; };
++		3BFD54F30AB786E8005DA5F1 /* libsystem_m.o */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.objfile"; includeInIndex = 0; path = libsystem_m.o; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		3BFD55EF0AB78E3B005DA5F1 /* nanl64.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = nanl64.c; path = Source/PowerPC/nanl64.c; sourceTree = "<group>"; };
+ 		3BFD568D0AB79ED4005DA5F1 /* libm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libm.a; path = /tmp/Libm.dst/usr/local/lib/system/libm.a; sourceTree = "<absolute>"; };
+ 		3BFD56C00AB7A630005DA5F1 /* copysign.s */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.asm; name = copysign.s; path = Source/Intel/copysign.s; sourceTree = "<group>"; };
+ 		3BFD56C10AB7A630005DA5F1 /* e_acos.s */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.asm; name = e_acos.s; path = Source/Intel/e_acos.s; sourceTree = "<group>"; };
+ 		3BFD56C20AB7A630005DA5F1 /* e_acosh.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = e_acosh.c; path = Source/Intel/e_acosh.c; sourceTree = "<group>"; };
+@@ -4061,11 +4050,10 @@
+ 		};
+ 		3B304BF90ABFAAE400994776 /* Frameworks */ = {
+ 			isa = PBXFrameworksBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+-				3B304BFC0ABFAB0100994776 /* libmathCommon.A.o in Frameworks */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+ 		3B304C170ABFAC8600994776 /* Frameworks */ = {
+ 			isa = PBXFrameworksBuildPhase;
+@@ -4192,24 +4180,24 @@
+ 		};
+ 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+ 			isa = PBXGroup;
+ 			children = (
+ 				3BFD568D0AB79ED4005DA5F1 /* libm.a */,
+-				3BFD54F30AB786E8005DA5F1 /* libm.o */,
++				3BFD54F30AB786E8005DA5F1 /* libsystem_m.o */,
+ 				3BFD59CF0AB7EB91005DA5F1 /* libmx.A.dylib */,
+ 				3BE6DA390ABF4D5C00B91802 /* libm_debug.o */,
+ 				3BE6DAC90ABF4DE400B91802 /* libm_profile.o */,
+ 				3BE6DB640ABF514B00B91802 /* libm_static.o */,
+ 				3BE6DC510ABF55B600B91802 /* libmathCommon.A.o */,
+ 				3B3049E60ABF8AD800994776 /* libmathCommon_static.o */,
+ 				3B304A890ABF91FE00994776 /* libmx.A_debug.dylib */,
+ 				3B304B120ABF964E00994776 /* libmathCommon.A_debug.o */,
+-				3B304B400ABF970E00994776 /* libmathCommon.A_profile.dylib */,
++				3B304B400ABF970E00994776 /* libsystem_m_profile.dylib */,
+ 				3B304BD70ABFA10F00994776 /* libmx.A_profile.dylib */,
+-				3B304BFB0ABFAAE400994776 /* libmathCommon.A.dylib */,
++				3B304BFB0ABFAAE400994776 /* libsystem_m.dylib */,
+ 				3B304C190ABFAC8600994776 /* libmCommon.a */,
+-				3B304C6A0ABFB03F00994776 /* libmathCommon.A_debug.dylib */,
++				3B304C6A0ABFB03F00994776 /* libsystem_m_debug.dylib */,
+ 				3B304C7E0ABFB0C700994776 /* libmCommon_debug.a */,
+ 				63127E600E92DF8500B061BB /* libm_static.o */,
+ 				58C8A7910F1688EC009B4373 /* libmx.dylib */,
+ 				58C8A7A10F168C0D009B4373 /* libmx_debug.dylib */,
+ 				58C8A7B20F168D3C009B4373 /* libmx_profile.dylib */,
+@@ -4323,17 +4311,13 @@
+ 				6342B99A0F6EEBC200AF2C7C /* trunc.s */,
+ 				6342B99B0F6EEBC200AF2C7C /* truncf.s */,
+ 				63F6F64B0E92A62700C58F5D /* nan.c */,
+ 				63F6F64C0E92A62700C58F5D /* nanl.c */,
+ 				723491A70CECBE6800793F1E /* log.s */,
+-				63B14E330C9F18D500440490 /* exp2.s */,
+-				63639C890C839C5600DBEF16 /* exp.s */,
+ 				585725A90D09CA4500FA33AA /* acos.c */,
+ 				585725AA0D09CA4500FA33AA /* asin.c */,
+ 				585725AB0D09CA4500FA33AA /* atan.c */,
+-				2ECFF7240C7259EF00FC4878 /* cosh.s */,
+-				2E33693E0C6FC7BC00CC2EFE /* sinh.s */,
+ 				2E4DA68A0C51746200ADB72A /* acoshf.s */,
+ 				2EBF1EF80C483ADE00FE45E9 /* atanhf.s */,
+ 				2EE1EF870C3DA8A9008B004F /* cbrtf.s */,
+ 				58C21AA70C512BAE00DB720A /* atan2f.s */,
+ 				58F209C20C46B95B00696C8A /* atanf.s */,
+@@ -5009,27 +4993,26 @@
+ 			name = libmathCommon_debug.o;
+ 			productName = test;
+ 			productReference = 3B304B120ABF964E00994776 /* libmathCommon.A_debug.o */;
+ 			productType = "com.apple.product-type.objfile";
+ 		};
+-		3B304B200ABF970E00994776 /* libmathCommon_profile.dylib */ = {
++		3B304B200ABF970E00994776 /* libsystem_m_profile.dylib */ = {
+ 			isa = PBXNativeTarget;
+-			buildConfigurationList = 3B304B3D0ABF970E00994776 /* Build configuration list for PBXNativeTarget "libmathCommon_profile.dylib" */;
++			buildConfigurationList = 3B304B3D0ABF970E00994776 /* Build configuration list for PBXNativeTarget "libsystem_m_profile.dylib" */;
+ 			buildPhases = (
+ 				3B304B230ABF970E00994776 /* Sources */,
+ 				3B304B390ABF970E00994776 /* Frameworks */,
+-				3B304B3C0ABF970E00994776 /* Create symlink */,
+ 			);
+ 			buildRules = (
+ 			);
+ 			comments = "\nThis is the same as libMathCommon, except:\n\n\tWe set the LIBRARY_VERSION_SUFFIX to _profile    (This changes the build product names)\n \tWe enable -pg and other profiler settings\n\tWe don't bother making a .a version, so we build directly to a dylib\n\tWe add -flat_namespace to the OTHER_LDFLAGS for historical reasons (read: we don't know why)\n\tWe add -undefined warning to turn off the undefined error for mcount\n\n\nThe undefined mcount symbol warning is expected. Attempting to fix it introduces a dependency cycle with LibSystem that B&I will complain about.";
+ 			dependencies = (
+ 				3B304B210ABF970E00994776 /* PBXTargetDependency */,
+ 			);
+-			name = libmathCommon_profile.dylib;
++			name = libsystem_m_profile.dylib;
+ 			productName = test;
+-			productReference = 3B304B400ABF970E00994776 /* libmathCommon.A_profile.dylib */;
++			productReference = 3B304B400ABF970E00994776 /* libsystem_m_profile.dylib */;
+ 			productType = "com.apple.product-type.objfile";
+ 		};
+ 		3B304BB60ABFA10F00994776 /* libmx.A_profile.dylib */ = {
+ 			isa = PBXNativeTarget;
+ 			buildConfigurationList = 3B304BD40ABFA10F00994776 /* Build configuration list for PBXNativeTarget "libmx.A_profile.dylib" */;
+@@ -5044,26 +5027,26 @@
+ 			name = libmx.A_profile.dylib;
+ 			productName = libmathCommon;
+ 			productReference = 3B304BD70ABFA10F00994776 /* libmx.A_profile.dylib */;
+ 			productType = "com.apple.product-type.library.dynamic";
+ 		};
+-		3B304BFA0ABFAAE400994776 /* libmathCommon.dylib */ = {
++		3B304BFA0ABFAAE400994776 /* libsystem_m.dylib */ = {
+ 			isa = PBXNativeTarget;
+-			buildConfigurationList = 3B304BFD0ABFAB1F00994776 /* Build configuration list for PBXNativeTarget "libmathCommon.dylib" */;
++			buildConfigurationList = 3B304BFD0ABFAB1F00994776 /* Build configuration list for PBXNativeTarget "libsystem_m.dylib" */;
+ 			buildPhases = (
+ 				3B304C3C0ABFAE7000994776 /* Sources */,
+ 				3B304BF90ABFAAE400994776 /* Frameworks */,
+-				3B304C0B0ABFAC2800994776 /* Create Symlink */,
+ 			);
+ 			buildRules = (
+ 			);
+ 			dependencies = (
+-				3B304C0A0ABFAC0600994776 /* PBXTargetDependency */,
++				AA06E7E11E81F07900BBA326 /* PBXTargetDependency */,
++				AA06E7E61E81F23C00BBA326 /* PBXTargetDependency */,
+ 			);
+-			name = libmathCommon.dylib;
++			name = libsystem_m.dylib;
+ 			productName = libmathCommon.dylib;
+-			productReference = 3B304BFB0ABFAAE400994776 /* libmathCommon.A.dylib */;
++			productReference = 3B304BFB0ABFAAE400994776 /* libsystem_m.dylib */;
+ 			productType = "com.apple.product-type.library.dynamic";
+ 		};
+ 		3B304C180ABFAC8600994776 /* libmCommon.a */ = {
+ 			isa = PBXNativeTarget;
+ 			buildConfigurationList = 3B304C2C0ABFAD7500994776 /* Build configuration list for PBXNativeTarget "libmCommon.a" */;
+@@ -5079,26 +5062,25 @@
+ 			name = libmCommon.a;
+ 			productName = libmCommon.a;
+ 			productReference = 3B304C190ABFAC8600994776 /* libmCommon.a */;
+ 			productType = "com.apple.product-type.library.static";
+ 		};
+-		3B304C5F0ABFB03F00994776 /* libmathCommon_debug.dylib */ = {
++		3B304C5F0ABFB03F00994776 /* libsystem_m_debug.dylib */ = {
+ 			isa = PBXNativeTarget;
+-			buildConfigurationList = 3B304C670ABFB03F00994776 /* Build configuration list for PBXNativeTarget "libmathCommon_debug.dylib" */;
++			buildConfigurationList = 3B304C670ABFB03F00994776 /* Build configuration list for PBXNativeTarget "libsystem_m_debug.dylib" */;
+ 			buildPhases = (
+ 				3B304C620ABFB03F00994776 /* Sources */,
+ 				3B304C640ABFB03F00994776 /* Frameworks */,
+-				3B304C660ABFB03F00994776 /* Create Symlink */,
+ 			);
+ 			buildRules = (
+ 			);
+ 			dependencies = (
+ 				3B304C810ABFB0FE00994776 /* PBXTargetDependency */,
+ 			);
+-			name = libmathCommon_debug.dylib;
++			name = libsystem_m_debug.dylib;
+ 			productName = libmathCommon.dylib;
+-			productReference = 3B304C6A0ABFB03F00994776 /* libmathCommon.A_debug.dylib */;
++			productReference = 3B304C6A0ABFB03F00994776 /* libsystem_m_debug.dylib */;
+ 			productType = "com.apple.product-type.library.dynamic";
+ 		};
+ 		3B304C740ABFB0C700994776 /* libmCommon_debug.a */ = {
+ 			isa = PBXNativeTarget;
+ 			buildConfigurationList = 3B304C7B0ABFB0C700994776 /* Build configuration list for PBXNativeTarget "libmCommon_debug.a" */;
+@@ -5210,11 +5192,11 @@
+ 				3BFD557F0AB78859005DA5F1 /* PBXTargetDependency */,
+ 				3BC3BDC40CD1B09100D8F88A /* PBXTargetDependency */,
+ 			);
+ 			name = Libm.a;
+ 			productName = test;
+-			productReference = 3BFD54F30AB786E8005DA5F1 /* libm.o */;
++			productReference = 3BFD54F30AB786E8005DA5F1 /* libsystem_m.o */;
+ 			productType = "com.apple.product-type.objfile";
+ 		};
+ 		3BFD59B10AB7EB91005DA5F1 /* libmx.A.dylib */ = {
+ 			isa = PBXNativeTarget;
+ 			buildConfigurationList = 3BFD59CC0AB7EB91005DA5F1 /* Build configuration list for PBXNativeTarget "libmx.A.dylib" */;
+@@ -5324,10 +5306,12 @@
+ /* End PBXNativeTarget section */
+ 
+ /* Begin PBXProject section */
+ 		08FB7793FE84155DC02AAC07 /* Project object */ = {
+ 			isa = PBXProject;
++			attributes = {
++			};
+ 			buildConfigurationList = 1DEB914E08733D8E0010E9CD /* Build configuration list for PBXProject "Libm" */;
+ 			compatibilityVersion = "Xcode 3.1";
+ 			developmentRegion = English;
+ 			hasScannedForEncodings = 1;
+ 			knownRegions = (
+@@ -5354,13 +5338,13 @@
+ 				3BE6DA3E0ABF4DE400B91802 /* Libm_profile.a */,
+ 				3BE6DAD90ABF514B00B91802 /* Libm_static.a */,
+ 				63127D350E92DF8500B061BB /* Libm_static_iphoneos.a */,
+ 				3B304C180ABFAC8600994776 /* libmCommon.a */,
+ 				3B304C740ABFB0C700994776 /* libmCommon_debug.a */,
+-				3B304BFA0ABFAAE400994776 /* libmathCommon.dylib */,
+-				3B304C5F0ABFB03F00994776 /* libmathCommon_debug.dylib */,
+-				3B304B200ABF970E00994776 /* libmathCommon_profile.dylib */,
++				3B304BFA0ABFAAE400994776 /* libsystem_m.dylib */,
++				3B304C5F0ABFB03F00994776 /* libsystem_m_debug.dylib */,
++				3B304B200ABF970E00994776 /* libsystem_m_profile.dylib */,
+ 				3BFD59B10AB7EB91005DA5F1 /* libmx.A.dylib */,
+ 				3B304A680ABF91FE00994776 /* libmx.A_debug.dylib */,
+ 				3B304BB60ABFA10F00994776 /* libmx.A_profile.dylib */,
+ 				58C8A7900F1688EC009B4373 /* libmx.dylib */,
+ 				58C8A7A00F168C0D009B4373 /* libmx_debug.dylib */,
+@@ -5368,55 +5352,10 @@
+ 			);
+ 		};
+ /* End PBXProject section */
+ 
+ /* Begin PBXShellScriptBuildPhase section */
+-		3B304B3C0ABF970E00994776 /* Create symlink */ = {
+-			isa = PBXShellScriptBuildPhase;
+-			buildActionMask = 2147483647;
+-			files = (
+-			);
+-			inputPaths = (
+-			);
+-			name = "Create symlink";
+-			outputPaths = (
+-				"${DSTROOT}/usr/lib/system/${LIBRARY_BASE_NAME}${LIBRARY_VERSION_SUFFIX}.dylib",
+-			);
+-			runOnlyForDeploymentPostprocessing = 0;
+-			shellPath = /bin/sh;
+-			shellScript = "\necho \"Create symlink\"\n\nln -sf $EXECUTABLE_NAME  $SCRIPT_OUTPUT_FILE_0\n";
+-		};
+-		3B304C0B0ABFAC2800994776 /* Create Symlink */ = {
+-			isa = PBXShellScriptBuildPhase;
+-			buildActionMask = 2147483647;
+-			files = (
+-			);
+-			inputPaths = (
+-			);
+-			name = "Create Symlink";
+-			outputPaths = (
+-				"${DSTROOT}/usr/lib/system/${LIBRARY_BASE_NAME}${LIBRARY_VERSION_SUFFIX}.$(EXECUTABLE_EXTENSION)",
+-			);
+-			runOnlyForDeploymentPostprocessing = 0;
+-			shellPath = /bin/sh;
+-			shellScript = "echo \"Create symlink\"\necho $SCRIPT_INPUT_FILE_0\n\nln -sf $EXECUTABLE_NAME  $SCRIPT_OUTPUT_FILE_0\n";
+-		};
+-		3B304C660ABFB03F00994776 /* Create Symlink */ = {
+-			isa = PBXShellScriptBuildPhase;
+-			buildActionMask = 2147483647;
+-			files = (
+-			);
+-			inputPaths = (
+-			);
+-			name = "Create Symlink";
+-			outputPaths = (
+-				"${DSTROOT}/usr/lib/system/${LIBRARY_BASE_NAME}${LIBRARY_VERSION_SUFFIX}.$(EXECUTABLE_EXTENSION)",
+-			);
+-			runOnlyForDeploymentPostprocessing = 0;
+-			shellPath = /bin/sh;
+-			shellScript = "echo \"Create symlink\"\n\nln -sf $EXECUTABLE_NAME  $SCRIPT_OUTPUT_FILE_0\n";
+-		};
+ 		3BC3BDBE0CD1AFDE00D8F88A /* touch version_info.c */ = {
+ 			isa = PBXShellScriptBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 			);
+@@ -5723,11 +5662,10 @@
+ 		3B304C3C0ABFAE7000994776 /* Sources */ = {
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				3B304C3E0ABFAE8D00994776 /* containsNothingIntel.c in Sources */,
+-				3B304CF60ABFC1D100994776 /* containsNothingPowerPC.c in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+ 		3B304C620ABFB03F00994776 /* Sources */ = {
+ 			isa = PBXSourcesBuildPhase;
+@@ -7498,11 +7436,11 @@
+ 			target = 3BFD53530AB73ECB005DA5F1 /* InstallHeaders */;
+ 			targetProxy = 3B304B220ABF970E00994776 /* PBXContainerItemProxy */;
+ 		};
+ 		3B304B4D0ABF98E100994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+-			target = 3B304B200ABF970E00994776 /* libmathCommon_profile.dylib */;
++			target = 3B304B200ABF970E00994776 /* libsystem_m_profile.dylib */;
+ 			targetProxy = 3B304B4C0ABF98E100994776 /* PBXContainerItemProxy */;
+ 		};
+ 		3B304BDD0ABFA17C00994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3B304A680ABF91FE00994776 /* libmx.A_debug.dylib */;
+@@ -7511,28 +7449,18 @@
+ 		3B304BDF0ABFA18100994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3B304BB60ABFA10F00994776 /* libmx.A_profile.dylib */;
+ 			targetProxy = 3B304BDE0ABFA18100994776 /* PBXContainerItemProxy */;
+ 		};
+-		3B304C0A0ABFAC0600994776 /* PBXTargetDependency */ = {
+-			isa = PBXTargetDependency;
+-			target = 3BE6DBC60ABF55B600B91802 /* libmathCommon.o */;
+-			targetProxy = 3B304C090ABFAC0600994776 /* PBXContainerItemProxy */;
+-		};
+ 		3B304C1E0ABFACF300994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3BE6DBC60ABF55B600B91802 /* libmathCommon.o */;
+ 			targetProxy = 3B304C1D0ABFACF300994776 /* PBXContainerItemProxy */;
+ 		};
+-		3B304C240ABFAD3000994776 /* PBXTargetDependency */ = {
+-			isa = PBXTargetDependency;
+-			target = 3B304C180ABFAC8600994776 /* libmCommon.a */;
+-			targetProxy = 3B304C230ABFAD3000994776 /* PBXContainerItemProxy */;
+-		};
+ 		3B304C260ABFAD3000994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+-			target = 3B304BFA0ABFAAE400994776 /* libmathCommon.dylib */;
++			target = 3B304BFA0ABFAAE400994776 /* libsystem_m.dylib */;
+ 			targetProxy = 3B304C250ABFAD3000994776 /* PBXContainerItemProxy */;
+ 		};
+ 		3B304C810ABFB0FE00994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3B304AF20ABF964E00994776 /* libmathCommon_debug.o */;
+@@ -7541,18 +7469,13 @@
+ 		3B304C830ABFB10100994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3B304AF20ABF964E00994776 /* libmathCommon_debug.o */;
+ 			targetProxy = 3B304C820ABFB10100994776 /* PBXContainerItemProxy */;
+ 		};
+-		3B304C850ABFB10900994776 /* PBXTargetDependency */ = {
+-			isa = PBXTargetDependency;
+-			target = 3B304C740ABFB0C700994776 /* libmCommon_debug.a */;
+-			targetProxy = 3B304C840ABFB10900994776 /* PBXContainerItemProxy */;
+-		};
+ 		3B304C870ABFB10900994776 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+-			target = 3B304C5F0ABFB03F00994776 /* libmathCommon_debug.dylib */;
++			target = 3B304C5F0ABFB03F00994776 /* libsystem_m_debug.dylib */;
+ 			targetProxy = 3B304C860ABFB10900994776 /* PBXContainerItemProxy */;
+ 		};
+ 		3BC3BDC40CD1B09100D8F88A /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3BC3BDBF0CD1AFDE00D8F88A /* UpdateVersionInfo */;
+@@ -7676,26 +7599,38 @@
+ 		63B329DC117E48D800BD1D26 /* PBXTargetDependency */ = {
+ 			isa = PBXTargetDependency;
+ 			target = 3BC3BDBF0CD1AFDE00D8F88A /* UpdateVersionInfo */;
+ 			targetProxy = 63B329DD117E48D800BD1D26 /* PBXContainerItemProxy */;
+ 		};
++		AA06E7E11E81F07900BBA326 /* PBXTargetDependency */ = {
++			isa = PBXTargetDependency;
++			target = 3BFD54F20AB786E8005DA5F1 /* Libm.a */;
++			targetProxy = AA06E7E01E81F07900BBA326 /* PBXContainerItemProxy */;
++		};
++		AA06E7E61E81F23C00BBA326 /* PBXTargetDependency */ = {
++			isa = PBXTargetDependency;
++			target = 3BE6DBC60ABF55B600B91802 /* libmathCommon.o */;
++			targetProxy = AA06E7E51E81F23C00BBA326 /* PBXContainerItemProxy */;
++		};
+ /* End PBXTargetDependency section */
+ 
+ /* Begin XCBuildConfiguration section */
+ 		1DEB915008733D8E0010E9CD /* Default */ = {
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				ALIAS_LIST = "$(ALIAS_LIST_$(IS_THIS_OS_TIGER))";
+ 				ALIAS_LIST_ = "$(ALIAS_LIST_PER_ARCH_$(CURRENT_ARCH))";
+ 				ALIAS_LIST_PER_ARCH_i386 = "";
+ 				ALIAS_LIST_PER_ARCH_x86_64 = "";
++				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+ 				AXCLUDED_SOURCE_FILE_NAMES_COMMENT = "EXCLUDED_SOURCE_FILE_NAMES removes .c/.s files from the buid. INCLUDED_SOURCE_FILE_NAMES puts a subset back in. As per all per-arch configuration, values shown by Xcode are not actual values being used. ";
++				CURRENT_PROJECT_VERSION = 2026;
+ 				DEPLOYMENT_LOCATION = YES;
+ 				DYLIB_COMPATIBILITY_VERSION = 1;
+ 				DYLIB_CURRENT_VERSION = "$(LIBM_VERSION)";
+ 				Default_RC_ProjectNameAndSourceVersion_value = "Libm-$(Default_RC_ProjectSourceVersion_value)";
+-				Default_RC_ProjectSourceVersion_value = 1;
++				Default_RC_ProjectSourceVersion_value = 2026;
+ 				EXCLUDED_SOURCE_FILE_NAMES = (
+ 					"Source/*/*.c",
+ 					"Source/*/*.s",
+ 					"Source/*/*/*.c",
+ 					"Source/*/*/*.s",
+@@ -7704,10 +7639,11 @@
+ 				GCC_C_LANGUAGE_STANDARD = gnu99;
+ 				GCC_DYNAMIC_NO_PIC = NO;
+ 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+ 				GCC_MODEL_TUNING = G5;
+ 				GCC_OPTIMIZATION_LEVEL = 3;
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				GCC_STRICT_ALIASING = YES;
+ 				GCC_UNROLL_LOOPS = YES;
+ 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+ 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+ 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+@@ -7769,15 +7705,18 @@
+ 				PER_OS_SSSE3_NAME = "$(PER_OS_SSSE3_NAME_$(IS_THIS_OS_TIGER))";
+ 				PER_OS_SSSE3_NAME_ = "-mssse3";
+ 				PER_OS_SSSE3_NAME_TIGER = "-mmni";
+ 				PREBINDING = NO;
+ 				PUBLIC_HEADERS_FOLDER_PATH = /usr/include;
++				RC_ProjectSourceVersion = 2026;
+ 				RC_XBS_A_RC_FORCE_SSE3_COMMENT = "Enables SSE3 for the i386 build, except when RC_XBS=YES and RC_FORCE_SSE3 is undefined.";
+ 				RC_XBS_YES_RC_FORCE_SSE3_ = "-march=pentium-m -mno-sse3";
+ 				RC_XBS_YES_RC_FORCE_SSE3_YES = "-msse3";
+ 				RC_XBS__RC_FORCE_SSE3_ = "-msse3";
+ 				RC_XBS__RC_FORCE_SSE3_YES = "-msse3";
++				SDKROOT = macosx.internal;
++				USER_HEADER_SEARCH_PATHS = "$(PER_ARCH_SRCROOT)";
+ 				USE_SSE3 = "$(RC_XBS_$(RC_XBS)_RC_FORCE_SSE3_$(RC_FORCE_SSE3))";
+ 				WARNING_CFLAGS = (
+ 					"-Wmost",
+ 					"-Wstrict-prototypes",
+ 					"-Wno-four-char-constants",
+@@ -7893,11 +7832,11 @@
+ 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
+ 				GCC_MODEL_TUNING = G5;
+ 				GENERATE_PROFILING_CODE = YES;
+ 				INSTALL_PATH = /usr/lib/system;
+ 				KEEP_PRIVATE_EXTERNS = NO;
+-				LIBRARY_BASE_NAME = libmathCommon;
++				LIBRARY_BASE_NAME = libsystem_m;
+ 				LIBRARY_VERSION_SUFFIX = _profile;
+ 				MACH_O_TYPE = mh_dylib;
+ 				OTHER_CFLAGS = (
+ 					"-DBUILDING_FOR_CARBONCORE_LEGACY=1",
+ 					"$(OTHER_CFLAGS)",
+@@ -7918,11 +7857,11 @@
+ 					"-nodefaultlibs",
+ 				);
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_Intel = Exports/libmathCommonIntel.exp;
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_PowerPC = Exports/libmathCommonPowerPC.exp;
+ 				PREBINDING = NO;
+-				PRODUCT_NAME = "$(LIBRARY_BASE_NAME).A$(LIBRARY_VERSION_SUFFIX)";
++				PRODUCT_NAME = "$(LIBRARY_BASE_NAME)$(LIBRARY_VERSION_SUFFIX)";
+ 				SKIP_INSTALL = NO;
+ 				VALID_ARCHS = "i386 ppc x86_64";
+ 			};
+ 			name = Default;
+ 		};
+@@ -7970,22 +7909,25 @@
+ 				COPY_PHASE_STRIP = NO;
+ 				EXECUTABLE_PREFIX = "";
+ 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+ 				GCC_MODEL_TUNING = G5;
+ 				INSTALL_PATH = /usr/lib/system;
+-				LIBRARY_BASE_NAME = libmathCommon;
++				LIBRARY_BASE_NAME = libsystem_m;
+ 				LIBRARY_VERSION_SUFFIX = "";
+ 				OTHER_LDFLAGS = (
+ 					"$(OTHER_LDFLAGS)",
++					"-Wl,-umbrella,System",
+ 					"-Wl,-single_module",
+ 					"-Wl,-S",
+ 					"-nodefaultlibs",
++					"-Wl,-force_load,$(BUILT_PRODUCTS_DIR)/libsystem_m.o",
++					"-Wl,-force_load,$(BUILT_PRODUCTS_DIR)/libmathCommon.A$(LIBRARY_VERSION_SUFFIX).o",
+ 				);
+-				PER_ARCH_EXPORTED_SYMBOLS_FILE_Intel = Exports/libmathCommonIntel.exp;
+-				PER_ARCH_EXPORTED_SYMBOLS_FILE_PowerPC = Exports/libmathCommonPowerPC.exp;
++				PER_ARCH_EXPORTED_SYMBOLS_FILE_Intel = Exports/libm_static_Intel.a.exp;
++				PER_ARCH_EXPORTED_SYMBOLS_FILE_PowerPC = Exports/libm_static_PowerPC.a.exp;
+ 				PREBINDING = NO;
+-				PRODUCT_NAME = "$(LIBRARY_BASE_NAME).A$(LIBRARY_VERSION_SUFFIX)";
++				PRODUCT_NAME = "$(LIBRARY_BASE_NAME)$(LIBRARY_VERSION_SUFFIX)";
+ 				VALID_ARCHS = "i386 ppc x86_64";
+ 				WARNING_CFLAGS = (
+ 					"$(WARNING_CFLAGS)",
+ 					"-Wno-unused-function",
+ 				);
+@@ -8016,22 +7958,22 @@
+ 				EXECUTABLE_PREFIX = "";
+ 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+ 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+ 				GCC_MODEL_TUNING = G5;
+ 				INSTALL_PATH = /usr/lib/system;
+-				LIBRARY_BASE_NAME = libmathCommon;
++				LIBRARY_BASE_NAME = libsystem_m;
+ 				LIBRARY_VERSION_SUFFIX = _debug;
+ 				OTHER_LDFLAGS = (
+ 					"$(OTHER_LDFLAGS)",
+ 					"-Wl,-single_module",
+ 					"-Wl,-S",
+ 					"-nodefaultlibs",
+ 				);
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_Intel = Exports/libmathCommonIntel.exp;
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_PowerPC = Exports/libmathCommonPowerPC.exp;
+ 				PREBINDING = NO;
+-				PRODUCT_NAME = "$(LIBRARY_BASE_NAME).A$(LIBRARY_VERSION_SUFFIX)";
++				PRODUCT_NAME = "$(LIBRARY_BASE_NAME)$(LIBRARY_VERSION_SUFFIX)";
+ 				VALID_ARCHS = "i386 ppc x86_64";
+ 				WARNING_CFLAGS = (
+ 					"$(WARNING_CFLAGS)",
+ 					"-Wno-unused-function",
+ 				);
+@@ -8071,10 +8013,11 @@
+ 				ALIAS_LIST_PER_ARCH_armv6 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_arm_vfp.a.alias";
+ 				ALIAS_LIST_PER_ARCH_armv7 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_arm_vfp.a.alias";
+ 				ALIAS_LIST_PER_ARCH_i386 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_Intel.a.alias";
+ 				ALIAS_LIST_PER_ARCH_x86_64 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_Intel.a.alias";
+ 				COPY_PHASE_STRIP = NO;
++				FRAMEWORK_SEARCH_PATHS = "";
+ 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+ 				GCC_MODEL_TUNING = G5;
+ 				INSTALL_PATH = /usr/local/lib/system;
+ 				KEEP_PRIVATE_EXTERNS = NO;
+ 				OTHER_LDFLAGS = (
+@@ -8212,11 +8155,11 @@
+ 				ALIAS_LIST_PER_ARCH_armv5 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_arm_vfp.a.alias";
+ 				ALIAS_LIST_PER_ARCH_armv6 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_arm_vfp.a.alias";
+ 				ALIAS_LIST_PER_ARCH_armv7 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_arm_vfp.a.alias";
+ 				ALIAS_LIST_PER_ARCH_i386 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_Intel.a.alias";
+ 				ALIAS_LIST_PER_ARCH_x86_64 = "-Wl,-alias_list -Wl,$(SRCROOT)/Exports/libm_Intel.a.alias";
+-				COPY_PHASE_STRIP = YES;
++				COPY_PHASE_STRIP = NO;
+ 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+ 				GCC_MODEL_TUNING = G5;
+ 				INSTALL_PATH = /usr/local/lib/system;
+ 				KEEP_PRIVATE_EXTERNS = NO;
+ 				OTHER_CFLAGS = "$(OTHER_CFLAGS)";
+@@ -8230,12 +8173,12 @@
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_PowerPC = "$(SRCROOT)/Exports/libm_PowerPC.a.exp";
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_armv5 = "$(SRCROOT)/Exports/libm_arm_softfp.a.exp";
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_armv6 = "$(SRCROOT)/Exports/libm_arm_vfp.a.exp";
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_armv7 = "$(SRCROOT)/Exports/libm_arm_vfp.a.exp";
+ 				PER_ARCH_EXPORTED_SYMBOLS_FILE_ppc64 = "$(SRCROOT)/Exports/libm_ppc64.a.exp";
+-				PRODUCT_NAME = libm;
+-				SKIP_INSTALL = YES;
++				PRODUCT_NAME = libsystem_m;
++				SKIP_INSTALL = NO;
+ 			};
+ 			name = Default;
+ 		};
+ 		3BFD59CE0AB7EB91005DA5F1 /* Default */ = {
+ 			isa = XCBuildConfiguration;
+@@ -8428,11 +8371,11 @@
+ 				3B304B110ABF964E00994776 /* Default */,
+ 			);
+ 			defaultConfigurationIsVisible = 0;
+ 			defaultConfigurationName = Default;
+ 		};
+-		3B304B3D0ABF970E00994776 /* Build configuration list for PBXNativeTarget "libmathCommon_profile.dylib" */ = {
++		3B304B3D0ABF970E00994776 /* Build configuration list for PBXNativeTarget "libsystem_m_profile.dylib" */ = {
+ 			isa = XCConfigurationList;
+ 			buildConfigurations = (
+ 				3B304B3F0ABF970E00994776 /* Default */,
+ 			);
+ 			defaultConfigurationIsVisible = 0;
+@@ -8444,11 +8387,11 @@
+ 				3B304BD60ABFA10F00994776 /* Default */,
+ 			);
+ 			defaultConfigurationIsVisible = 0;
+ 			defaultConfigurationName = Default;
+ 		};
+-		3B304BFD0ABFAB1F00994776 /* Build configuration list for PBXNativeTarget "libmathCommon.dylib" */ = {
++		3B304BFD0ABFAB1F00994776 /* Build configuration list for PBXNativeTarget "libsystem_m.dylib" */ = {
+ 			isa = XCConfigurationList;
+ 			buildConfigurations = (
+ 				3B304BFF0ABFAB1F00994776 /* Default */,
+ 			);
+ 			defaultConfigurationIsVisible = 0;
+@@ -8460,11 +8403,11 @@
+ 				3B304C2E0ABFAD7500994776 /* Default */,
+ 			);
+ 			defaultConfigurationIsVisible = 0;
+ 			defaultConfigurationName = Default;
+ 		};
+-		3B304C670ABFB03F00994776 /* Build configuration list for PBXNativeTarget "libmathCommon_debug.dylib" */ = {
++		3B304C670ABFB03F00994776 /* Build configuration list for PBXNativeTarget "libsystem_m_debug.dylib" */ = {
+ 			isa = XCConfigurationList;
+ 			buildConfigurations = (
+ 				3B304C690ABFB03F00994776 /* Default */,
+ 			);
+ 			defaultConfigurationIsVisible = 0;
+diff -rU5 Libm-2026/Source/Intel/frexp.s Libm-2026/Source/Intel/frexp.s
+--- Libm-2026/Source/Intel/frexp.s	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Source/Intel/frexp.s	2017-04-16 12:00:49.000000000 +0100
+@@ -161,11 +161,11 @@
+     fldz                                    //  { 0, 0 or denormal }
+     fucomip %st(1), %st(0)                  //  { 0 or denormal }
+     fstpt   (STACKP)                        //  save out in 80-bit format (normalizes denorms), and empty stack
+     je      2b
+ 
+-    movsxw  8(STACKP),      %eax            //  load sign + exponent
++    movswl  8(STACKP),      %eax            //  load sign + exponent
+     movl    %eax,           %ecx            //  copy to ecx
+     andl    $0x7fff,        %eax            //  extract exponent
+     andl    $0x8000,        %ecx            //  extract sign
+     addl    $-16382,        %eax            //  subtract bias from exponent
+     orl     $0x3ffe,        %ecx            //  copy sign bit to a new exponent of -1
+@@ -234,11 +234,11 @@
+ 
+ ENTRY( frexpl )
+     SUBP    $LOCAL_STACK_SIZE,  STACKP
+     
+     //Load the sign + exponent
+-    movsxw  8+FIRST_ARG_OFFSET(STACKP),     %eax
++    movswl  8+FIRST_ARG_OFFSET(STACKP),     %eax
+     movl    %eax,                           %ecx
+ 
+     //Load result pointer if necessary
+ #if defined( __i386__ )
+     movl    SECOND_ARG_OFFSET(STACKP),      RESULT_P
+@@ -286,11 +286,11 @@
+     fstpt   (STACKP)                            // { |f| * 2**(16382+63) }
+     fstp    %st(0)                              // {}
+     
+ //repeat frexpl with new bias
+     //Load the sign + exponent
+-    movsxw  8(STACKP),                      %eax
++    movswl  8(STACKP),                      %eax
+     movl    %eax,                           %ecx
+     
+     //extract exponent
+     andl    $0x7fff,                        %eax
+     addl    $(-16383-16382-63+1),           %eax
+diff -rU5 Libm-2026/Source/Intel/hypot.s Libm-2026/Source/Intel/hypot.s
+--- Libm-2026/Source/Intel/hypot.s	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Source/Intel/hypot.s	2017-04-16 12:00:49.000000000 +0100
+@@ -53,29 +53,29 @@
+     ret
+ 
+ //  Special case handling ----------------------------------------------
+ 
+ L_xHiIsZero:
+-    cmp         $0,       4(%esp)   // is the low word of x zero?
++    cmpw        $0,       4(%esp)   // is the low word of x zero?
+     jnz     L_returnFromXHiIsZero   // if not, jump back to mainline
+ L_returnAbsY:
+     and         %ecx,    16(%esp)
+     fldl     12(%esp)
+     ret
+ 
+ L_yHiIsZero:
+-    cmp         $0,      12(%esp)   // is the low word of y zero?
++    cmpl        $0,      12(%esp)   // is the low word of y zero?
+     jnz     L_returnFromYHiIsZero   // if not, jump back to mainline
+ L_returnAbsX:
+     and         %ecx,     8(%esp)
+     fldl      4(%esp)
+     ret
+     
+ L_xIsSpecial:
+-    cmp         INFHI,      %edx    // check if y is infinity
++    cmpl        INFHI,      %edx    // check if y is infinity
+     jnz         L_returnAbsX
+-    cmp         $0,      12(%esp)
++    cmpl        $0,      12(%esp)
+     jz          L_returnAbsY
+     jmp         L_returnAbsX
+     
+ #else // defined __i386__
+ 
+diff -rU5 Libm-2026/Source/Intel/modff.s Libm-2026/Source/Intel/modff.s
+--- Libm-2026/Source/Intel/modff.s	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Source/Intel/modff.s	2017-04-16 12:00:49.000000000 +0100
+@@ -83,11 +83,11 @@
+ 3:  //Nan
+ #if defined( __i386__)
+     movl    4+FRAME_SIZE( STACKP),      RESULT_P
+     flds    FRAME_SIZE( STACKP )                        // { x }
+     fld     %st(0)
+-    fstp    (RESULT_P)
++    fstps    (RESULT_P)
+ #else
+     movss   %xmm0,                      (RESULT_P)
+ #endif
+     ret
+ 
+diff -rU5 Libm-2026/Source/Intel/nearbyint.s Libm-2026/Source/Intel/nearbyint.s
+--- Libm-2026/Source/Intel/nearbyint.s	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Source/Intel/nearbyint.s	2017-04-16 12:00:49.000000000 +0100
+@@ -3,11 +3,11 @@
+ //  returns the argument rounded to an integral value using the prevailing
+ //  rounding mode, and without raising the inexact flag (C99 7.12.9.4).
+ //
+ //  -- Stephen Canon, January 2010
+ 
+-#include <System/i386/cpu_capabilities.h>
++#include <System/machine/cpu_capabilities.h>
+ 
+ .text
+ .align 4
+ .globl _nearbyint
+ _nearbyint:
+diff -rU5 Libm-2026/Source/Intel/sincostan.c Libm-2026/Source/Intel/sincostan.c
+--- Libm-2026/Source/Intel/sincostan.c	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Source/Intel/sincostan.c	2017-04-16 12:00:49.000000000 +0100
+@@ -1098,5 +1098,33 @@
+ 		default:
+ 		case 0:	case 2: return + sinp(r) / cosp(r);
+ 		case 1:	case 3: return - cosp(r) / sinp(r);
+ 	}
+ }
++
++struct _sincos_return_s {
++    double sinResult;
++    double cosResult;
++};
++
++struct _sincosf_return_s {
++    float sinResult;
++    float cosResult;
++};
++
++struct _sincos_return_s _sincos_stret(double x) {
++    struct _sincos_return_s ret;
++
++    ret.sinResult=sin(x);
++    ret.cosResult=cos(x);
++
++    return ret;
++}
++
++struct _sincosf_return_s _sincosf_stret(float x) {
++    struct _sincosf_return_s ret;
++
++    ret.sinResult=sinf(x);
++    ret.cosResult=cosf(x);
++
++    return ret;
++}
+diff -rU5 Libm-2026/Source/Intel/xmm_power.c Libm-2026/Source/Intel/xmm_power.c
+--- Libm-2026/Source/Intel/xmm_power.c	2017-04-16 11:59:53.000000000 +0100
++++ Libm-2026/Source/Intel/xmm_power.c	2017-04-16 12:00:49.000000000 +0100
+@@ -1429,10 +1429,39 @@
+ #endif
+ 
+     return z;
+ }
+ 
++/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
++ * __ESDARWIN__: Patch Report (for patch #1 in this file)                *
++ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
++ * Reason: _exp10, __exp10, and ___exp10 are not defined in Libm anymore *
++ * Issue first encountered when building ICU-57149.0.1 for CF-1153.18.   *
++ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
++
++double exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++double _exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++double __exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++double ___exp10(double v) {
++    volatile double base = 10;
++    return pow(base, v);
++}
++
++/* End of __ESDARWIN__ Patch #1 */
++
+ #include <math.h>
+ #include <float.h>
+ 
+ //
+ //	This is not the worlds best power function.  It is merely a simple one that 

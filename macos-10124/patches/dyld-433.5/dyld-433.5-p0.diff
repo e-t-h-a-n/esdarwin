@@ -1,0 +1,148 @@
+diff -rU 5 dyld.xcodeproj/project.pbxproj dyld.xcodeproj/project.pbxproj
+--- dyld.xcodeproj/project.pbxproj	2016-10-05 00:39:27.000000000 +0100
++++ dyld.xcodeproj/project.pbxproj	2017-04-13 18:20:12.000000000 +0100
+@@ -1932,11 +1932,14 @@
+ 				DEBUG_INFORMATION_FORMAT = dwarf;
+ 				GCC_C_LANGUAGE_STANDARD = c99;
+ 				GCC_DYNAMIC_NO_PIC = NO;
+ 				GCC_ENABLE_BUILTIN_FUNCTIONS = NO;
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+-				GCC_PREPROCESSOR_DEFINITIONS = "DYLD_VERSION=$(RC_ProjectSourceVersion)";
++				GCC_PREPROCESSOR_DEFINITIONS = (
++					"$(inherited)",
++					"DYLD_VERSION=$(RC_ProjectSourceVersion)",
++				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = NO;
+ 				GCC_WARN_MISSING_PARENTHESES = YES;
+ 				GCC_WARN_SHADOW = YES;
+@@ -1986,11 +1989,14 @@
+ 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+ 				GCC_C_LANGUAGE_STANDARD = c99;
+ 				GCC_DYNAMIC_NO_PIC = NO;
+ 				GCC_ENABLE_CPP_RTTI = NO;
+ 				GCC_OPTIMIZATION_LEVEL = s;
+-				GCC_PREPROCESSOR_DEFINITIONS = "DYLD_VERSION=$(RC_ProjectSourceVersion)";
++				GCC_PREPROCESSOR_DEFINITIONS = (
++					"$(inherited)",
++					"DYLD_VERSION=$(RC_ProjectSourceVersion)",
++				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				GCC_WARN_SHADOW = YES;
+ 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+ 				HEADER_SEARCH_PATHS = (
+@@ -2150,10 +2156,11 @@
+ 		F9D8C7EA087B087300E93EFB /* Debug */ = {
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = F971DD131A4A0E0700BBDD52 /* base.xcconfig */;
+ 			buildSettings = {
+ 				CLANG_CXX_LIBRARY = "compiler-default";
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				ONLY_ACTIVE_ARCH = NO;
+ 				SDKROOT = macosx.internal;
+ 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx watchos appletvos";
+ 			};
+ 			name = Debug;
+@@ -2161,10 +2168,11 @@
+ 		F9D8C7EC087B087300E93EFB /* Release */ = {
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = F971DD131A4A0E0700BBDD52 /* base.xcconfig */;
+ 			buildSettings = {
+ 				CLANG_CXX_LIBRARY = "compiler-default";
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				SDKROOT = macosx.internal;
+ 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx watchos appletvos";
+ 			};
+ 			name = Release;
+ 		};
+Only in dyld.xcodeproj: project.pbxproj.orig
+Only in dyld.xcodeproj: project.xcworkspace
+Only in dyld.xcodeproj: xcuserdata
+diff -rU 5 src/ImageLoader.cpp src/ImageLoader.cpp
+--- src/ImageLoader.cpp	2017-03-29 21:04:43.000000000 +0100
++++ src/ImageLoader.cpp	2017-04-13 18:20:13.000000000 +0100
+@@ -1339,9 +1339,8 @@
+ 	return result;
+ }
+ 
+ 
+ VECTOR_NEVER_DESTRUCTED_IMPL(ImageLoader::InterposeTuple);
++#ifndef __ESDARWIN__
+ VECTOR_NEVER_DESTRUCTED_IMPL(ImagePair);
+-
+-
+-
++#endif /* !__ESDARWIN__ */
+diff -rU 5 src/dyld.cpp src/dyld.cpp
+--- src/dyld.cpp	2017-03-29 21:04:43.000000000 +0100
++++ src/dyld.cpp	2017-04-13 18:20:13.000000000 +0100
+@@ -57,11 +57,14 @@
+ #include <os/lock_private.h>
+ #include <System/machine/cpu_capabilities.h>
+ #include <System/sys/reason.h>
+ #include <kern/kcdata.h>
+ #include <sandbox.h>
+-#include <sandbox/private.h>
++
++#ifndef __ESDARWIN__
++#include <sandbox/private.h> /* Yet another closed-source library :( */
++#endif /* __ESDARWIN__ */
+ 
+ #include <array>
+ 
+ #ifndef CPU_SUBTYPE_ARM_V5TEJ
+ 	#define CPU_SUBTYPE_ARM_V5TEJ		((cpu_subtype_t) 7)
+@@ -104,11 +107,18 @@
+ #include "dyldLibSystemInterface.h"
+ #if DYLD_SHARED_CACHE_SUPPORT
+ #include "dyld_cache_format.h"
+ #endif
+ #include "dyld_process_info_internal.h"
+-#include <coreSymbolicationDyldSupport.h>
++
++#ifndef __ESDARWIN__
++	#include <coreSymbolicationDyldSupport.h> /* coresymbolication is not open source */
++#else /* __ESDARWIN__ */
++	#define coresymbolication_load_notifier(c, t, p, h) /* coresymbolication_load_notifier(c, t, p, h) is NOT open source :( */
++	#define coresymbolication_unload_notifier(c, t, p, h) /* coresymbolication_unload_notifier(c, t, p, h) is NOT open source :( */
++#endif /* !__ESDARWIN__ */
++
+ #if TARGET_IPHONE_SIMULATOR
+ 	extern "C" void xcoresymbolication_load_notifier(void *connection, uint64_t load_timestamp, const char *image_path, const struct mach_header *mach_header);
+ 	extern "C" void xcoresymbolication_unload_notifier(void *connection, uint64_t unload_timestamp, const char *image_path, const struct mach_header *mach_header);
+ 	#define coresymbolication_load_notifier(c, t, p, h) xcoresymbolication_load_notifier(c, t, p, h)
+ 	#define coresymbolication_unload_notifier(c, t, p, h) xcoresymbolication_unload_notifier(c, t, p, h)
+@@ -1222,11 +1232,11 @@
+ }
+ #endif
+ 
+ static bool sandboxBlocked(const char* path, const char* kind)
+ {
+-#if TARGET_IPHONE_SIMULATOR
++#if TARGET_IPHONE_SIMULATOR || defined(__ESDARWIN__)
+ 	// sandbox calls not yet supported in simulator runtime
+ 	return false;
+ #else
+ 	sandbox_filter_type filter = (sandbox_filter_type)(SANDBOX_FILTER_PATH | SANDBOX_CHECK_NO_REPORT);
+ 	return ( sandbox_check(getpid(), kind, filter, path) > 0 );
+@@ -5508,13 +5518,18 @@
+ 		&thread_switch,
+ 		// added in version 3
+ 		&opendir,
+ 		&readdir_r,
+ 		&closedir,
++		#ifndef __ESDARWIN__
+ 		// added in version 4
+ 		&coresymbolication_load_notifier,
+ 		&coresymbolication_unload_notifier,
++		#else /* __ESDARWIN__ */
++		0,
++		0,
++		#endif /* !__ESDARWIN__ */
+ 		// Added in version 5
+ 		&proc_regionfilename,
+ 		&getpid,
+ 		&mach_port_insert_right,
+ 		&mach_port_allocate,

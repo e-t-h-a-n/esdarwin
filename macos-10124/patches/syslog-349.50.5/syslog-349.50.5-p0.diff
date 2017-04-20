@@ -1,0 +1,399 @@
+diff -rU5 aslmanager.tproj/cache_delete.c aslmanager.tproj/cache_delete.c
+--- aslmanager.tproj/cache_delete.c	2015-06-01 16:55:31.000000000 +0100
++++ aslmanager.tproj/cache_delete.c	2017-04-13 16:52:35.000000000 +0100
+@@ -19,10 +19,12 @@
+  * limitations under the License.
+  *
+  * @APPLE_LICENSE_HEADER_END@
+  */
+ 
++#ifndef __ESDARWIN__
++
+ #include <CacheDelete/CacheDelete.h>
+ #include <CoreFoundation/CoreFoundation.h>
+ #include <asl.h>
+ #include "daemon.h"
+ 
+@@ -141,5 +143,16 @@
+     }, ^CFDictionaryRef(CacheDeleteUrgency urgency, CFDictionaryRef info) {
+         /* Purge Request */
+         return _handle_cache_delete_with_urgency(info, urgency, true);
+     }, NULL, NULL) == 0;
+ }
++
++#else /* __ESDARWIN__ */
++
++#include <CoreFoundation/CoreFoundation.h>
++
++bool cache_delete_register(void)
++{
++    return 0;
++}
++
++#endif /* __ESDARWIN__ */
+diff -rU5 aslmanager.tproj/daemon.c aslmanager.tproj/daemon.c
+--- aslmanager.tproj/daemon.c	2015-06-08 23:07:22.000000000 +0100
++++ aslmanager.tproj/daemon.c	2017-04-13 16:52:35.000000000 +0100
+@@ -43,12 +43,16 @@
+ #include <bootstrap_priv.h>
+ #include <mach/mach.h>
+ #include <fcntl.h>
+ #include <sys/attr.h>
+ #include <dispatch/dispatch.h>
+-#include <xpc/xpc.h>
+-#include <xpc/private.h>
++
++#ifndef __ESDARWIN__
++    #include <xpc/xpc.h>
++    #include <xpc/private.h>
++#endif /* __ESDARWIN__ */
++
+ #include <os/assumes.h>
+ #include <vproc_priv.h>
+ #include <libkern/OSAtomic.h>
+ #include "daemon.h"
+ 
+diff -rU5 libsystem_asl.tproj/include/asl_msg.h libsystem_asl.tproj/include/asl_msg.h
+--- libsystem_asl.tproj/include/asl_msg.h	2016-06-30 01:25:32.000000000 +0100
++++ libsystem_asl.tproj/include/asl_msg.h	2017-04-13 16:52:35.000000000 +0100
+@@ -23,11 +23,15 @@
+ 
+ #ifndef __ASL_MSG_H__
+ #define __ASL_MSG_H__
+ 
+ #include <stdint.h>
+-#include <xpc/xpc.h>
++
++#ifndef __ESDARWIN__
++    #include <xpc/xpc.h>
++#endif /* __ESDARWIN__ */
++
+ #include <asl.h>
+ #include <asl_string.h>
+ #include <asl_core.h>
+ #include <asl_object.h>
+ 
+@@ -136,10 +140,12 @@
+ asl_string_t *asl_msg_to_string_raw(uint32_t encoding, asl_msg_t *msg, const char *tfmt) __API_DEPRECATED("os_log(3) has replaced asl(3)", macosx(10.8,10.12), ios(5.1,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
+ asl_string_t * asl_string_append_asl_msg(asl_string_t *str, asl_msg_t *msg) __API_DEPRECATED("os_log(3) has replaced asl(3)", macosx(10.10,10.12), ios(7.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
+ 
+ int asl_msg_cmp(asl_msg_t *a, asl_msg_t *b) __API_DEPRECATED("os_log(3) has replaced asl(3)", macosx(10.10,10.12), ios(7.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
+ 
+-void _asl_log_args_to_xpc(asl_object_t client, asl_object_t msg, xpc_object_t dict); //TODO: ADD AVAILABLITY INFO
++#ifndef __ESDARWIN__
++    void _asl_log_args_to_xpc(asl_object_t client, asl_object_t msg, xpc_object_t dict); //TODO: ADD AVAILABLITY INFO
++#endif /* __ESDARWIN__ */
+ 
+ __END_DECLS
+ 
+ #endif /* __ASL_MSG_H__ */
+diff -rU5 libsystem_asl.tproj/src/asl.c libsystem_asl.tproj/src/asl.c
+--- libsystem_asl.tproj/src/asl.c	2016-11-08 04:00:09.000000000 +0000
++++ libsystem_asl.tproj/src/asl.c	2017-04-13 16:52:35.000000000 +0100
+@@ -50,20 +50,28 @@
+ #include <bootstrap_priv.h>
+ #include <pthread.h>
+ #include <dispatch/dispatch.h>
+ #include <libkern/OSAtomic.h>
+ #include <os/activity.h>
+-#include <os/log.h>
+-#include <os/log_private.h>
++
++//#ifndef __ESDARWIN__
++    #include <os/log.h>
++//    #include <os/log_private.h>
++//#endif /* __ESDARWIN__ */
++
+ #include <asl_ipc.h>
+ #include <asl_client.h>
+ #include <asl_core.h>
+ #include <asl_msg.h>
+ #include <asl_msg_list.h>
+ #include <asl_store.h>
+ #include <asl_private.h>
+ 
++#ifdef __ESDARWIN__
++    #define os_log_shim_enabled(x) 0
++#endif
++
+ #define forever for(;;)
+ 
+ #define FETCH_BATCH	256
+ 
+ #define EVAL_DEFAULT_ACTION (EVAL_SEND_ASL | EVAL_SEND_TRACE)
+@@ -1045,17 +1053,19 @@
+ 
+ 	/* PID */
+ 	snprintf(aux_val, sizeof(aux_val), "%u", getpid());
+ 	asl_msg_set_key_val(aux, ASL_KEY_PID, aux_val);
+ 
++    #ifndef __ESDARWIN__
+ 	/* OSActivityID */
+ 	osaid = os_activity_get_identifier(OS_ACTIVITY_CURRENT, NULL);
+ 	if (osaid)
+ 	{
+ 		snprintf(aux_val, sizeof(aux_val), "0x%016llx", osaid);
+ 		asl_msg_set_key_val(aux, ASL_KEY_OS_ACTIVITY_ID, aux_val);
+ 	}
++    #endif /* __ESDARWIN__ */
+ 
+ 	/* Sender */
+ 	if ((sstr == NULL) && (asl != NULL))
+ 	{
+ 		/* See if the client has a value for ASL_KEY_SENDER */
+@@ -2040,5 +2050,10 @@
+ 		}
+ 	}
+ 
+ 	return NULL;
+ }
++
++#ifdef __ESDARWIN__
++//struct os_log_s _os_log_default(void) {return 0;}
++//void os_log_with_args(void) {return;}
++#endif /* __ESDARWIN__ */
+diff -rU5 libsystem_asl.tproj/src/asl_msg.c libsystem_asl.tproj/src/asl_msg.c
+--- libsystem_asl.tproj/src/asl_msg.c	2016-02-13 05:11:32.000000000 +0000
++++ libsystem_asl.tproj/src/asl_msg.c	2017-04-13 16:52:35.000000000 +0100
+@@ -3032,10 +3032,11 @@
+ }
+ 
+ #pragma mark -
+ #pragma mark xpc conversion
+ 
++#ifndef __ESDARWIN__
+ static void
+ _asl_msg_to_xpc(asl_msg_t *msg, xpc_object_t dict)
+ {
+ 	uint32_t x, len;
+ 	const char *key, *val, *nano;
+@@ -3129,17 +3130,32 @@
+ 			xpc_dictionary_set_value(dict, key, obj);
+ 			xpc_release(obj);
+ 		}
+ 	}
+ }
++#else /* __ESDARWIN__ */
++static void
++_asl_msg_to_xpc(asl_msg_t *msg, void* dict)
++{
++    return;
++}
++#endif /* __ESDARWIN__ */
+ 
++#ifndef __ESDARWIN__
+ void
+ _asl_log_args_to_xpc(asl_object_t client, asl_object_t msg, xpc_object_t dict)
+ {
+ 	_asl_msg_to_xpc(asl_client_kvdict((asl_client_t *)client), dict);
+ 	_asl_msg_to_xpc((asl_msg_t *)msg, dict);
+ }
++#else /* __ESDARWIN__ */
++void
++_asl_log_args_to_xpc(asl_object_t client, asl_object_t msg, void* dict)
++{
++    return;
++}
++#endif /* __ESDARWIN__ */
+ 
+ #pragma mark -
+ #pragma mark asl_object support
+ 
+ static asl_object_private_t *
+diff -rU5 libsystem_asl.tproj/src/asl_util.c libsystem_asl.tproj/src/asl_util.c
+--- libsystem_asl.tproj/src/asl_util.c	2014-11-06 19:37:58.000000000 +0000
++++ libsystem_asl.tproj/src/asl_util.c	2017-04-13 16:52:35.000000000 +0100
+@@ -31,11 +31,15 @@
+ #include <errno.h>
+ #include <unistd.h>
+ #include <Block.h>
+ #include <dispatch/dispatch.h>
+ #include <os/assumes.h>
+-#include <xpc/xpc.h>
++
++#ifndef __ESDARWIN__
++    #include <xpc/xpc.h>
++#endif /* __ESDARWIN__ */
++
+ #include <syslog.h>
+ #include <asl_core.h>
+ #include <asl_private.h>
+ 
+ static uint8_t *b64charset = (uint8_t *)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+@@ -310,10 +314,11 @@
+ 	if (n == LOG_LAUNCHD) return "launchd";
+ 
+ 	return NULL;
+ }
+ 
++#ifndef __ESDARWIN__
+ static xpc_connection_t
+ _create_aslmanager_connection(void)
+ {
+ 	xpc_connection_t connection;
+ 
+@@ -321,11 +326,19 @@
+ 	xpc_connection_set_event_handler(connection, ^(xpc_object_t xobj) { if (xobj != NULL) {}; });
+ 	xpc_connection_resume(connection);
+ 
+ 	return connection;
+ }
++#else /* __ESDARWIN__ */
++static void*
++_create_aslmanager_connection(void)
++{
++    return 0;
++}
++#endif /* __ESDARWIN__ */
+ 
++#ifndef __ESDARWIN__
+ int
+ asl_trigger_aslmanager(void)
+ {
+ 	xpc_connection_t connection = _create_aslmanager_connection();
+ 	if (connection == NULL) return -1;
+@@ -338,5 +351,11 @@
+ 	if (reply != NULL) xpc_release(reply);
+ 	xpc_release(request);
+ 	xpc_release(connection);
+ 	return 0;
+ }
++#else /* __ESDARWIN__ */
++int asl_trigger_aslmanager(void)
++{
++    return 0;
++}
++#endif /* __ESDARWIN__ */
+diff -rU5 libsystem_asl.tproj/src/syslog.c libsystem_asl.tproj/src/syslog.c
+--- libsystem_asl.tproj/src/syslog.c	2016-05-22 23:23:53.000000000 +0100
++++ libsystem_asl.tproj/src/syslog.c	2017-04-13 16:52:35.000000000 +0100
+@@ -64,18 +64,25 @@
+ #include <dispatch/dispatch.h>
+ #include <asl.h>
+ #include <asl_msg.h>
+ #include <asl_private.h>
+ #include <os/log.h>
+-#include <os/log_private.h>
++
++#ifndef __ESDARWIN__
++    #include <os/log_private.h>
++#endif /* __ESDARWIN__ */
+ 
+ #ifdef __STDC__
+ #include <stdarg.h>
+ #else
+ #include <varargs.h>
+ #endif
+ 
++#ifdef __ESDARWIN__
++    #define os_log_shim_enabled(x) 0
++#endif /* __ESDARWIN__ */
++
+ #define	LOG_NO_NOTIFY	0x1000
+ extern const char *asl_syslog_faciliy_num_to_name(int n);
+ 
+ #ifdef BUILDING_VARIANT
+ __private_extern__ pthread_mutex_t _sl_lock;
+diff -rU5 syslog.xcodeproj/project.pbxproj syslog.xcodeproj/project.pbxproj
+--- syslog.xcodeproj/project.pbxproj	2016-06-24 06:48:26.000000000 +0100
++++ syslog.xcodeproj/project.pbxproj	2017-04-13 16:52:35.000000000 +0100
+@@ -955,10 +955,11 @@
+ 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+ 				CURRENT_PROJECT_VERSION = "$(RC_ProjectSourceVersion)";
+ 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+ 				GCC_C_LANGUAGE_STANDARD = gnu99;
+ 				GCC_PREFIX_HEADER = "";
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+ 				HEADER_SEARCH_PATHS = (
+ 					"$(BUILT_PRODUCTS_DIR)/$(CURRENT_ARCH)",
+ 					"$(PROJECT_DIR)/libsystem_asl.tproj/include",
+diff -rU5 syslogd.tproj/asl_action.c syslogd.tproj/asl_action.c
+--- syslogd.tproj/asl_action.c	2016-10-07 21:54:39.000000000 +0100
++++ syslogd.tproj/asl_action.c	2017-04-13 16:52:35.000000000 +0100
+@@ -40,11 +40,14 @@
+ #include <dirent.h>
+ #include <time.h>
+ #include <membership.h>
+ #include <configuration_profile.h>
+ #include "daemon.h"
+-#include <xpc/private.h>
++
++#ifndef __ESDARWIN__
++    #include <xpc/private.h>
++#endif /* __ESDARWIN__ */
+ 
+ #define _PATH_WALL "/usr/bin/wall"
+ 
+ #define MY_ID "asl_action"
+ 
+diff -rU5 syslogd.tproj/dbserver.c syslogd.tproj/dbserver.c
+--- syslogd.tproj/dbserver.c	2016-10-29 03:46:41.000000000 +0100
++++ syslogd.tproj/dbserver.c	2017-04-13 16:52:35.000000000 +0100
+@@ -45,12 +45,16 @@
+ #include <sys/event.h>
+ #include <servers/bootstrap.h>
+ #include <pthread.h>
+ #include <notify.h>
+ #include <sys/time.h>
+-#include <xpc/xpc.h>
+-#include <xpc/private.h>
++
++#ifndef __ESDARWIN__
++    #include <xpc/xpc.h>
++    #include <xpc/private.h>
++#endif /* __ESDARWIN__ */
++
+ #include <libproc.h>
+ #include <uuid/uuid.h>
+ #include "daemon.h"
+ #include "asl_ipc.h"
+ #include "asl_ipcServer.h"
+diff -rU5 syslogd.tproj/syslogd.c syslogd.tproj/syslogd.c
+--- syslogd.tproj/syslogd.c	2016-10-18 22:54:14.000000000 +0100
++++ syslogd.tproj/syslogd.c	2017-04-13 16:52:35.000000000 +0100
+@@ -49,11 +49,11 @@
+ #include <notify_keys.h>
+ #include <utmpx.h>
+ #include <asl_private.h>
+ #include <pwd.h>
+ 
+-#if !TARGET_OS_IPHONE
++#if !TARGET_OS_IPHONE && !defined(__ESDARWIN__)
+ #include <quarantine.h>
+ #endif
+ #include "daemon.h"
+ 
+ #define SERVICE_NAME "com.apple.system.logger"
+@@ -504,11 +504,11 @@
+ #endif
+ 
+ 	/* Set I/O policy */
+ 	setiopolicy_np(IOPOL_TYPE_DISK, IOPOL_SCOPE_PROCESS, IOPOL_PASSIVE);
+ 
+-#if !TARGET_OS_IPHONE
++#if !TARGET_OS_IPHONE && !defined(__ESDARWIN__)
+ 	/* Set Quarantine */
+ 	qtn_proc_t qp = qtn_proc_alloc();
+ 	qtn_proc_set_identifier(qp, "com.apple.syslogd");
+ 	qtn_proc_set_flags(qp, QTN_FLAG_SANDBOX | QTN_FLAG_HARD);
+ 	qtn_proc_apply_to_self(qp);
+diff -rU5 xcodeconfig/libasl.xcconfig xcodeconfig/libasl.xcconfig
+--- xcodeconfig/libasl.xcconfig	2015-02-17 20:20:56.000000000 +0000
++++ xcodeconfig/libasl.xcconfig	2017-04-13 16:52:35.000000000 +0100
+@@ -27,11 +27,12 @@
+ LIBPTHREAD_LDFLAGS[sdk=iphonesimulator*] = -lsystem_sim_pthread
+ LIBSYSCALL_LDFLAGS = -lsystem_kernel
+ LIBSYSCALL_LDFLAGS[sdk=iphonesimulator*] = -lsystem_sim_kernel
+ LIBM_LDFLAGS = -lsystem_m
+ LIBDYLD_LDFLAGS = -ldyld
+-LIBTRACE_LDFLAGS = -lsystem_trace
++//LIBTRACE_LDFLAGS = -lsystem_trace
++LIBLAUNCH_LDFLAGS = -llaunch
+ LIBUNWIND_LDFLAGS = -lunwind
+ 
+-OTHER_LDFLAGS = -all_load -L/usr/lib/system -umbrella System $(CR_LDFLAGS) $(LIBCOMPILER_RT_LDFLAGS) $(LIBDYLD_LDFLAGS) $(LIBSYSCALL_LDFLAGS) $(LIBPLATFORM_LDFLAGS) $(LIBPTHREAD_LDFLAGS) $(LIBMALLOC_LDFLAGS) $(LIBC_LDFLAGS) $(LIBUNWIND_LDFLAGS) $(LIBCLOSURE_LDFLAGS) -ldispatch $(LIBLAUNCH_LDFLAGS) -lxpc $(LIBTRACE_LDFLAGS) $(LIBNOTIFY_LDFLAGS) $(UPWARD_LINKS)
++OTHER_LDFLAGS = -all_load -L/usr/lib/system -umbrella System $(LIBCOMPILER_RT_LDFLAGS) $(LIBDYLD_LDFLAGS) $(LIBSYSCALL_LDFLAGS) $(LIBPLATFORM_LDFLAGS) $(LIBPTHREAD_LDFLAGS) $(LIBMALLOC_LDFLAGS) $(LIBC_LDFLAGS) $(LIBUNWIND_LDFLAGS) $(LIBCLOSURE_LDFLAGS) -ldispatch $(LIBLAUNCH_LDFLAGS) $(LIBNOTIFY_LDFLAGS) $(UPWARD_LINKS)
+ 
+ UPWARD_LINKS = -Wl,-upward-lsystem_info

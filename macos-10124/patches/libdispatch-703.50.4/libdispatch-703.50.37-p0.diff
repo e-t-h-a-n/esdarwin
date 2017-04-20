@@ -1,0 +1,393 @@
+diff -rU5 libdispatch.xcodeproj/project.pbxproj libdispatch.xcodeproj/project.pbxproj
+--- libdispatch.xcodeproj/project.pbxproj	2016-10-21 01:01:00.000000000 +0100
++++ libdispatch.xcodeproj/project.pbxproj	2017-04-12 22:27:32.000000000 +0100
+@@ -84,21 +84,12 @@
+ 		6E040C751C499CE600411A2E /* firehose_buffer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EDF10831BBB487E007F14BF /* firehose_buffer_private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+ 		6E21F2E81BBB23FA0000C6A5 /* firehose_server_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E21F2E41BBB23F00000C6A5 /* firehose_server_internal.h */; };
+ 		6E21F2E91BBB240E0000C6A5 /* firehose_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E21F2E51BBB23F00000C6A5 /* firehose_server.c */; };
+ 		6E393F981BD60F8D005A551E /* firehose_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EF0B26A1BA8C4AE007FA4F6 /* firehose_internal.h */; };
+ 		6E90269C1BB9BD50004DC3AD /* firehose.defs in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA9B1AE1B0BD00289540 /* firehose.defs */; settings = {ATTRIBUTES = (Server, ); }; };
+-		6E9955581C3AF7710071D40C /* venture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9955571C3AF7710071D40C /* venture_private.h */; };
+-		6E99558A1C3AF7900071D40C /* venture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9955571C3AF7710071D40C /* venture_private.h */; };
+-		6E9955CF1C3B218E0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+ 		6E9956011C3B21980071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956021C3B21990071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956031C3B219A0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956041C3B219B0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+-		6E9956051C3B219B0071D40C /* venture.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E9955CE1C3B218E0071D40C /* venture.c */; };
+ 		6E9956071C3B21AA0071D40C /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+-		6E9956081C3B21B30071D40C /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+-		6E9956091C3B21B40071D40C /* venture_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9956061C3B21AA0071D40C /* venture_internal.h */; };
+ 		6E9B6B5F1BB4F3C8009E324D /* firehose_buffer_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9B6B201BB4CC73009E324D /* firehose_buffer_internal.h */; };
+ 		6EA283D71CAB93920041B2E0 /* libdispatch.codes in Copy Trace Definitions */ = {isa = PBXBuildFile; fileRef = 6EA283D01CAB93270041B2E0 /* libdispatch.codes */; };
+ 		6EB60D2C1BBB197B0092FA94 /* firehose_inline_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EB60D291BBB19640092FA94 /* firehose_inline_internal.h */; };
+ 		6EBEC7E51BBDD30C009B1596 /* firehose.defs in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA9B1AE1B0BD00289540 /* firehose.defs */; };
+ 		6EBEC7E61BBDD30D009B1596 /* firehose.defs in Sources */ = {isa = PBXBuildFile; fileRef = 72DEAA9B1AE1B0BD00289540 /* firehose.defs */; };
+@@ -1154,11 +1145,10 @@
+ 				72CC94300ECCD8750031B751 /* base.h in Headers */,
+ 				961B99500F3E85C30006BC96 /* object.h in Headers */,
+ 				E44757DA17F4572600B82CA1 /* inline_internal.h in Headers */,
+ 				FC7BED9A0E8361E600161930 /* queue.h in Headers */,
+ 				FC7BED9C0E8361E600161930 /* source.h in Headers */,
+-				6E9955581C3AF7710071D40C /* venture_private.h in Headers */,
+ 				E4B3C3FE18C50D000039F49F /* voucher_activity_private.h in Headers */,
+ 				721F5C5D0F15520500FF03A6 /* semaphore.h in Headers */,
+ 				FC5C9C1E0EADABE3006E462D /* group.h in Headers */,
+ 				96C9553B0F3EAEDD000D2CA4 /* once.h in Headers */,
+ 				5AAB45C410D30CC7004407EA /* io.h in Headers */,
+@@ -1215,11 +1205,10 @@
+ 				E49F24AC125D57FA0057C971 /* base.h in Headers */,
+ 				E49F24AD125D57FA0057C971 /* object.h in Headers */,
+ 				E44757DC17F4573600B82CA1 /* inline_internal.h in Headers */,
+ 				E49F24AE125D57FA0057C971 /* queue.h in Headers */,
+ 				E49F24AF125D57FA0057C971 /* source.h in Headers */,
+-				6E99558A1C3AF7900071D40C /* venture_private.h in Headers */,
+ 				E4B3C3FF18C50D0E0039F49F /* voucher_activity_private.h in Headers */,
+ 				E49F24B0125D57FA0057C971 /* semaphore.h in Headers */,
+ 				E49F24B1125D57FA0057C971 /* group.h in Headers */,
+ 				E49F24B2125D57FA0057C971 /* once.h in Headers */,
+ 				E49F24B3125D57FA0057C971 /* io.h in Headers */,
+@@ -1249,11 +1238,10 @@
+ 				6ED64B521BBD8A2100C35F4D /* firehose_buffer_internal.h in Headers */,
+ 				E48EC97D1835BADD00EAC4F1 /* yield.h in Headers */,
+ 				2BE17C6518EA305E002CA4E8 /* layout_private.h in Headers */,
+ 				E49F24C6125D57FA0057C971 /* config.h in Headers */,
+ 				E422A0D612A557B5005E5BDB /* trace.h in Headers */,
+-				6E9956091C3B21B40071D40C /* venture_internal.h in Headers */,
+ 				6EF2CAB41C889D65001ABE83 /* lock.h in Headers */,
+ 				E4BA743C13A8911B0095BDF1 /* getprogname.h in Headers */,
+ 				E4128ED713BA9A1700ABB2CB /* hw_config.h in Headers */,
+ 				6ED64B581BBD8A3E00C35F4D /* firehose_inline_internal.h in Headers */,
+ 				E454569414746F1B00106147 /* object_private.h in Headers */,
+@@ -1277,11 +1265,10 @@
+ 				E44F9DB316544037001DCD38 /* queue_internal.h in Headers */,
+ 				6ED64B531BBD8A2300C35F4D /* firehose_buffer_internal.h in Headers */,
+ 				E44F9DB51654403F001DCD38 /* source_internal.h in Headers */,
+ 				E44F9DB41654403B001DCD38 /* semaphore_internal.h in Headers */,
+ 				E44F9DB01654402B001DCD38 /* data_internal.h in Headers */,
+-				6E9956081C3B21B30071D40C /* venture_internal.h in Headers */,
+ 				E44F9DB11654402E001DCD38 /* io_internal.h in Headers */,
+ 				E4630251176162D200E11F4C /* atomic_sfb.h in Headers */,
+ 				E44F9DBE1654405B001DCD38 /* tsd.h in Headers */,
+ 				E44F9DB816544053001DCD38 /* atomic.h in Headers */,
+ 				6ED64B591BBD8A3F00C35F4D /* firehose_inline_internal.h in Headers */,
+@@ -1770,19 +1757,17 @@
+ 			);
+ 			inputPaths = (
+ 				"$(SRCROOT)/xcodescripts/install-headers.sh",
+ 				"$(SRCROOT)/os/object.h",
+ 				"$(SRCROOT)/os/object_private.h",
+-				"$(SRCROOT)/os/venture_private.h",
+ 				"$(SRCROOT)/os/voucher_private.h",
+ 				"$(SRCROOT)/os/voucher_activity_private.h",
+ 			);
+ 			name = "Install Headers";
+ 			outputPaths = (
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PUBLIC_HEADERS_FOLDER_PATH)/object.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/object_private.h",
+-				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/venture_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_activity_private.h",
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 			shellPath = "/bin/bash -e";
+@@ -1796,19 +1781,17 @@
+ 			);
+ 			inputPaths = (
+ 				"$(SRCROOT)/xcodescripts/install-headers.sh",
+ 				"$(SRCROOT)/os/object.h",
+ 				"$(SRCROOT)/os/object_private.h",
+-				"$(SRCROOT)/os/venture_private.h",
+ 				"$(SRCROOT)/os/voucher_private.h",
+ 				"$(SRCROOT)/os/voucher_activity_private.h",
+ 			);
+ 			name = "Install Headers";
+ 			outputPaths = (
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PUBLIC_HEADERS_FOLDER_PATH)/object.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/object_private.h",
+-				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/venture_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_private.h",
+ 				"$(CONFIGURATION_BUILD_DIR)/$(OS_PRIVATE_HEADERS_FOLDER_PATH)/voucher_activity_private.h",
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 			shellPath = "/bin/bash -e";
+@@ -1979,11 +1962,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E43570B9126E93380097AB9F /* provider.d in Sources */,
+ 				FC7BEDA40E8361E600161930 /* protocol.defs in Sources */,
+-				6E9955CF1C3B218E0071D40C /* venture.c in Sources */,
+ 				6ED64B471BBD89AF00C35F4D /* firehose.defs in Sources */,
+ 				6ED64B441BBD898700C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F2499125D48D80057C971 /* resolver.c in Sources */,
+ 				E44EBE3E1251659900645D88 /* init.c in Sources */,
+ 				FC7BED990E8361E600161930 /* queue.c in Sources */,
+@@ -2040,11 +2022,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E43570BA126E93380097AB9F /* provider.d in Sources */,
+ 				E49F24C8125D57FA0057C971 /* protocol.defs in Sources */,
+-				6E9956051C3B219B0071D40C /* venture.c in Sources */,
+ 				6ED64B461BBD89AF00C35F4D /* firehose.defs in Sources */,
+ 				6ED64B401BBD898300C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F24C9125D57FA0057C971 /* resolver.c in Sources */,
+ 				E49F24CA125D57FA0057C971 /* init.c in Sources */,
+ 				E49F24CB125D57FA0057C971 /* queue.c in Sources */,
+@@ -2077,11 +2058,10 @@
+ 				E4B515BF164B2DA300E003AF /* resolver.c in Sources */,
+ 				6ED64B4B1BBD89BE00C35F4D /* firehose_reply.defs in Sources */,
+ 				6ED64B481BBD89B100C35F4D /* firehose.defs in Sources */,
+ 				E4B515C0164B2DA300E003AF /* init.c in Sources */,
+ 				E4B515C1164B2DA300E003AF /* queue.c in Sources */,
+-				6E9956021C3B21990071D40C /* venture.c in Sources */,
+ 				E4B515C2164B2DA300E003AF /* semaphore.c in Sources */,
+ 				E4B515C3164B2DA300E003AF /* once.c in Sources */,
+ 				E43A72871AF85BCD00BAA921 /* block.cpp in Sources */,
+ 				E4B515C4164B2DA300E003AF /* apply.c in Sources */,
+ 				E4B515C5164B2DA300E003AF /* object.c in Sources */,
+@@ -2105,11 +2085,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E417A38412A472C4004D659D /* provider.d in Sources */,
+ 				E44EBE5412517EBE00645D88 /* protocol.defs in Sources */,
+-				6E9956031C3B219A0071D40C /* venture.c in Sources */,
+ 				6EBEC7E61BBDD30D009B1596 /* firehose.defs in Sources */,
+ 				6ED64B421BBD898500C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F2424125D3C970057C971 /* resolver.c in Sources */,
+ 				E44EBE5512517EBE00645D88 /* init.c in Sources */,
+ 				E4EC11AE12514302000DDBD1 /* queue.c in Sources */,
+@@ -2137,11 +2116,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				E417A38512A472C5004D659D /* provider.d in Sources */,
+ 				E44EBE5612517EBE00645D88 /* protocol.defs in Sources */,
+-				6E9956041C3B219B0071D40C /* venture.c in Sources */,
+ 				6EBEC7E51BBDD30C009B1596 /* firehose.defs in Sources */,
+ 				6ED64B411BBD898400C35F4D /* firehose_buffer.c in Sources */,
+ 				E49F2423125D3C960057C971 /* resolver.c in Sources */,
+ 				E44EBE5712517EBE00645D88 /* init.c in Sources */,
+ 				E4EC121A12514715000DDBD1 /* queue.c in Sources */,
+Only in libdispatch.xcodeproj: project.xcworkspace
+Only in libdispatch.xcodeproj: xcuserdata
+diff -rU5 src/internal.h src/internal.h
+--- src/internal.h	2017-03-29 21:09:33.000000000 +0100
++++ src/internal.h	2017-04-12 22:29:43.000000000 +0100
+@@ -136,10 +136,11 @@
+ #define DISPATCH_HIDE_SYMBOL(sym, osx, ios, tvos, watchos)
+ #endif
+ #endif
+ 
+ #include <os/object.h>
++#include <os/base_private.h>
+ #include <dispatch/time.h>
+ #include <dispatch/object.h>
+ #include <dispatch/queue.h>
+ #include <dispatch/block.h>
+ #include <dispatch/source.h>
+diff -rU5 src/shims/atomic.h src/shims/atomic.h
+--- src/shims/atomic.h	2016-09-07 15:30:06.000000000 +0100
++++ src/shims/atomic.h	2017-04-12 22:24:16.000000000 +0100
+@@ -25,108 +25,54 @@
+  */
+ 
+ #ifndef __DISPATCH_SHIMS_ATOMIC__
+ #define __DISPATCH_SHIMS_ATOMIC__
+ 
+-#if !__has_extension(c_atomic) || \
+-		!__has_extension(c_generic_selections) || \
+-		!__has_include(<stdatomic.h>)
+-#error libdispatch requires C11 with <stdatomic.h> and generic selections
++#if !__has_extension(c_atomic) || !__has_include(<stdatomic.h>)
++#error libdispatch requires C11 with <stdatomic.h>
+ #endif
+ 
+ #include <stdatomic.h>
+ 
+ #define memory_order_ordered    memory_order_seq_cst
+ #define memory_order_dependency memory_order_acquire
+ 
+-#if __has_extension(c_generic_selections) && __has_extension(c_atomic)
+-#define os_atomic(type) _Atomic(type)
+-#else
+-#define os_atomic(type) type volatile
+-#endif
+-
+-#define _os_atomic_type_cases(type, expr) \
+-		type *: expr, \
+-		type volatile *: expr, \
+-		_Atomic(type) *: expr, \
+-		_Atomic(type) volatile *: expr
+-
+-#define _os_atomic_basetypeof(p) \
+-		typeof(*_Generic((p), \
+-		_os_atomic_type_cases(char, (char *)(p)), \
+-		_os_atomic_type_cases(signed char, (signed char *)(p)), \
+-		_os_atomic_type_cases(unsigned char, (unsigned char *)(p)), \
+-		_os_atomic_type_cases(short, (short *)(p)), \
+-		_os_atomic_type_cases(unsigned short, (unsigned short *)(p)), \
+-		_os_atomic_type_cases(int, (int *)(p)), \
+-		_os_atomic_type_cases(unsigned int, (unsigned int *)(p)), \
+-		_os_atomic_type_cases(long, (long *)(p)), \
+-		_os_atomic_type_cases(unsigned long, (unsigned long *)(p)), \
+-		_os_atomic_type_cases(long long, (long long *)(p)), \
+-		_os_atomic_type_cases(unsigned long long, (unsigned long long *)(p)), \
+-		_os_atomic_type_cases(void *, (void **)(p)), \
+-		_os_atomic_type_cases(const void *, (const void **)(p)), \
+-		default: (void**)(p)))
++#define os_atomic(type) type _Atomic
+ 
+ #define _os_atomic_c11_atomic(p) \
+-		_Generic((p), \
+-		_os_atomic_type_cases(char, (_Atomic(char)*)(p)), \
+-		_os_atomic_type_cases(signed char, (_Atomic(signed char)*)(p)), \
+-		_os_atomic_type_cases(unsigned char, (_Atomic(unsigned char)*)(p)), \
+-		_os_atomic_type_cases(short, (_Atomic(short)*)(p)), \
+-		_os_atomic_type_cases(unsigned short, (_Atomic(unsigned short)*)(p)), \
+-		_os_atomic_type_cases(int, (_Atomic(int)*)(p)), \
+-		_os_atomic_type_cases(unsigned int, (_Atomic(unsigned int)*)(p)), \
+-		_os_atomic_type_cases(long, (_Atomic(long)*)(p)), \
+-		_os_atomic_type_cases(unsigned long, (_Atomic(unsigned long)*)(p)), \
+-		_os_atomic_type_cases(long long, (_Atomic(long long)*)(p)), \
+-		_os_atomic_type_cases(unsigned long long, (_Atomic(unsigned long long)*)(p)), \
+-		_os_atomic_type_cases(void *, (_Atomic(void*)*)(p)), \
+-		_os_atomic_type_cases(const void *, (_Atomic(const void*)*)(p)), \
+-		default: (_Atomic(void*)*)(p))
++		((typeof(*(p)) _Atomic *)(p))
+ 
+-#define os_atomic_thread_fence(m)  atomic_thread_fence(memory_order_##m)
+-// see comment in dispatch_once.c
+-#define os_atomic_maximally_synchronizing_barrier() \
+-		atomic_thread_fence(memory_order_seq_cst)
++// This removes the _Atomic and volatile qualifiers on the type of *p
++#define _os_atomic_basetypeof(p) \
++		typeof(atomic_load_explicit(_os_atomic_c11_atomic(p), memory_order_relaxed))
+ 
+ #define os_atomic_load(p, m) \
+-		({ _os_atomic_basetypeof(p) _r = \
+-		atomic_load_explicit(_os_atomic_c11_atomic(p), \
+-		memory_order_##m); (typeof(*(p)))_r; })
++		atomic_load_explicit(_os_atomic_c11_atomic(p), memory_order_##m)
+ #define os_atomic_store(p, v, m) \
+-		({ _os_atomic_basetypeof(p) _v = (v); \
+-		atomic_store_explicit(_os_atomic_c11_atomic(p), _v, \
+-		memory_order_##m); })
++		atomic_store_explicit(_os_atomic_c11_atomic(p), v, memory_order_##m)
+ #define os_atomic_xchg(p, v, m) \
+-		({ _os_atomic_basetypeof(p) _v = (v), _r = \
+-		atomic_exchange_explicit(_os_atomic_c11_atomic(p), _v, \
+-		memory_order_##m); (typeof(*(p)))_r; })
++		atomic_exchange_explicit(_os_atomic_c11_atomic(p), v, memory_order_##m)
+ #define os_atomic_cmpxchg(p, e, v, m) \
+-		({ _os_atomic_basetypeof(p) _v = (v), _r = (e); \
++		({ _os_atomic_basetypeof(p) _r = (e); \
+ 		atomic_compare_exchange_strong_explicit(_os_atomic_c11_atomic(p), \
+-		&_r, _v, memory_order_##m, \
+-		memory_order_relaxed); })
++		&_r, v, memory_order_##m, memory_order_relaxed); })
+ #define os_atomic_cmpxchgv(p, e, v, g, m) \
+-		({ _os_atomic_basetypeof(p) _v = (v), _r = (e); _Bool _b = \
++		({ _os_atomic_basetypeof(p) _r = (e); _Bool _b = \
+ 		atomic_compare_exchange_strong_explicit(_os_atomic_c11_atomic(p), \
+-		&_r, _v, memory_order_##m, \
+-		memory_order_relaxed); *(g) = (typeof(*(p)))_r; _b; })
++		&_r, v, memory_order_##m, memory_order_relaxed); *(g) = _r; _b; })
+ #define os_atomic_cmpxchgvw(p, e, v, g, m) \
+-		({ _os_atomic_basetypeof(p) _v = (v), _r = (e); _Bool _b = \
++		({ _os_atomic_basetypeof(p) _r = (e); _Bool _b = \
+ 		atomic_compare_exchange_weak_explicit(_os_atomic_c11_atomic(p), \
+-		&_r, _v, memory_order_##m, \
+-		memory_order_relaxed); *(g) = (typeof(*(p)))_r;  _b; })
++		&_r, v, memory_order_##m, memory_order_relaxed); *(g) = _r;  _b; })
+ 
+ #define _os_atomic_c11_op(p, v, m, o, op) \
+ 		({ _os_atomic_basetypeof(p) _v = (v), _r = \
+ 		atomic_fetch_##o##_explicit(_os_atomic_c11_atomic(p), _v, \
+ 		memory_order_##m); (typeof(*(p)))(_r op _v); })
+ #define _os_atomic_c11_op_orig(p, v, m, o, op) \
+-		({ _os_atomic_basetypeof(p) _v = (v), _r = \
+-		atomic_fetch_##o##_explicit(_os_atomic_c11_atomic(p), _v, \
+-		memory_order_##m); (typeof(*(p)))_r; })
++		atomic_fetch_##o##_explicit(_os_atomic_c11_atomic(p), v, \
++		memory_order_##m)
+ #define os_atomic_add(p, v, m) \
+ 		_os_atomic_c11_op((p), (v), m, add, +)
+ #define os_atomic_add_orig(p, v, m) \
+ 		_os_atomic_c11_op_orig((p), (v), m, add, +)
+ #define os_atomic_sub(p, v, m) \
+@@ -150,26 +96,11 @@
+ #define os_atomic_load_with_dependency_on(p, e) \
+ 		os_atomic_load(os_atomic_force_dependency_on(p, e), relaxed)
+ #define os_atomic_load_with_dependency_on2o(p, f, e) \
+ 		os_atomic_load_with_dependency_on(&(p)->f, e)
+ 
+-#define os_atomic_rmw_loop(p, ov, nv, m, ...)  ({ \
+-		bool _result = false; \
+-		typeof(p) _p = (p); \
+-		ov = os_atomic_load(_p, relaxed); \
+-		do { \
+-			__VA_ARGS__; \
+-			_result = os_atomic_cmpxchgvw(_p, ov, nv, &ov, m); \
+-		} while (os_unlikely(!_result)); \
+-		_result; \
+-	})
+-#define os_atomic_rmw_loop2o(p, f, ov, nv, m, ...) \
+-		os_atomic_rmw_loop(&(p)->f, ov, nv, m, __VA_ARGS__)
+-#define os_atomic_rmw_loop_give_up_with_fence(m, expr) \
+-		({ os_atomic_thread_fence(m); expr; __builtin_unreachable(); })
+-#define os_atomic_rmw_loop_give_up(expr) \
+-		os_atomic_rmw_loop_give_up_with_fence(relaxed, expr)
++#define os_atomic_thread_fence(m)  atomic_thread_fence(memory_order_##m)
+ 
+ #define os_atomic_load2o(p, f, m) \
+ 		os_atomic_load(&(p)->f, m)
+ #define os_atomic_store2o(p, f, v, m) \
+ 		os_atomic_store(&(p)->f, (v), m)
+@@ -217,10 +148,27 @@
+ #define os_atomic_dec2o(p, f, m) \
+ 		os_atomic_sub2o(p, f, 1, m)
+ #define os_atomic_dec_orig2o(p, f, m) \
+ 		os_atomic_sub_orig2o(p, f, 1, m)
+ 
++#define os_atomic_rmw_loop(p, ov, nv, m, ...)  ({ \
++		bool _result = false; \
++		typeof(p) _p = (p); \
++		ov = os_atomic_load(_p, relaxed); \
++		do { \
++			__VA_ARGS__; \
++			_result = os_atomic_cmpxchgvw(_p, ov, nv, &ov, m); \
++		} while (os_unlikely(!_result)); \
++		_result; \
++	})
++#define os_atomic_rmw_loop2o(p, f, ov, nv, m, ...) \
++		os_atomic_rmw_loop(&(p)->f, ov, nv, m, __VA_ARGS__)
++#define os_atomic_rmw_loop_give_up_with_fence(m, expr) \
++		({ os_atomic_thread_fence(m); expr; __builtin_unreachable(); })
++#define os_atomic_rmw_loop_give_up(expr) \
++		os_atomic_rmw_loop_give_up_with_fence(relaxed, expr)
++
+ #if defined(__x86_64__) || defined(__i386__)
+ #undef os_atomic_maximally_synchronizing_barrier
+ #ifdef __LP64__
+ #define os_atomic_maximally_synchronizing_barrier() \
+ 		({ unsigned long _clbr; __asm__ __volatile__( \
+diff -rU5 xcodeconfig/libdispatch.xcconfig xcodeconfig/libdispatch.xcconfig
+--- xcodeconfig/libdispatch.xcconfig	2017-03-29 21:09:34.000000000 +0100
++++ xcodeconfig/libdispatch.xcconfig	2017-04-12 22:36:46.000000000 +0100
+@@ -56,11 +56,12 @@
+ GCC_WARN_UNINITIALIZED_AUTOS = YES
+ CLANG_WARN_EMPTY_BODY = YES
+ CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES
+ CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES
+ CLANG_WARN_DOCUMENTATION_COMMENTS = YES
+-GCC_TREAT_WARNINGS_AS_ERRORS = YES
++//GCC_TREAT_WARNINGS_AS_ERRORS = YES
++GGC_TREAT_WARNINGS_AS_ERRORS = NO // __ESDARWIN__: for firehose_buffer.c
+ GCC_OPTIMIZATION_LEVEL = s
+ GCC_PREPROCESSOR_DEFINITIONS = __DARWIN_NON_CANCELABLE=1 $(DISPATCH_PREPROCESSOR_DEFINITIONS)
+ GCC_NO_COMMON_BLOCKS = YES
+ WARNING_CFLAGS = -Wall -Wextra -Waggregate-return -Wfloat-equal -Wpacked -Wmissing-declarations -Wstrict-overflow=4 -Wstrict-aliasing=2 -Wno-packed -Wno-unknown-warning-option
+ OTHER_CFLAGS = -fverbose-asm -isystem $(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders

@@ -1,7 +1,6 @@
-Only in B/Libinfo-503.50.4: Libinfo-503.30.1.diff
-diff -rU5 A/Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj B/Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj
---- A/Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj	2016-12-14 22:05:58.000000000 +0000
-+++ B/Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj	2017-04-13 13:44:42.000000000 +0100
+diff -rU5 Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj
+--- Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj	2016-12-14 22:05:58.000000000 +0000
++++ Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj	2017-04-13 13:44:42.000000000 +0100
 @@ -23,11 +23,11 @@
  
  /* Begin PBXBuildFile section */
@@ -92,13 +91,9 @@ diff -rU5 A/Libinfo-503.50.4/Libinfo.xcodeproj/project.pbxproj B/Libinfo-503.50.
  				VERSION_INFO_EXPORT_DECL = static;
  				VERSION_INFO_PREFIX = __;
  			};
-Only in B/Libinfo-503.50.4/Libinfo.xcodeproj: project.pbxproj.orig
-Only in B/Libinfo-503.50.4/Libinfo.xcodeproj: project.xcworkspace
-Only in B/Libinfo-503.50.4/Libinfo.xcodeproj: xcuserdata
-Only in B/Libinfo-503.50.4: build
-diff -rU5 A/Libinfo-503.50.4/gen.subproj/configuration_profile.c B/Libinfo-503.50.4/gen.subproj/configuration_profile.c
---- A/Libinfo-503.50.4/gen.subproj/configuration_profile.c	2013-07-16 00:50:58.000000000 +0100
-+++ B/Libinfo-503.50.4/gen.subproj/configuration_profile.c	2017-04-13 13:44:42.000000000 +0100
+diff -rU5 Libinfo-503.50.4/gen.subproj/configuration_profile.c Libinfo-503.50.4/gen.subproj/configuration_profile.c
+--- Libinfo-503.50.4/gen.subproj/configuration_profile.c	2013-07-16 00:50:58.000000000 +0100
++++ Libinfo-503.50.4/gen.subproj/configuration_profile.c	2017-04-13 13:44:42.000000000 +0100
 @@ -21,11 +21,15 @@
   * @APPLE_LICENSE_HEADER_END@
   */
@@ -131,9 +126,9 @@ diff -rU5 A/Libinfo-503.50.4/gen.subproj/configuration_profile.c B/Libinfo-503.5
  	close(fd);
  
  	return out;
-diff -rU5 A/Libinfo-503.50.4/lookup.subproj/ds_module.c B/Libinfo-503.50.4/lookup.subproj/ds_module.c
---- A/Libinfo-503.50.4/lookup.subproj/ds_module.c	2016-05-18 17:28:28.000000000 +0100
-+++ B/Libinfo-503.50.4/lookup.subproj/ds_module.c	2017-04-13 13:44:42.000000000 +0100
+diff -rU5 Libinfo-503.50.4/lookup.subproj/ds_module.c Libinfo-503.50.4/lookup.subproj/ds_module.c
+--- Libinfo-503.50.4/lookup.subproj/ds_module.c	2016-05-18 17:28:28.000000000 +0100
++++ Libinfo-503.50.4/lookup.subproj/ds_module.c	2017-04-13 13:44:42.000000000 +0100
 @@ -41,12 +41,16 @@
  #include <notify_keys.h>
  #include <si_data.h>
@@ -153,9 +148,9 @@ diff -rU5 A/Libinfo-503.50.4/lookup.subproj/ds_module.c B/Libinfo-503.50.4/looku
  #include <bootstrap_priv.h>
  #include <opendirectory/DSlibinfoMIG_types.h>
  #ifdef DEBUG
-diff -rU5 A/Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c B/Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c
---- A/Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c	2017-01-18 19:11:50.000000000 +0000
-+++ B/Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c	2017-04-13 13:44:42.000000000 +0100
+diff -rU5 Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c
+--- Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c	2017-01-18 19:11:50.000000000 +0000
++++ Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c	2017-04-13 13:44:42.000000000 +0100
 @@ -27,13 +27,17 @@
  #include <stdio.h>
  #include <stdint.h>
@@ -237,11 +232,9 @@ diff -rU5 A/Libinfo-503.50.4/lookup.subproj/si_getaddrinfo.c B/Libinfo-503.50.4/
  {
  	const uint32_t family_ori = family, flags_ori = flags;
  	int numerichost, numericserv = 0;
-Only in B/Libinfo-503.50.4/lookup.subproj: si_getaddrinfo.c.orig
-Only in B/Libinfo-503.50.4/lookup.subproj: si_getaddrinfo.c.rej
-diff -rU5 A/Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig B/Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig
---- A/Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig	2016-04-09 21:59:49.000000000 +0100
-+++ B/Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig	2017-04-13 13:44:43.000000000 +0100
+diff -rU5 Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig
+--- Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig	2016-04-09 21:59:49.000000000 +0100
++++ Libinfo-503.50.4/xcodescripts/Libinfo.xcconfig	2017-04-13 13:44:43.000000000 +0100
 @@ -30,9 +30,9 @@
  LIBLAUNCH_LDFLAGS = -llaunch
  LIBASL_LDFLAGS = -lsystem_asl

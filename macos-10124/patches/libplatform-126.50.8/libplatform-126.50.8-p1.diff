@@ -1,0 +1,16 @@
+diff -U5 -r libplatform-126.1.2/src/simple/asl.c libplatform-126.1.2/src/simple/asl.c
+--- libplatform-126.1.2/src/simple/asl.c	2016-11-03 01:19:12.000000000 +0000
++++ libplatform-126.1.2/src/simple/asl.c	2017-03-12 16:38:59.000000000 +0000
+@@ -129,11 +129,11 @@
+ 
+ static int
+ _simple_asl_connect(const char *log_path)
+ {
+ 	int fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+-	if (fd == -1) return;
++	if (fd == -1) return -1;
+ 
+ 	fcntl(fd, F_SETFD, FD_CLOEXEC);
+ 
+ 	struct sockaddr_un addr;
+ 	addr.sun_family = AF_UNIX;

@@ -1,0 +1,249 @@
+diff -rU5 Libinfo.xcodeproj/project.pbxproj Libinfo.xcodeproj/project.pbxproj
+--- Libinfo.xcodeproj/project.pbxproj	2016-12-14 22:05:58.000000000 +0000
++++ Libinfo.xcodeproj/project.pbxproj	2017-04-13 13:44:42.000000000 +0100
+@@ -23,11 +23,11 @@
+ 
+ /* Begin PBXBuildFile section */
+ 		2D31A0FC128074E700D5A84C /* getifmaddrs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2D31A0FB128074E700D5A84C /* getifmaddrs.c */; };
+ 		2D4070B1129354A700FE81ED /* getnameinfo_link.c in Sources */ = {isa = PBXBuildFile; fileRef = 2D4070B0129354A700FE81ED /* getnameinfo_link.c */; };
+ 		2D5DD5D21608E6E80051891A /* configuration_profile.c in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DD5D01608E6E80051891A /* configuration_profile.c */; };
+-		C965793A1B94C97100624699 /* muser_module.c in Sources */ = {isa = PBXBuildFile; fileRef = C96579391B94C97100624699 /* muser_module.c */; settings = {ASSET_TAGS = (); }; };
++		C965793A1B94C97100624699 /* muser_module.c in Sources */ = {isa = PBXBuildFile; fileRef = C96579391B94C97100624699 /* muser_module.c */; };
+ 		FC5284C011478C200058CCB0 /* herror.c in Sources */ = {isa = PBXBuildFile; fileRef = FC5283EE11478C200058CCB0 /* herror.c */; };
+ 		FC5284C811478C200058CCB0 /* res_comp.c in Sources */ = {isa = PBXBuildFile; fileRef = FC5283F711478C200058CCB0 /* res_comp.c */; };
+ 		FC5284CD11478C200058CCB0 /* res_query.c in Sources */ = {isa = PBXBuildFile; fileRef = FC5283FC11478C200058CCB0 /* res_query.c */; };
+ 		FC5284D211478C200058CCB0 /* getifaddrs.c in Sources */ = {isa = PBXBuildFile; fileRef = FC52840411478C200058CCB0 /* getifaddrs.c */; };
+ 		FC5284D311478C200058CCB0 /* if_indextoname.c in Sources */ = {isa = PBXBuildFile; fileRef = FC52840A11478C200058CCB0 /* if_indextoname.c */; };
+@@ -806,10 +806,16 @@
+ 		1DEB914C08733D8E0010E9CD /* Release */ = {
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = 3F397F7D185BD67F00987BCC /* Libinfo.xcconfig */;
+ 			buildSettings = {
+ 				COMBINE_HIDPI_IMAGES = YES;
++				GCC_PREPROCESSOR_DEFINITIONS = (
++					"__DARWIN_NON_CANCELABLE=1",
++					"__MigTypeCheck=1",
++					__ESDARWIN__,
++					"INET6=1",
++				);
+ 				PRODUCT_NAME = info;
+ 				SUPPORTED_PLATFORMS = "macosx iphoneos";
+ 				VERSION_INFO_EXPORT_DECL = static;
+ 				VERSION_INFO_PREFIX = __;
+ 			};
+@@ -822,18 +828,19 @@
+ 				BUILD_VARIANTS = (
+ 					normal,
+ 					profile,
+ 					debug,
+ 				);
+-				CODE_SIGN_IDENTITY = "-";
+ 				CURRENT_PROJECT_VERSION = "$(RC_ProjectSourceVersion)";
+ 				DEAD_CODE_STRIPPING = YES;
+ 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+ 				DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+ 				GCC_C_LANGUAGE_STANDARD = gnu99;
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
++				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+ 				OTHER_CFLAGS = "";
+ 				VERSIONING_SYSTEM = "apple-generic";
+ 				WARNING_CFLAGS = "-Wno-error=deprecated-declarations";
+@@ -856,19 +863,20 @@
+ 				BUILD_VARIANTS = (
+ 					normal,
+ 					profile,
+ 					debug,
+ 				);
+-				CODE_SIGN_IDENTITY = "-";
+ 				CURRENT_PROJECT_VERSION = "$(RC_ProjectSourceVersion)";
+ 				DEAD_CODE_STRIPPING = YES;
+ 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+ 				DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+ 				GCC_C_LANGUAGE_STANDARD = gnu99;
+ 				GCC_OPTIMIZATION_LEVEL = 0;
++				GCC_PREPROCESSOR_DEFINITIONS = __ESDARWIN__;
+ 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
++				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+ 				OTHER_CFLAGS = "-DDEBUG=1";
+ 				VERSIONING_SYSTEM = "apple-generic";
+ 				WARNING_CFLAGS = "-Wno-error=deprecated-declarations";
+@@ -879,10 +887,16 @@
+ 		90E08A3D1BB364CA0093311B /* Debug */ = {
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = 3F397F7D185BD67F00987BCC /* Libinfo.xcconfig */;
+ 			buildSettings = {
+ 				COMBINE_HIDPI_IMAGES = YES;
++				GCC_PREPROCESSOR_DEFINITIONS = (
++					"__DARWIN_NON_CANCELABLE=1",
++					"__MigTypeCheck=1",
++					"INET6=1",
++					__ESDARWIN__,
++				);
+ 				PRODUCT_NAME = info;
+ 				SUPPORTED_PLATFORMS = "macosx iphoneos";
+ 				VERSION_INFO_EXPORT_DECL = static;
+ 				VERSION_INFO_PREFIX = __;
+ 			};
+diff -rU5 gen.subproj/configuration_profile.c gen.subproj/configuration_profile.c
+--- gen.subproj/configuration_profile.c	2013-07-16 00:50:58.000000000 +0100
++++ gen.subproj/configuration_profile.c	2017-04-13 13:44:42.000000000 +0100
+@@ -21,11 +21,15 @@
+  * @APPLE_LICENSE_HEADER_END@
+  */
+ 
+ #include <stdlib.h>
+ #include <string.h>
++
++#ifndef __ESDARWIN__
+ #include <xpc/private.h>
++#endif /* __ESDARWIN__ */
++
+ #include <sys/stat.h>
+ #include <TargetConditionals.h>
+ #include "configuration_profile.h"
+ 
+ #define NOTIFY_PATH_SERVICE "com.apple.system.notify.service.path:0x87:"
+@@ -87,11 +91,14 @@
+ 		close(fd);
+ 		return NULL;
+ 	}
+ 
+ 	data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+-	if (data != NULL) out = xpc_create_from_plist(data, sb.st_size);
++
++    #ifndef __ESDARWIN__
++    if (data != NULL) out = xpc_create_from_plist(data, sb.st_size);
++    #endif /* __ESDARWIN__ */
+ 
+ 	munmap(data, sb.st_size);
+ 	close(fd);
+ 
+ 	return out;
+diff -rU5 lookup.subproj/ds_module.c lookup.subproj/ds_module.c
+--- lookup.subproj/ds_module.c	2016-05-18 17:28:28.000000000 +0100
++++ lookup.subproj/ds_module.c	2017-04-13 13:44:42.000000000 +0100
+@@ -41,12 +41,16 @@
+ #include <notify_keys.h>
+ #include <si_data.h>
+ #include <si_module.h>
+ #include <netdb_async.h>
+ #include <net/if.h>
+-#include <xpc/xpc.h>
+-#include <xpc/private.h>
++
++#ifndef __ESDARWIN__
++    #include <xpc/xpc.h>
++    #include <xpc/private.h>
++#endif // __ESDARWIN__
++
+ #include <opendirectory/odipc.h>
+ #include <servers/bootstrap.h>
+ #include <bootstrap_priv.h>
+ #include <opendirectory/DSlibinfoMIG_types.h>
+ #ifdef DEBUG
+diff -rU5 lookup.subproj/si_getaddrinfo.c lookup.subproj/si_getaddrinfo.c
+--- lookup.subproj/si_getaddrinfo.c	2017-01-18 19:11:50.000000000 +0000
++++ lookup.subproj/si_getaddrinfo.c	2017-04-13 13:44:42.000000000 +0100
+@@ -27,13 +27,17 @@
+ #include <stdio.h>
+ #include <stdint.h>
+ #include <sys/socket.h>
+ #include <net/if.h>
+ #include <netinet/in.h>
+-#include <network/sa_compare.h>
+-#include <network/nat64.h>
+-#include <network/path_evaluation.h>
++
++#if __ESDARWIN__
++    #include <network/sa_compare.h>
++    #include <network/nat64.h>
++    #include <network/path_evaluation.h>
++#endif /* __ESDARWIN__ */
++
+ #include <arpa/inet.h>
+ #include <ifaddrs.h>
+ #include <net/if.h>
+ #include <string.h>
+ #include <sys/param.h>
+@@ -781,11 +785,16 @@
+ 	/*
+ 	 * sa_dst_compare(A,B) returns -1 if A is less desirable than B,
+ 	 * 0 if they are equally desirable, and 1 if A is more desirable.
+ 	 * qsort() expects the inverse, so we swap sp and sq.
+ 	 */
+-	return sa_dst_compare(sq, sp, 0);
++
++    #ifndef  __ESDARWIN__
++    return sa_dst_compare(sq, sp, 0);
++    #else /* __ESDARWIN__ */
++    return 0;
++    #endif /* __ESDARWIN__ */
+ }
+ 
+ static si_list_t *
+ _gai_sort_list(si_list_t *in, uint32_t flags)
+ {
+@@ -1028,10 +1037,12 @@
+ 	}
+ 
+ 	return result;
+ }
+ 
++#ifndef __ESDARWIN__
++
+ static si_list_t *
+ _gai_nat64_synthesis(si_mod_t *si, const char *node, const void *servptr, int numericserv,
+ 					 uint32_t family, uint32_t socktype, uint32_t proto, uint32_t flags, const char *interface)
+ {
+ 	if (NULL == node)
+@@ -1274,10 +1285,28 @@
+ 		}
+ 	}
+ 	return out_list;
+ }
+ 
++#else /* __ESDARWIN__ */
++
++static si_list_t *
++_gai_nat64_synthesis(si_mod_t *si, const char *node, const void *servptr, int numericserv,
++                     uint32_t family, uint32_t socktype, uint32_t proto, uint32_t flags, const char *interface)
++{
++    return NULL;
++}
++
++static si_list_t *
++_gai_nat64_second_pass(si_list_t *out, si_mod_t *si, const char *serv, uint32_t family, uint32_t socktype,
++                       uint32_t proto, uint32_t flags, const char *interface)
++{
++    return NULL;
++}
++
++#endif /* __ESDARWIN__ */
++
+ si_list_t *
+ si_addrinfo(si_mod_t *si, const char *node, const char *serv, uint32_t family, uint32_t socktype, uint32_t proto, uint32_t flags, const char *interface, uint32_t *err)
+ {
+ 	const uint32_t family_ori = family, flags_ori = flags;
+ 	int numerichost, numericserv = 0;
+diff -rU5 xcodescripts/Libinfo.xcconfig xcodescripts/Libinfo.xcconfig
+--- xcodescripts/Libinfo.xcconfig	2016-04-09 21:59:49.000000000 +0100
++++ xcodescripts/Libinfo.xcconfig	2017-04-13 13:44:43.000000000 +0100
+@@ -30,9 +30,9 @@
+ LIBLAUNCH_LDFLAGS = -llaunch
+ LIBASL_LDFLAGS = -lsystem_asl
+ LIBBLOCKS_LDFLAGS = -lsystem_blocks
+ LIBDNSD_LDFLAGS = -lsystem_dnssd
+ LIBNOTIFY_LDFLAGS = -lsystem_notify
+-LIBXPC_LDFLAGS = -lxpc
+-LIBNETWORK_LDFLAGS = -lsystem_network
++LIBXPC_LDFLAGS =
++LIBNETWORK_LDFLAGS =
+ 
+ OTHER_LDFLAGS = -all_load -umbrella System -L/usr/lib/system $(LIBCOMPILER_RT_LDFLAGS) $(LIBDYLD_LDFLAGS) $(LIBSYSCALL_LDFLAGS) $(LIBMALLOC_LDFLAGS) $(LIBPLATFORM_LDFLAGS) $(LIBPTHREAD_LDFLAGS) $(LIBC_LDFLAGS) $(LIBDISPATCH_LDFLAGS) $(LIBLAUNCH_LDFLAGS) $(LIBASL_LDFLAGS) $(LIBBLOCKS_LDFLAGS) $(LIBDNSD_LDFLAGS) $(LIBNOTIFY_LDFLAGS) $(LIBXPC_LDFLAGS) $(LIBNETWORK_LDFLAGS)
