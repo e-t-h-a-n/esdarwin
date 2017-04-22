@@ -1,0 +1,187 @@
+diff -rwbU5 IOATABlockStorageCommands.cpp IOATABlockStorageCommands.cpp
+--- IOATABlockStorageCommands.cpp	2017-04-22 23:20:26.000000000 +0100
++++ IOATABlockStorageCommands.cpp	2017-04-22 23:18:35.000000000 +0100
+@@ -1372,11 +1372,11 @@
+ 		
+ 		// Async command processing is complete, re-enqueue command
+ 		clientData.self->returnATACommandObject ( cmd );
+ 		
+ 		// Signal the completion routine that the request has been completed.
+-		IOStorage::complete ( clientData.completion.async,
++		IOStorage::complete ( &clientData.completion.async,
+ 							  result,
+ 							  bytesTransferred );
+ 		
+ 	}
+ 	
+diff -rwbU5 IOATABlockStorageDevice.cpp IOATABlockStorageDevice.cpp
+--- IOATABlockStorageDevice.cpp	2017-04-22 23:20:26.000000000 +0100
++++ IOATABlockStorageDevice.cpp	2017-04-22 23:20:17.000000000 +0100
+@@ -28,11 +28,10 @@
+ #include <IOKit/storage/IOStorageDeviceCharacteristics.h>
+ #include <IOKit/IOPlatformExpert.h>
+ 
+ #include "IOATABlockStorageDriver.h"
+ #include "IOATABlockStorageDevice.h"
+-#include "ATASMARTLibPriv.h"
+ 
+ #define super IOBlockStorageDevice
+ OSDefineMetaClassAndStructors ( IOATABlockStorageDevice, IOBlockStorageDevice );
+ 
+ 
+@@ -134,57 +133,10 @@
+ 			dictionary->setObject ( kIOPropertyProductRevisionLevelKey, theString );
+ 			theString->release ( );
+ 		}
+ 		
+ 		dictionary->setObject ( kIOATASupportedFeaturesKey, fProvider->getProperty ( kIOATASupportedFeaturesKey ) );
+-		value = OSDynamicCast ( OSNumber, fProvider->getProperty ( kIOATASupportedFeaturesKey ) );
+-		if ( value != NULL )
+-		{
+-			
+-			features = value->unsigned32BitValue ( );
+-			if ( features & kIOATAFeatureSMART )
+-			{
+-				
+-				OSDictionary *	userClientDict = OSDictionary::withCapacity ( 1 );
+-				OSString *		string1;
+-				OSString *		string2;
+-				
+-				string1 = OSString::withCString ( kATASMARTUserClientTypeIDKey );
+-				string2 = OSString::withCString ( kATASMARTUserClientLibLocationKey );
+-				
+-				userClientDict->setObject ( string1, string2 );
+-				
+-				setProperty ( kIOUserClientClassKey, kATASMARTUserClientClassKey );
+-				setProperty ( kIOCFPlugInTypesKey, userClientDict );
+-				
+-				if ( userClientDict != NULL )
+-				{
+-					
+-					userClientDict->release ( );
+-					userClientDict = NULL;
+-					
+-				}
+-				
+-				if ( string1 != NULL )
+-				{
+-					
+-					string1->release ( );
+-					string1 = NULL;
+-					
+-				}
+-
+-				if ( string2 != NULL )
+-				{
+-					
+-					string2->release ( );
+-					string2 = NULL;
+-					
+-				}
+-				
+-			}
+-			
+-		}
+ 		
+ 		setProperty ( kIOPropertyDeviceCharacteristicsKey, dictionary );
+ 		
+ 		dictionary->release ( );
+ 		
+@@ -231,18 +183,10 @@
+ 
+ bool
+ IOATABlockStorageDevice::handleOpen ( IOService * client, IOOptionBits options, void * access )
+ {
+ 	
+-	// If this isn't a user client, pass through to superclass.
+-	if ( ( options & kIOATASMARTUserClientAccessMask ) == 0 )
+-	{
+-		
+-		return super::handleOpen ( client, options, access );
+-		
+-	}
+-	
+ 	// It's the user client, so add it to the set
+ 	
+ 	if ( fClients == NULL )
+ 		fClients = OSSet::withCapacity ( 1 );
+ 	
+@@ -270,17 +214,10 @@
+ 
+ void
+ IOATABlockStorageDevice::handleClose ( IOService * client, IOOptionBits options )
+ {
+ 	
+-	// If this isn't a user client, pass through to superclass.
+-	if ( ( options & kIOATASMARTUserClientAccessMask ) == 0 )
+-		super::handleClose ( client, options );
+-	
+-	else
+-	{
+-		
+ 		STATUS_LOG ( ( "Removing user client\n" ) );
+ 		fClients->removeObject ( client );
+ 		if ( fClients->getCount ( ) != 0 )
+ 		{
+ 			
+@@ -289,12 +226,10 @@
+ 			
+ 		}
+ 		
+ 	}
+ 	
+-}
+-
+ 
+ //---------------------------------------------------------------------------
+ // handleIsOpen from client.
+ 
+ bool
+diff -rwbU5 IOATABlockStorageDriver.h IOATABlockStorageDriver.h
+--- IOATABlockStorageDriver.h	2017-04-22 23:20:26.000000000 +0100
++++ IOATABlockStorageDriver.h	2017-04-22 23:18:35.000000000 +0100
+@@ -380,11 +380,11 @@
+ 	virtual IOReturn 	setAggressiveness ( UInt32 type, UInt32 minutes );
+ 	
+ 	// The initialPowerStateForDomainState() method is called by the power manager
+ 	// to ask us what state we should be in based on the power flags of our parent
+ 	// in the power tree.
+-	virtual UInt32		initialPowerStateForDomainState ( IOPMPowerFlags flags );
++	virtual unsigned long		initialPowerStateForDomainState ( IOPMPowerFlags flags );
+ 	
+ 	virtual IOReturn 	setPowerState ( UInt32			powerStateOrdinal,
+ 										IOService * 	whatDevice );
+ 	
+ 	//-----------------------------------------------------------------------
+diff -rwbU5 IOATABlockStorageDriverPM.cpp IOATABlockStorageDriverPM.cpp
+--- IOATABlockStorageDriverPM.cpp	2017-04-22 23:20:26.000000000 +0100
++++ IOATABlockStorageDriverPM.cpp	2017-04-22 23:18:35.000000000 +0100
+@@ -170,11 +170,11 @@
+ //---------------------------------------------------------------------------
+ // ¥ initialPowerStateForDomainState - 	Returns to the power manager what
+ //										initial state the device should be in.
+ //---------------------------------------------------------------------------
+ 
+-UInt32
++unsigned long
+ IOATABlockStorageDriver::initialPowerStateForDomainState (
+ 											IOPMPowerFlags	flags )
+ {
+ 	
+ 	// We ignore the flags since we are always active at startup time and we
+diff -rwbU5 IOATAStorageDefines.h IOATAStorageDefines.h
+--- IOATAStorageDefines.h	2017-04-22 23:20:26.000000000 +0100
++++ IOATAStorageDefines.h	2017-04-22 23:18:35.000000000 +0100
+@@ -244,11 +244,11 @@
+ 	kIOATADefaultPerformance			 	= 0x80,
+ 	kIOATAMaxPowerSavings					= 0x01
+ };
+ 
+ /* ATA power states, from lowest to highest power usage */
+-typedef UInt32 IOATAPowerState;
++typedef unsigned long IOATAPowerState;
+ enum
+ {
+ 	kIOATAPowerStateSystemSleep	= 0,
+ 	kIOATAPowerStateSleep 		= 1,
+ 	kIOATAPowerStateStandby		= 2,
