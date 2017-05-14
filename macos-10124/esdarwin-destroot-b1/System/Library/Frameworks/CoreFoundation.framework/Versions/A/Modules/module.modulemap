@@ -1,0 +1,6 @@
+framework module CoreFoundation {
+  umbrella header "CoreFoundation.h"
+
+  export *
+  module * { export * }
+}
