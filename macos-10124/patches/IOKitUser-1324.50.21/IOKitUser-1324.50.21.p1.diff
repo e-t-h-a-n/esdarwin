@@ -1,0 +1,2371 @@
+diff -rU5 IOKitUser-1324.50.21/IOCFPlugIn.c IOKitUser-1324.50.21/IOCFPlugIn.c
+--- IOKitUser-1324.50.21/IOCFPlugIn.c	2013-09-11 22:29:10.000000000 +0100
++++ IOKitUser-1324.50.21/IOCFPlugIn.c	2017-05-13 00:28:04.000000000 +0100
+@@ -21,10 +21,12 @@
+  * @APPLE_LICENSE_HEADER_END@
+  */
+ #ifdef HAVE_CFPLUGIN
+ 
+ #include <IOKit/IOCFPlugIn.h>
++#include <CoreFoundation/CFNumber.h>
++#include <CoreFoundation/CFURLAccess.h>
+ 
+ #if 0 // for local logging
+ #include <asl.h>
+ void __iocfpluginlog(const char *format, ...);
+ #endif
+@@ -52,21 +54,30 @@
+ }
+ 
+ static CFURLRef
+ _CreateIfReachable( CFStringRef thePath )
+ {
++    CFBooleanRef    pathExists; // must release
+     CFURLRef        pathURL = NULL;  // caller will release
++    SInt32          URLError;
+     
+     pathURL = CFURLCreateWithFileSystemPath(NULL, thePath,
+                                             kCFURLPOSIXPathStyle,
+                                             TRUE);
+     if (pathURL) {
+-        if (CFURLResourceIsReachable(pathURL, NULL) == false) {
++        pathExists = CFURLCreatePropertyFromResource(kCFAllocatorDefault,
++                                                     pathURL,
++                                                     kCFURLFileExists,
++                                                     &URLError);
++        if (!pathExists) {
+             CFRelease( pathURL );
+             pathURL = NULL;
+         }
+     }
++
++    if(pathExists) CFRelease(pathExists);
++
+     return(pathURL);
+ }
+ 
+ /* Starting in 10.9 Plugins will be looked up in the following order:
+  * 1) if IOCFPlugInTypes in the registry entry has a plugin name starting with
+diff -rU5 IOKitUser-1324.50.21/IOKitInternal.h IOKitUser-1324.50.21/IOKitInternal.h
+--- IOKitUser-1324.50.21/IOKitInternal.h	2008-05-20 05:20:14.000000000 +0100
++++ IOKitUser-1324.50.21/IOKitInternal.h	2017-05-12 21:42:07.000000000 +0100
+@@ -28,6 +28,8 @@
+ #define thread_errno() errno
+ 
+ #define CFMaxPathSize ((CFIndex)1026)
+ #define CFMaxPathLength ((CFIndex)1024)
+ 
++extern int gIOHIDLogLevel = 0;
++
+ #endif /* __IOKIT_IOKITINTERNAL_H */
+diff -rU5 IOKitUser-1324.50.21/IOKitLib.c IOKitUser-1324.50.21/IOKitLib.c
+--- IOKitUser-1324.50.21/IOKitLib.c	2017-03-29 21:10:15.000000000 +0100
++++ IOKitUser-1324.50.21/IOKitLib.c	2017-05-12 21:42:07.000000000 +0100
+@@ -41,12 +41,11 @@
+ #include <sys/stat.h>
+ #include <sys/mman.h>
+ #include <unistd.h>
+ #include <asl.h>
+ #include <dispatch/dispatch.h>
+-#include <dispatch/private.h> 
+-#include <xpc/xpc.h>
++#include <dispatch/private.h>
+ 
+ #include <CoreFoundation/CoreFoundation.h>
+ #include <CoreFoundation/CFMachPort.h>
+ 
+ #include <libkern/OSAtomic.h>
+@@ -1413,72 +1412,11 @@
+     kern_return_t status;
+     uint64_t serviceID;
+ 
+     status = IORegistryEntryGetRegistryEntryID( service, &serviceID );
+ 
+-    if ( status == kIOReturnSuccess )
+-    {
+-        xpc_object_t message;
+-
+-        message = xpc_dictionary_create( NULL, NULL, 0 );
+-
+-        if ( message )
+-        {
+-            xpc_connection_t connection;
+-
+-            xpc_dictionary_set_uint64( message, "options", options );
+-            xpc_dictionary_set_uint64( message, "service", serviceID );
+-
+-            connection = xpc_connection_create( "com.apple.iokit.IOServiceAuthorizeAgent", NULL );
+-
+-            if ( connection )
+-            {
+-                xpc_object_t reply;
+-
+-                xpc_connection_set_event_handler( connection, ^( xpc_object_t object __unused ) { } );
+-
+-                xpc_connection_resume( connection );
+-
+-                reply = xpc_connection_send_message_with_reply_sync( connection, message );
+-
+-                if ( reply )
+-                {
+-                    xpc_type_t type;
+-
+-                    type = xpc_get_type( reply );
+-
+-                    if ( type == XPC_TYPE_DICTIONARY )
+-                    {
+-                        status = xpc_dictionary_get_uint64( reply, "status" );
+-                    }
+-                    else
+-                    {
+-                        status = kIOReturnBadMessageID;
+-                    }
+-
+-                    xpc_release( reply );
+-                }
+-                else
+-                {
+-                    status = kIOReturnNotPrivileged;
+-                }
+-
+-                xpc_release( connection );
+-            }
+-            else
+-            {
+-                status = kIOReturnUnsupported;
+-            }
+-            
+-            xpc_release( message );
+-        }
+-        else
+-        {
+-            status = kIOReturnNoMemory;
+-        }
+-    }
+-    else
++    if ( status != kIOReturnSuccess )
+     {
+         status = kIOReturnBadArgument;
+     }
+ 
+     return status;
+@@ -1493,77 +1431,11 @@
+     uint64_t serviceID;
+     int fd = -1;
+ 
+     status = IORegistryEntryGetRegistryEntryID( service, &serviceID );
+ 
+-    if ( status == kIOReturnSuccess )
+-    {
+-        xpc_object_t message;
+-
+-        message = xpc_dictionary_create( NULL, NULL, 0 );
+-
+-        if ( message )
+-        {
+-            xpc_connection_t connection;
+-
+-            xpc_dictionary_set_int64( message, "oflag", oflag );
+-            xpc_dictionary_set_uint64( message, "service", serviceID );
+-
+-            connection = xpc_connection_create( "com.apple.iokit.ioserviceauthorized", NULL );
+-
+-            if ( connection )
+-            {
+-                xpc_object_t reply;
+-
+-                xpc_connection_set_event_handler( connection, ^( xpc_object_t object __unused ) { } );
+-
+-                xpc_connection_resume( connection );
+-
+-                reply = xpc_connection_send_message_with_reply_sync( connection, message );
+-
+-                if ( reply )
+-                {
+-                    xpc_type_t type;
+-
+-                    type = xpc_get_type( reply );
+-
+-                    if ( type == XPC_TYPE_DICTIONARY )
+-                    {
+-                        status = xpc_dictionary_get_uint64( reply, "status" );
+-
+-                        if ( status == kIOReturnSuccess )
+-                        {
+-                            fd = xpc_dictionary_dup_fd( reply, "fd" );
+-                        }
+-                    }
+-                    else
+-                    {
+-                        status = unix_err( EBADMSG );
+-                    }
+-
+-                    xpc_release( reply );
+-                }
+-                else
+-                {
+-                    status = unix_err( EACCES );
+-                }
+-
+-                xpc_release( connection );
+-            }
+-            else
+-            {
+-                status = unix_err( ENOTSUP );
+-            }
+-            
+-            xpc_release( message );
+-        }
+-        else
+-        {
+-            status = unix_err( ENOMEM );
+-        }
+-    }
+-    else
++    if ( status != kIOReturnSuccess )
+     {
+         status = unix_err( EINVAL );
+     }
+ 
+     if ( status )
+diff -rU5 IOKitUser-1324.50.21/IOKitUser.xcodeproj/project.pbxproj IOKitUser-1324.50.21/IOKitUser.xcodeproj/project.pbxproj
+--- IOKitUser-1324.50.21/IOKitUser.xcodeproj/project.pbxproj	2017-02-19 22:27:28.000000000 +0000
++++ IOKitUser-1324.50.21/IOKitUser.xcodeproj/project.pbxproj	2017-05-13 13:52:46.000000000 +0100
+@@ -467,11 +467,10 @@
+ 		7CB4DC2118209AFC00D5A5AC /* IOAVControlInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CB4DC2018209AFC00D5A5AC /* IOAVControlInterface.h */; };
+ 		7CB4DC2218209AFC00D5A5AC /* IOAVControlInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CB4DC2018209AFC00D5A5AC /* IOAVControlInterface.h */; };
+ 		7CB4DC2318209B8200D5A5AC /* IOAVControlInterface.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7CB4DC2018209AFC00D5A5AC /* IOAVControlInterface.h */; };
+ 		7CC1AC601E590E6A0013B99C /* IOAVDisplayMemoryUserClient.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8987CF9C1E57933500A7E870 /* IOAVDisplayMemoryUserClient.h */; };
+ 		80515E171AAA66330067A770 /* libenergytrace.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 80515E131AAA5E620067A770 /* libenergytrace.dylib */; };
+-		80B849831AAE1ACE00DF24D0 /* libenergytrace.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 80515E131AAA5E620067A770 /* libenergytrace.dylib */; };
+ 		84061D4A1602D240003855D6 /* IOHIDEventSystemConnection.h in Copy HID Private Headers A */ = {isa = PBXBuildFile; fileRef = 8456682E114C30AE006A9B74 /* IOHIDEventSystemConnection.h */; };
+ 		84061D4C1602D261003855D6 /* IOHIDEventSystemPrivate.h in Copy HID Private Headers A */ = {isa = PBXBuildFile; fileRef = 847A12500C07C3A400F3CCDB /* IOHIDEventSystemPrivate.h */; };
+ 		840933DF15FC0E4600F0AA90 /* IOHIDEventSystemConnection.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8456682E114C30AE006A9B74 /* IOHIDEventSystemConnection.h */; };
+ 		840933E115FC25AD00F0AA90 /* IOHIDEventSystemConnection.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8456682E114C30AE006A9B74 /* IOHIDEventSystemConnection.h */; };
+ 		840A571909B69B4F00CEFF84 /* IOHIDElement.h in Copy HID Headers */ = {isa = PBXBuildFile; fileRef = 84DE65B409B6952900AD798E /* IOHIDElement.h */; };
+@@ -1040,11 +1039,10 @@
+ 		B332FDF814D747FB0092AA1E /* libDeviceMIG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DCEADB208DB8CEF00B0CBEA /* libDeviceMIG.a */; };
+ 		B332FDF914D747FB0092AA1E /* libioav.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8491B48A145B4B4B00DD2767 /* libioav.a */; };
+ 		B3982736134F7B0D00B1D668 /* IOHIDServiceFilterPlugIn.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B32727B5134F772D009C9B4B /* IOHIDServiceFilterPlugIn.h */; };
+ 		B3982737134F7B0D00B1D668 /* IOHIDSessionFilterPlugIn.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B32727B6134F772D009C9B4B /* IOHIDSessionFilterPlugIn.h */; };
+ 		B39CC4C114CF56350015DA1A /* libbsm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B3CA01D914CA40DD00A67868 /* libbsm.dylib */; };
+-		B3CA01DA14CA40DD00A67868 /* libbsm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B3CA01D914CA40DD00A67868 /* libbsm.dylib */; };
+ 		B908942C1464496A00309232 /* IOHIDLibSPI.h in Headers */ = {isa = PBXBuildFile; fileRef = B908942B1464496A00309232 /* IOHIDLibSPI.h */; };
+ 		B908942F14644AAD00309232 /* IOHIDLibPrivate.h in Copy HID Private Headers A */ = {isa = PBXBuildFile; fileRef = 844A55DB0A54A8FA00FAE0BC /* IOHIDLibPrivate.h */; };
+ 		B908943014644AC500309232 /* IOHIDLibSPI.h in Copy HIDSystem Private Headers */ = {isa = PBXBuildFile; fileRef = B908942B1464496A00309232 /* IOHIDLibSPI.h */; };
+ 		B950E6B1110F6B1900DDCF6D /* IOHIDManagerPersistentProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = B950E6B0110F6B1900DDCF6D /* IOHIDManagerPersistentProperties.h */; };
+ 		B950E6B2110F6B1900DDCF6D /* IOHIDManagerPersistentProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = B950E6B0110F6B1900DDCF6D /* IOHIDManagerPersistentProperties.h */; };
+@@ -3027,12 +3025,10 @@
+ 		};
+ 		E1AF5FFE07B40A70007EADEA /* Frameworks */ = {
+ 			isa = PBXFrameworksBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
+-				80B849831AAE1ACE00DF24D0 /* libenergytrace.dylib in Frameworks */,
+-				B3CA01DA14CA40DD00A67868 /* libbsm.dylib in Frameworks */,
+ 				E1AF60F007B40A71007EADEA /* CoreFoundation.framework in Frameworks */,
+ 				3EDBD02607B4307D00D7C183 /* libz.dylib in Frameworks */,
+ 				2DCEADCB08DB945700B0CBEA /* libDeviceMIG.a in Frameworks */,
+ 				6F51E41E0DAC16B800EDDC3D /* libkxld.dylib in Frameworks */,
+ 			);
+@@ -5186,10 +5182,11 @@
+ 		};
+ 		E1AF5FFC07B40A70007EADEA /* Sources */ = {
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
++				E1AF605E07B40A71007EADEA /* powermanagement.defs in Sources */,
+ 				6F66CAEC1992A23900843FD5 /* cross_link.c in Sources */,
+ 				E1AF601A07B40A70007EADEA /* IOCFSerialize.c in Sources */,
+ 				E1AF601C07B40A70007EADEA /* IOCFUnserialize.tab.c in Sources */,
+ 				E1AF601E07B40A70007EADEA /* IOKitLib.c in Sources */,
+ 				720CE25D1CAB4347005127CC /* FileAbstraction.hpp in Sources */,
+@@ -5201,11 +5198,10 @@
+ 				E1AF604E07B40A71007EADEA /* IOPMLib.c in Sources */,
+ 				E1AF605007B40A71007EADEA /* IOPMEnergyPrefs.c in Sources */,
+ 				E1AF605207B40A71007EADEA /* IOPMAutoWake.c in Sources */,
+ 				E1AF605407B40A71007EADEA /* IOPMRepeatingPower.c in Sources */,
+ 				E1AF605607B40A71007EADEA /* IOPMUPSPrefs.c in Sources */,
+-				E1AF605E07B40A71007EADEA /* powermanagement.defs in Sources */,
+ 				E1AF606207B40A71007EADEA /* IOUSBLib.c in Sources */,
+ 				E1AF606D07B40A71007EADEA /* IONetworkLib.c in Sources */,
+ 				E1AF608107B40A71007EADEA /* PEFSupport.c in Sources */,
+ 				E1AF608307B40A71007EADEA /* IOAccelSurfaceControl.c in Sources */,
+ 				E1AF608507B40A71007EADEA /* IOGraphicsLib.c in Sources */,
+@@ -5491,13 +5487,14 @@
+ 				GCC_OPTIMIZATION_LEVEL = s;
+ 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				HEADER_SEARCH_PATHS = (
+-					$PROJECT_DERIVED_FILE_DIR,
++					"$(PROJECT_DERIVED_FILE_DIR)",
+ 					"$(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders",
+ 					"$(SDKROOT)/usr/local/include",
++					"$(SDKROOT)/usr/local/include/neon",
+ 				);
+ 				OTHER_CFLAGS = (
+ 					"-DIOKIT",
+ 					"-D__MigTypeCheck=1",
+ 					"-fconstant-cfstrings",
+@@ -5972,13 +5969,14 @@
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+ 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				HEADER_SEARCH_PATHS = (
+-					$PROJECT_DERIVED_FILE_DIR,
++					"$(PROJECT_DERIVED_FILE_DIR)",
+ 					"$(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders",
+ 					"$(SDKROOT)/usr/local/include",
++					"$(SDKROOT)/usr/local/include/neon",
+ 				);
+ 				OTHER_CFLAGS = (
+ 					"-DIOKIT",
+ 					"-D__MigTypeCheck=1",
+ 					"-fconstant-cfstrings",
+@@ -6566,13 +6564,14 @@
+ 				GCC_C_LANGUAGE_STANDARD = gnu99;
+ 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				HEADER_SEARCH_PATHS = (
+-					$PROJECT_DERIVED_FILE_DIR,
++					"$(PROJECT_DERIVED_FILE_DIR)",
+ 					"$(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders",
+ 					"$(SDKROOT)/usr/local/include",
++					"$(SDKROOT)/usr/local/include/neon",
+ 				);
+ 				OTHER_CFLAGS = (
+ 					"-DIOKIT",
+ 					"-D__MigTypeCheck=1",
+ 					"-fconstant-cfstrings",
+@@ -6670,13 +6669,14 @@
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+ 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+ 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+ 				HEADER_SEARCH_PATHS = (
+-					$PROJECT_DERIVED_FILE_DIR,
++					"$(PROJECT_DERIVED_FILE_DIR)",
+ 					"$(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders",
+ 					"$(SDKROOT)/usr/local/include",
++					"$(SDKROOT)/usr/local/include/neon",
+ 				);
+ 				OTHER_CFLAGS = (
+ 					"-DIOKIT",
+ 					"-D__MigTypeCheck=1",
+ 					"-fconstant-cfstrings",
+diff -rU5 IOKitUser-1324.50.21/IOServiceAuthorizeAgent/IOServiceAuthorizeAgent.m IOKitUser-1324.50.21/IOServiceAuthorizeAgent/IOServiceAuthorizeAgent.m
+--- IOKitUser-1324.50.21/IOServiceAuthorizeAgent/IOServiceAuthorizeAgent.m	2014-03-24 22:07:37.000000000 +0000
++++ IOKitUser-1324.50.21/IOServiceAuthorizeAgent/IOServiceAuthorizeAgent.m	2017-05-12 21:42:07.000000000 +0100
+@@ -23,11 +23,10 @@
+ 
+ #include "authorize.h"
+ #include "device.h"
+ 
+ #include <libproc.h>
+-#include <xpc/private.h>
+ #include <IOKit/IOKitLib.h>
+ 
+ static void __MessageCallback( xpc_connection_t connection, xpc_object_t message, pid_t processID, uint64_t authorizationID )
+ {
+     xpc_type_t type;
+diff -rU5 IOKitUser-1324.50.21/graphics.subproj/IOGraphicsLib.c IOKitUser-1324.50.21/graphics.subproj/IOGraphicsLib.c
+--- IOKitUser-1324.50.21/graphics.subproj/IOGraphicsLib.c	2015-11-17 19:45:37.000000000 +0000
++++ IOKitUser-1324.50.21/graphics.subproj/IOGraphicsLib.c	2017-05-12 21:42:07.000000000 +0100
+@@ -33,11 +33,10 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <mach/mach_time.h>
+ #include <syslog.h>
+ #include <asl.h>
+-#include <msgtracer_keys.h>
+ 
+ #include <CoreFoundation/CoreFoundation.h>
+ 
+ #include <IOKit/IOKitLib.h>
+ #include <libkern/OSByteOrder.h>
+@@ -2476,29 +2475,16 @@
+ 
+ 	    snprintf(sbuf, sizeof(sbuf), "0x%x,0x%x(%dx%d)", 
+ 			    (int)connectRef->displayVendor, (int)connectRef->displayProduct,
+ 			    (int)connectRef->defaultWidth, (int)connectRef->defaultHeight);
+ 
+-	    asl_set(msg, kMsgTracerKeyDomain,    "com.apple.iokit.graphics.displaytype" );
+-	    asl_set(msg, kMsgTracerKeySignature, sbuf);
+-
+-	    if ((edidData = CFDictionaryGetValue(connectRef->overrides, CFSTR(kIODisplayEDIDKey)))
+-	      && IODisplayEDIDName((EDID *) CFDataGetBytePtr(edidData), sbuf))
+-	    {
+-		asl_set(msg, kMsgTracerKeySignature2, sbuf);
+-	    }
+ 	    regEntry = IORegistryEntryFromPath(kIOMasterPortDefault, 
+                                                kIOServicePlane ":/");
+ 	    if (regEntry)
+ 	    {
+-	    	if (kIOReturnSuccess == IORegistryEntryGetName(regEntry, sbuf))
+-		{
+-		    asl_set(msg, kMsgTracerKeySignature3, sbuf);
+-		}
+ 	    	IOObjectRelease(regEntry);
+ 	    }
+-	    asl_set(msg, kMsgTracerKeyResult,	 "noop");
+ 	    asl_log(NULL, msg, ASL_LEVEL_NOTICE, "displayonline");
+ 	    asl_free(msg);
+ 	}
+     }
+ 
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDDevice.c IOKitUser-1324.50.21/hid.subproj/IOHIDDevice.c
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDDevice.c	2016-03-15 16:38:33.000000000 +0000
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDDevice.c	2017-05-12 21:42:07.000000000 +0100
+@@ -42,10 +42,17 @@
+ #include "IOHIDElement.h"
+ #include "IOHIDTransaction.h"
+ #include "IOHIDLibPrivate.h"
+ #include "IOHIDManagerPersistentProperties.h"
+ 
++#define CFRELEASE_IF_NOT_NULL(x)     \
++            if (!x)                  \
++            {                        \
++                CFRelease(x);        \
++                /*x = NULL;*/        \
++            }
++
+ //------------------------------------------------------------------------------
+ static IOHIDDeviceRef   __IOHIDDeviceCreate(
+                                     CFAllocatorRef          allocator, 
+                                     CFAllocatorContext *    context __unused);
+ static void             __IOHIDDeviceFree( CFTypeRef object );
+@@ -770,11 +777,11 @@
+     IOHIDDeviceRemovalCallbackInfo  info    = { context, callback };
+     CFDataRef                       infoRef = NULL;
+     
+     CFRetain(device);   
+     if (!context)
+-        os_log(_IOHIDLog(), "called with a null context");
++        asl_log_message(0, "called with a null context");
+     
+     if (!device->removalCallbackSet) {
+         device->removalCallbackSet = CFSetCreateMutable(NULL, 0, &__callbackBaseSetCallbacks);
+     }
+     require(device->removalCallbackSet, cleanup);
+@@ -934,11 +941,11 @@
+     CFDataRef                                   infoRef = NULL;
+     IOHIDDeviceInputElementValueCallbackInfo    info    = {context, callback};
+ 
+     CFRetain(device);
+     if (!context)
+-        os_log(_IOHIDLog(), "called with a null context");
++        asl_log_message(0, "called with a null context");
+     
+     if (!device->inputValueCallbackSet) {
+         device->inputValueCallbackSet = CFSetCreateMutable(NULL, 0, &__callbackBaseSetCallbacks);
+     }
+     require(device->inputValueCallbackSet, cleanup);
+@@ -1676,11 +1683,11 @@
+     CFDataRef                       infoRef = NULL;
+     
+     CFRetain(device);
+     
+     if (!context)
+-        os_log(_IOHIDLog(), "called with a null context");
++        asl_log_message(0, "called with a null context");
+     
+     if (!device->inputReportCallbackSet) {
+         device->inputReportCallbackSet = CFSetCreateMutable(NULL, 0, &__callbackBaseSetCallbacks);
+     }
+     require(device->inputReportCallbackSet, cleanup);
+@@ -1906,22 +1913,11 @@
+ }
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDDeviceGetUUIDString
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-CFStringRef __IOHIDDeviceGetUUIDString(IOHIDDeviceRef device)
+-{
+-    CFStringRef uuidStr = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDManagerUUIDKey));
+-    if (!uuidStr || (CFGetTypeID(uuidStr) != CFStringGetTypeID())) {
+-        CFUUIDRef uuid = CFUUIDCreate(NULL);
+-        uuidStr = CFUUIDCreateString(NULL, uuid);
+-        IOHIDDeviceSetProperty(device, CFSTR(kIOHIDManagerUUIDKey), uuidStr);
+-        CFRelease(uuid);
+-        CFRelease(uuidStr);
+-    }
+-    return uuidStr;
+-}
++CFStringRef __IOHIDDeviceGetUUIDString(IOHIDDeviceRef device) {}
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDDeviceGetUUIDKey
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ CFStringRef __IOHIDDeviceGetUUIDKey(IOHIDDeviceRef device)
+@@ -1940,97 +1936,21 @@
+ }
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDDeviceSaveProperties
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-void __IOHIDDeviceSaveProperties(IOHIDDeviceRef device, __IOHIDPropertyContext *context)
+-{
+-    if (device->isDirty && device->properties) {
+-        CFStringRef uuidStr = __IOHIDDeviceGetUUIDString(device);
+-        CFArrayRef uuids = (CFArrayRef)CFPreferencesCopyAppValue(__IOHIDDeviceGetRootKey(device), kCFPreferencesCurrentApplication);
+-        CFArrayRef uuidsToWrite = NULL;
+-        if (uuids && (CFGetTypeID(uuids) == CFArrayGetTypeID())) {
+-            CFRange range = { 0, CFArrayGetCount(uuids) };
+-            if (!CFArrayContainsValue(uuids, range, uuidStr)) {
+-                uuidsToWrite = CFArrayCreateMutableCopy(NULL, CFArrayGetCount(uuids) + 1, uuids);
+-                CFArrayAppendValue((CFMutableArrayRef)uuidsToWrite, uuidStr);
+-            }
+-        }
+-        else {
+-            uuidsToWrite = CFArrayCreate(NULL, (const void**)&uuidStr, 1, &kCFTypeArrayCallBacks);
+-        }
+-        if (uuidsToWrite) {
+-            __IOHIDPropertySaveWithContext(__IOHIDDeviceGetRootKey(device), uuidsToWrite, context);
+-        }
+-        
+-        CFRELEASE_IF_NOT_NULL(uuids);
+-        CFRELEASE_IF_NOT_NULL(uuidsToWrite);
+-        
+-        __IOHIDPropertySaveToKeyWithSpecialKeys(device->properties, 
+-                                               __IOHIDDeviceGetUUIDKey(device), 
+-                                               NULL, 
+-                                               context);
+-        device->isDirty = FALSE;
+-    }
+-
+-    if (device->elements)
+-        CFSetApplyFunction(device->elements, __IOHIDSaveElementSet, context);
+-}
++void __IOHIDDeviceSaveProperties(IOHIDDeviceRef device, void *context) {}
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDDeviceLoadProperties
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-void __IOHIDDeviceLoadProperties(IOHIDDeviceRef device)
+-{
+-    CFStringRef uuidStr = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDManagerUUIDKey));
+-    device->loadProperties = TRUE;
+-    
+-    // Have we already generated a key?
+-    if (!device->UUIDKey) {
+-        // Is there a UUID in the device properties?
+-        if (!uuidStr || (CFGetTypeID(uuidStr) != CFStringGetTypeID())) {
+-            // Are there any UUIDs for this device?
+-            CFArrayRef uuids = (CFArrayRef)CFPreferencesCopyAppValue(__IOHIDDeviceGetRootKey(device), kCFPreferencesCurrentApplication);
+-            if (uuids && (CFGetTypeID(uuids) == CFArrayGetTypeID()) && CFArrayGetCount(uuids)) {
+-                // VTN3 ¥ TODO: Add optional matching based on location ID and anything else you can think of
+-                uuidStr = (CFStringRef)CFArrayGetValueAtIndex(uuids, 0);
+-            }
+-        }
+-        if (!uuidStr || (CFGetTypeID(uuidStr) != CFStringGetTypeID())) {
+-            CFUUIDRef uuid = CFUUIDCreate(NULL);
+-            uuidStr = CFUUIDCreateString(NULL, uuid);
+-            CFRelease(uuid);
+-        }
+-        IOHIDDeviceSetProperty(device, CFSTR(kIOHIDManagerUUIDKey), uuidStr);
+-    }
+-    
+-    // Convert to __IOHIDPropertyLoadFromKeyWithSpecialKeys if we identify special keys
+-    CFMutableDictionaryRef properties = __IOHIDPropertyLoadDictionaryFromKey(__IOHIDDeviceGetUUIDKey(device));
+-    
+-    if (properties) {
+-        CFRELEASE_IF_NOT_NULL(device->properties);
+-        device->properties = properties;
+-        device->isDirty = FALSE;
+-    }
+-    
+-    IOHIDDeviceSetProperty(device, CFSTR(kIOHIDManagerUUIDKey), uuidStr);
+-    
+-    // A device does not apply its properties to its elements.
+-    if (device->elements)
+-        CFSetApplyFunction(device->elements, __IOHIDLoadElementSet, NULL);
+-}
++void __IOHIDDeviceLoadProperties(IOHIDDeviceRef device) {}
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDApplyPropertyToDeviceSet
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-void __IOHIDApplyPropertyToDeviceSet(const void *value, void *context) {
+-    IOHIDDeviceRef device = (IOHIDDeviceRef)value;
+-    __IOHIDApplyPropertyToSetContext *data = (__IOHIDApplyPropertyToSetContext*)context;
+-    if (device && data) {
+-        IOHIDDeviceSetProperty(device, data->key, data->property);
+-    }
+-}
++void __IOHIDApplyPropertyToDeviceSet(const void *value, void *context) {}
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDApplyPropertiesToDeviceFromDictionary
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ void __IOHIDApplyPropertiesToDeviceFromDictionary(const void *key, const void *value, void *context) {
+@@ -2041,12 +1961,8 @@
+ }
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // __IOHIDSaveDeviceSet
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-void __IOHIDSaveDeviceSet(const void *value, void *context) {
+-    IOHIDDeviceRef device = (IOHIDDeviceRef)value;
+-    if (device)
+-        __IOHIDDeviceSaveProperties(device, (__IOHIDPropertyContext*)context);
+-}
++void __IOHIDSaveDeviceSet(const void *value, void *context) {}
+ 
+ //------------------------------------------------------------------------------
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDElement.c IOKitUser-1324.50.21/hid.subproj/IOHIDElement.c
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDElement.c	2016-04-14 00:12:38.000000000 +0100
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDElement.c	2017-05-12 21:42:07.000000000 +0100
+@@ -29,12 +29,19 @@
+ #include <IOKit/hid/IOHIDPrivateKeys.h>
+ #include <IOKit/hid/IOHIDDevicePlugIn.h>
+ #include <IOKit/hid/IOHIDLibPrivate.h>
+ #include "IOHIDManagerPersistentProperties.h"
+ 
++#define CFRELEASE_IF_NOT_NULL(x)     \
++            if (!x)                  \
++            {                        \
++                CFRelease(x);        \
++                /*x = NULL;*/        \
++            }
++
+ static IOHIDElementRef      __IOHIDElementCreate(
+-                                    CFAllocatorRef          allocator, 
++                                    CFAllocatorRef          allocator,
+                                     CFAllocatorContext *    context);
+ static Boolean              __IOHIDElementEqual(
+                                     CFTypeRef               cf1, 
+                                     CFTypeRef               cf2);
+ static CFHashCode           __IOHIDElementHash(CFTypeRef cf);
+@@ -847,30 +854,14 @@
+     
+     return element->rootKey;
+ }
+ 
+ //------------------------------------------------------------------------------
+-void __IOHIDElementSaveProperties(IOHIDElementRef element, __IOHIDPropertyContext *context)
+-{
+-    if (element->isDirty && element->properties) {
+-        __IOHIDPropertySaveToKeyWithSpecialKeys(element->properties, __IOHIDElementGetRootKey(element), __KIOHIDElementSpecialKeys, context);
+-        element->isDirty = FALSE;
+-    }
+-}
++void __IOHIDElementSaveProperties(IOHIDElementRef element, void *context) {}
+ 
+ //------------------------------------------------------------------------------
+-void __IOHIDElementLoadProperties(IOHIDElementRef element)
+-{
+-    CFMutableDictionaryRef properties = __IOHIDPropertyLoadFromKeyWithSpecialKeys(__IOHIDElementGetRootKey(element), __KIOHIDElementSpecialKeys);
+-    
+-    if (properties) {
+-        CFRELEASE_IF_NOT_NULL(element->properties);
+-        element->properties = properties;
+-        __IOHIDElementApplyCalibration(element);
+-        element->isDirty = FALSE;
+-    }
+-}
++void __IOHIDElementLoadProperties(IOHIDElementRef element) {}
+ 
+ //------------------------------------------------------------------------------
+ void __IOHIDElementApplyCalibration(IOHIDElementRef element)
+ {
+     if (element->properties) {
+@@ -912,15 +903,11 @@
+         }
+     }
+ }
+ 
+ //------------------------------------------------------------------------------
+-void __IOHIDSaveElementSet(const void *value, void *context) {
+-    IOHIDElementRef element = (IOHIDElementRef)value;
+-    if (element)
+-        __IOHIDElementSaveProperties(element, (__IOHIDPropertyContext*)context);
+-}
++void __IOHIDSaveElementSet(const void *value, void *context) {}
+ 
+ //------------------------------------------------------------------------------
+ void __IOHIDLoadElementSet(const void *value, void *context __unused) {
+     IOHIDElementRef element = (IOHIDElementRef)value;
+     if (element)
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemClientMIG.defs IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemClientMIG.defs
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemClientMIG.defs	2017-03-29 21:10:14.000000000 +0100
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemClientMIG.defs	2017-05-12 21:42:07.000000000 +0100
+@@ -0,0 +1,8 @@
++/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
++ *                                                         *
++ * See my comments in hid.subproj/IOHIDEventSystemMIG.defs *
++ * for more info about these files :)                      *
++ *                                                         *
++ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
++
++subsystem IOHIDEventSystemClient 71000; /* For now, just declare an empty subsystem */
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemMIG.defs IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemMIG.defs
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemMIG.defs	2017-03-29 21:10:14.000000000 +0100
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDEventSystemMIG.defs	2017-05-12 21:42:07.000000000 +0100
+@@ -0,0 +1,102 @@
++/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
++ * TODO:                                                                         *
++ * =====                                                                         *
++ *                                                                               *
++ * PureDarwin: We need Apple to open-source IOHIDEventSystem and                 *
++ *             IOHIDEventSystemClient.                                           *
++ *             Empty files in hid.subproj/ are as follows:                       *
++ *                                                                               *
++ *   darwin:IOKitUser-X.Y.Z $ for i in hid.subproj/*;                            *
++ *                            do                                                 *
++ *                                if [[ $(cat $i) == "" ]]                       *
++ *                                then                                           *
++ *                                    echo "${i##*\/} is not open-source :("     *
++ *                                else                                           *
++ *                                    echo "${i##*\/} is open-source (-ish ;) )" *
++ *                                fi                                             *
++ *                            done (and optionally: ` | grep not')               *
++ *                                                                               *
++ * [outputs]: IOHIDBase.h is open-source (-ish ;) )                              *
++ *            IOHIDDebugTrace.h is open-source (-ish ;) )                        *
++ *            IOHIDDevice.c is open-source (-ish ;) )                            *
++ *            IOHIDDevice.h is open-source (-ish ;) )                            *
++ *            IOHIDDevicePlugIn.h is open-source (-ish ;) )                      *
++ *            IOHIDElement.c is open-source (-ish ;) )                           *
++ *            IOHIDElement.h is open-source (-ish ;) )                           *
++ *            IOHIDEvent.c is open-source (-ish ;) )                             *
++ *            IOHIDEvent.h is not open-source :(                                 *
++ *            IOHIDEventPrivateKeys.h is open-source (-ish ;) )                  *
++ *            IOHIDEventQueue.c is not open-source :(                            *
++ *            IOHIDEventQueue.h is not open-source :(                            *
++ *            IOHIDEventServer.c is not open-source :(                           *
++ *            IOHIDEventServer.h is not open-source :(                           *
++ *            IOHIDEventSystem.c is not open-source :(                           *
++ *            IOHIDEventSystem.h is not open-source :(                           *
++ *            IOHIDEventSystemClient.c is not open-source :(                     *
++ *            IOHIDEventSystemClient.h is not open-source :(                     *
++ *            IOHIDEventSystemClientMIG.defs is not open-source :(               *
++ *            IOHIDEventSystemClientPrivate.h is not open-source :(              *
++ *            IOHIDEventSystemConnection.c is not open-source :(                 *
++ *            IOHIDEventSystemConnection.h is not open-source :(                 *
++ *            IOHIDEventSystemConnectionPrivate.h is not open-source :(          *
++ *            IOHIDEventSystemKeys.h is not open-source :(                       *
++ *            IOHIDEventSystemKeysPrivate.h is not open-source :(                *
++ *            IOHIDEventSystemPrivate.c is not open-source :(                    *
++ *            IOHIDEventSystemPrivate.h is not open-source :(                    *
++ *            IOHIDLib.h is open-source (-ish ;) )                               *
++ *            IOHIDLibPrivate.c is open-source (-ish ;) )                        *
++ *            IOHIDLibPrivate.h is open-source (-ish ;) )                        *
++ *            IOHIDManager.c is open-source (-ish ;) )                           *
++ *            IOHIDManager.h is open-source (-ish ;) )                           *
++ *            IOHIDManagerPersistentProperties.h is not open-source :(           *
++ *            IOHIDNotification.c is not open-source :(                          *
++ *            IOHIDNotification.h is not open-source :(                          *
++ *            IOHIDPlugins.c is not open-source :(                               *
++ *            IOHIDPlugins.h is open-source (-ish ;) )                           *
++ *            IOHIDQueue.c is open-source (-ish ;) )                             *
++ *            IOHIDQueue.h is open-source (-ish ;) )                             *
++ *            IOHIDService.c is not open-source :(                               *
++ *            IOHIDService.h is not open-source :(                               *
++ *            IOHIDServiceClient.c is not open-source :(                         *
++ *            IOHIDServiceClient.h is not open-source :(                         *
++ *            IOHIDServiceConnectionCache.c is not open-source :(                *
++ *            IOHIDServiceConnectionCache.h is not open-source :(                *
++ *            IOHIDServiceFilter.c is not open-source :(                         *
++ *            IOHIDServiceFilter.h is not open-source :(                         *
++ *            IOHIDServiceFilterPlugIn.h is not open-source :(                   *
++ *            IOHIDServiceKeys.c is not open-source :(                           *
++ *            IOHIDServiceKeys.h is not open-source :(                           *
++ *            IOHIDServicePlugIn.h is not open-source :(                         *
++ *            IOHIDServicePrivate.h is not open-source :(                        *
++ *            IOHIDSession.c is not open-source :(                               *
++ *            IOHIDSession.h is not open-source :(                               *
++ *            IOHIDSessionFilter.c is not open-source :(                         *
++ *            IOHIDSessionFilter.h is not open-source :(                         *
++ *            IOHIDSessionFilterPlugIn.h is not open-source :(                   *
++ *            IOHIDSessionPrivate.h is not open-source :(                        *
++ *            IOHIDTransaction.c is open-source (-ish ;) )                       *
++ *            IOHIDTransaction.h is open-source (-ish ;) )                       *
++ *            IOHIDTypes.h is not open-source :(                                 *
++ *            IOHIDUserDevice.c is open-source (-ish ;) )                        *
++ *            IOHIDUserDevice.h is open-source (-ish ;) )                        *
++ *            IOHIDValue.c is open-source (-ish ;) )                             *
++ *            IOHIDValue.h is open-source (-ish ;) )                             *
++ *                                                                               *
++ * Back to PureDarwin: Okay so, the main non-open-source files are:              *
++ *                       - hid.subproj/IOHIDEvent*                               *
++ *                       - hid.subproj/IOHIDService*                             *
++ *                       - hid.subproj/IOHIDSession*                             *
++ *                                                                               *
++ *                     So, to conclude, we need IOHIDEvent, IOHIDService,        *
++ *                     and IOHIDSession to be open-sourced. For now, we ought to *
++ *                     just remove them from the Xcode project or write/find a   *
++ *                     suitable replacement. TODO: file a radar for these and    *
++ *                     and forward it to opensource@apple.com and                *
++ *                     darwin-dev@lists.apple.com .                              *
++ *                                                                               *
++ *                     Well done for sticking with this comment ( / essay? ),    *
++ *                         Ethan (@libsystem-ethan on GitHub)                    *
++ *                                                                               *
++ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
++
++subsystem IOHIDEventSystem 71000; /* For now, just declare an empty subsystem */
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.c IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.c
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.c	2016-07-25 23:29:18.000000000 +0100
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.c	2017-05-12 21:42:07.000000000 +0100
+@@ -55,33 +55,33 @@
+ }
+ 
+ //------------------------------------------------------------------------------
+ // _IOHIDLog
+ //------------------------------------------------------------------------------
+-os_log_t _IOHIDLog(void)
++asl_object_t _IOHIDLog(void)
+ {
+-    static os_log_t log = NULL;
++    static asl_object_t log = NULL;
+     static dispatch_once_t onceToken;
+     dispatch_once(&onceToken, ^{
+-        log = os_log_create("com.apple.iohid", "default");
++        log = asl_new("com.apple.iohid");
+     });
+     return log;
+ }
+ 
+ //------------------------------------------------------------------------------
+ // _IOHIDLogCategory
+ //------------------------------------------------------------------------------
+-os_log_t _IOHIDLogCategory(IOHIDLogCategory category)
++int _IOHIDLogCategory(IOHIDLogCategory category)
+ {
+     assert(category < kIOHIDLogCategoryCount);
+-    static os_log_t log[kIOHIDLogCategoryCount];
++    static asl_object_t log[kIOHIDLogCategoryCount];
+     static dispatch_once_t onceToken;
+     dispatch_once(&onceToken, ^{
+-        log[kIOHIDLogCategoryDefault]       = os_log_create(kIOHIDLogSubsytem, "default");
+-        log[kIOHIDLogCategoryTrace]         = os_log_create(kIOHIDLogSubsytem, "trace");
+-        log[kIOHIDLogCategoryProperty]      = os_log_create(kIOHIDLogSubsytem, "property");
+-        log[kIOHIDLogCategoryActivity]      = os_log_create(kIOHIDLogSubsytem, "activity");
++        log[kIOHIDLogCategoryDefault]       = 0;
++        log[kIOHIDLogCategoryTrace]         = 1;
++        log[kIOHIDLogCategoryProperty]      = 2;
++        log[kIOHIDLogCategoryActivity]      = 3;
+     });
+     return log[category];
+ }
+ 
+ //------------------------------------------------------------------------------
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.h IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.h
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.h	2016-07-25 23:29:18.000000000 +0100
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDLibPrivate.h	2017-05-12 21:42:07.000000000 +0100
+@@ -27,11 +27,11 @@
+ #include <IOKit/hid/IOHIDLib.h>
+ #include <IOKit/hid/IOHIDDevicePlugIn.h>
+ #include <IOKit/hid/IOHIDLibUserClient.h>
+ #include <IOKit/hid/IOHIDPrivateKeys.h>
+ #include <Availability.h>
+-#include <os/log.h>
++#include <asl.h>
+ 
+ __BEGIN_DECLS
+ 
+ CF_ASSUME_NONNULL_BEGIN
+ CF_IMPLICIT_BRIDGING_ENABLED
+@@ -61,17 +61,17 @@
+ 
+ extern uint32_t gIOHIDLogLevel;
+ 
+ #define kIOHIDLogSubsytem   "com.apple.iohid"
+ 
+-#define IOHIDLog(fmt, ...)        os_log(_IOHIDLogCategory(kIOHIDLogCategoryDefault), fmt, ##__VA_ARGS__)
+-#define IOHIDLogError(fmt, ...)   os_log_error(_IOHIDLogCategory(kIOHIDLogCategoryDefault), fmt, ##__VA_ARGS__)
+-#define IOHIDLogDebug(fmt, ...)   os_log_debug(_IOHIDLogCategory(kIOHIDLogCategoryDefault), fmt, ##__VA_ARGS__)
++#define IOHIDLog(fmt, ...)        asl_log_message(_IOHIDLogCategory(kIOHIDLogCategoryDefault), fmt, ##__VA_ARGS__)
++#define IOHIDLogError(fmt, ...)   asl_log_message(_IOHIDLogCategory(kIOHIDLogCategoryDefault), fmt, ##__VA_ARGS__)
++#define IOHIDLogDebug(fmt, ...)   asl_log_message(_IOHIDLogCategory(kIOHIDLogCategoryDefault), fmt, ##__VA_ARGS__)
+ 
+ #define IOHIDLogTrace(fmt, ...) do {                                            \
+     if (gIOHIDLogLevel >= kIOHIDLogLevelTypeTrace) {                            \
+-        os_log(_IOHIDLogCategory(kIOHIDLogCategoryTrace), fmt, ##__VA_ARGS__);  \
++        asl_log_message(_IOHIDLogCategory(kIOHIDLogCategoryTrace), fmt, ##__VA_ARGS__);  \
+     }                                                                           \
+ } while (0)
+ 
+ extern void _IOObjectCFRelease(CFAllocatorRef _Nullable allocator, const void * value);
+ 
+@@ -119,14 +119,14 @@
+ 
+ CF_EXPORT 
+ void _IOHIDCallbackApplier(const void * callback, const void * _Nullable callbackContext, void *applierContext);
+ 
+ CF_EXPORT
+-os_log_t _IOHIDLog(void);
++asl_object_t _IOHIDLog(void);
+ 
+ CF_EXPORT
+-os_log_t _IOHIDLogCategory(IOHIDLogCategory category);
++int _IOHIDLogCategory(IOHIDLogCategory category);
+ 
+ CF_EXPORT
+ kern_return_t IOHIDSetFixedMouseLocation(io_connect_t connect,
+                                          int32_t x, int32_t y)                                      AVAILABLE_MAC_OS_X_VERSION_10_7_AND_LATER;
+ 
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDManager.c IOKitUser-1324.50.21/hid.subproj/IOHIDManager.c
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDManager.c	2017-02-09 01:28:49.000000000 +0000
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDManager.c	2017-05-12 21:42:07.000000000 +0100
+@@ -27,12 +27,19 @@
+ #include "IOHIDLibPrivate.h"
+ #include "IOHIDDevice.h"
+ #include "IOHIDLib.h"
+ #include "IOHIDManagerPersistentProperties.h"
+ 
++#define CFRELEASE_IF_NOT_NULL(x)     \
++            if (!x)                  \
++            {                        \
++                CFRelease(x);        \
++                /*x = NULL;*/        \
++            }
++
+ static IOHIDManagerRef  __IOHIDManagerCreate(
+-                                    CFAllocatorRef          allocator, 
++                                    CFAllocatorRef          allocator,
+                                     CFAllocatorContext *    context __unused);
+ static void             __IOHIDManagerRelease( CFTypeRef object );
+ static void             __IOHIDManagerSetDeviceMatching(
+                                 IOHIDManagerRef                 manager,
+                                 CFDictionaryRef                 matching);
+@@ -49,10 +56,17 @@
+ static void             __IOHIDManagerInitialEnumCallback(
+                                     void *                      info);
+ static void             __IOHIDManagerMergeDictionaries(
+                                     CFDictionaryRef             srcDict, 
+                                     CFMutableDictionaryRef      dstDict);
++static void             __IOHIDManagerSaveProperties(
++                                    IOHIDManagerRef             manager,
++                                    void *                      context);
++static void             __IOHIDManagerLoadProperties(
++                                    IOHIDManagerRef             manager);
++CFMutableDictionaryRef __IOHIDPropertyLoadDictionaryFromKey(
++                                    CFStringRef                 key);
+ 
+ enum {
+     kDeviceApplierOpen                      = 1 << 0,
+     kDeviceApplierClose                     = 1 << 1,
+     kDeviceApplierInitEnumCallback          = 1 << 2,
+@@ -309,118 +323,11 @@
+ //------------------------------------------------------------------------------
+ // __IOHIDManagerDeviceAdded
+ //------------------------------------------------------------------------------
+ void __IOHIDManagerDeviceAdded(     void *                      refcon,
+                                     io_iterator_t               iterator)
+-{
+-    IOHIDManagerRef manager = (IOHIDManagerRef)refcon;
+-    IOHIDDeviceRef  device;
+-    IOReturn        retVal;
+-    io_service_t    service;
+-    Boolean         initial = FALSE;
+-    
+-    while (( service = IOIteratorNext(iterator) )) {        
+-        
+-        device = IOHIDDeviceCreate(CFGetAllocator(manager), service);
+-        
+-        if ( device ) {
+-            if ( !manager->devices ) {
+-                manager->devices = CFSetCreateMutable(
+-                                                        CFGetAllocator(manager),
+-                                                        0, 
+-                                                        &kCFTypeSetCallBacks);
+-                initial = TRUE;
+-                
+-                if ( manager->isOpen )
+-                    manager->initRetVals = CFDictionaryCreateMutable(
+-                                            CFGetAllocator(manager),
+-                                            0,
+-                                            &kCFTypeDictionaryKeyCallBacks,
+-                                            NULL);
+-            }
+-        
+-            if ( manager->devices ) {
+-                CFSetAddValue(manager->devices, device);
+-            }
+-                
+-            CFRelease(device);
+-            
+-            DeviceApplierArgs args;
+-
+-            args.manager = manager;
+-            args.options = 0;
+-
+-            IOHIDDeviceRegisterRemovalCallback(
+-                                            device,
+-                                            __IOHIDManagerDeviceRemoved,
+-                                            manager);
+-                                            
+-            retVal = kIOReturnSuccess;
+-            
+-            if ( manager->isOpen )
+-                args.options |= kDeviceApplierOpen;
+- 
+-            if ( manager->inputMatchingMultiple )
+-                args.options |= kDeviceApplierSetInputMatching;
+-            
+-            if ( manager->inputCallback )
+-                args.options |= kDeviceApplierSetInputCallback;
+-
+-            if ( manager->reportCallback )
+-                args.options |= kDeviceApplierSetInputReportCallback;
+-                                                       
+-            if ( manager->runLoop ) {
+-                args.options |= kDeviceApplierScheduleRunLoop;
+-
+-                // If this this is called using the iterator returned in 
+-                // IOServiceAddMatchingNotification, pend performing the
+-                // callback on the runLoop
+-                if ( !initial && manager->matchCallback )
+-                    args.options |= kDeviceApplierInitEnumCallback;
+-            }
+-            
+-            __IOHIDManagerDeviceApplier((const void *)device, &args);
+-
+-            if ( (manager->createOptions & kIOHIDManagerOptionUsePersistentProperties) && 
+-                !(manager->createOptions & kIOHIDManagerOptionDoNotLoadProperties)) {
+-                __IOHIDDeviceLoadProperties(device);
+-            }
+-            if (manager->properties) {
+-                CFDictionaryApplyFunction(manager->properties, 
+-                                          __IOHIDApplyPropertiesToDeviceFromDictionary, 
+-                                          device);
+-            }
+-        }
+-        
+-        IOObjectRelease(service);
+-    }
+-    
+-    // Dispatch initial enumeration callback on runLoop
+-    if ( initial ) {
+-        
+-        CFRunLoopSourceContext  context;
+-        
+-        bzero(&context, sizeof(CFRunLoopSourceContext));
+-        
+-        context.info    = manager;
+-        context.perform = __IOHIDManagerInitialEnumCallback;
+-        
+-        manager->initEnumRunLoopSource = CFRunLoopSourceCreate( 
+-                                                        CFGetAllocator(manager),
+-                                                        0, 
+-                                                        &context);
+-                                                        
+-        if ( manager->runLoop && manager->initEnumRunLoopSource ) {
+-            CFRunLoopAddSource(
+-                        manager->runLoop, 
+-                        manager->initEnumRunLoopSource, 
+-                        manager->runLoopMode);
+-                        
+-            CFRunLoopSourceSignal(manager->initEnumRunLoopSource);
+-        }
+-    }
+-}
++{}
+ 
+ //------------------------------------------------------------------------------
+ // __IOHIDManagerDeviceRemoved
+ //------------------------------------------------------------------------------
+ void __IOHIDManagerDeviceRemoved(   void *                      context,
+@@ -704,31 +611,11 @@
+ //------------------------------------------------------------------------------
+ Boolean IOHIDManagerSetProperty(
+                                 IOHIDManagerRef                 manager,
+                                 CFStringRef                     key,
+                                 CFTypeRef                       value)
+-{
+-    __IOHIDApplyPropertyToSetContext context = {
+-        key, value
+-    };
+-    
+-    if (!manager->properties) {
+-        manager->properties = CFDictionaryCreateMutable(CFGetAllocator(manager),
+-                                                        0,
+-                                                        &kCFTypeDictionaryKeyCallBacks,
+-                                                        &kCFTypeDictionaryValueCallBacks);
+-        if (!manager->properties)
+-            return FALSE;
+-    }
+-    
+-    manager->isDirty = TRUE;
+-    CFDictionarySetValue(manager->properties, key, value);
+-    if (manager->devices)
+-        CFSetApplyFunction(manager->devices, __IOHIDApplyPropertyToDeviceSet, &context);
+-    
+-    return TRUE;
+-}
++{}
+                                         
+ //------------------------------------------------------------------------------
+ // IOHIDManagerSetDeviceMatching
+ //------------------------------------------------------------------------------
+ void IOHIDManagerSetDeviceMatching(
+@@ -1006,43 +893,20 @@
+ void IOHIDManagerSaveToPropertyDomain(IOHIDManagerRef                 manager,
+                                       CFStringRef                     applicationID,
+                                       CFStringRef                     userName,
+                                       CFStringRef                     hostName,
+                                       IOOptionBits                    options)
+-{
+-    __IOHIDPropertyContext context = {
+-        applicationID, userName, hostName, options
+-    };
+-    
+-    if (manager && applicationID && userName && hostName) {
+-        __IOHIDManagerSaveProperties(manager, &context);        
+-    }
+-    else {
+-        // LOG AN ERROR?
+-    }
+-}
++{}
+ 
+ //------------------------------------------------------------------------------
+ CFStringRef __IOHIDManagerGetRootKey() 
+ {
+-    return CFSTR(kIOHIDManagerKey);
++    return CFSTR("");
+ }
+ 
+ //------------------------------------------------------------------------------
+-void __IOHIDManagerSaveProperties(IOHIDManagerRef manager, __IOHIDPropertyContext *context)
+-{
+-    if (manager->isDirty && manager->properties) {
+-        __IOHIDPropertySaveToKeyWithSpecialKeys(manager->properties, 
+-                                               __IOHIDManagerGetRootKey(),
+-                                               NULL,
+-                                               context);
+-        manager->isDirty = FALSE;
+-    }
+-    
+-    if (manager->devices)
+-        CFSetApplyFunction(manager->devices, __IOHIDSaveDeviceSet, context);
+-}
++void __IOHIDManagerSaveProperties(IOHIDManagerRef manager, void *context) {}
+ 
+ //------------------------------------------------------------------------------
+ void __IOHIDManagerLoadProperties(IOHIDManagerRef manager)
+ {
+     // Convert to __IOHIDPropertyLoadFromKeyWithSpecialKeys if we identify special keys
+@@ -1056,24 +920,15 @@
+     
+     // We do not load device properties here, since the devices are not present when this is called.
+ }
+ 
+ //------------------------------------------------------------------------------
+-void __IOHIDPropertySaveWithContext(CFStringRef key, CFPropertyListRef value, __IOHIDPropertyContext *context)
+-{
+-    if (key && value) {
+-        if (context && context->applicationID && context->userName && context->hostName) {
+-            CFPreferencesSetValue(key, value, context->applicationID, context->userName, context->hostName);
+-        }
+-        else {
+-            CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
+-        }
+-    }
+-}
++void __IOHIDPropertySaveWithContext(CFStringRef key, CFPropertyListRef value, void *context)
++{}
+ 
+ //------------------------------------------------------------------------------
+-void __IOHIDPropertySaveToKeyWithSpecialKeys(CFDictionaryRef dictionary, CFStringRef key, CFStringRef *specialKeys, __IOHIDPropertyContext *context)
++void __IOHIDPropertySaveToKeyWithSpecialKeys(CFDictionaryRef dictionary, CFStringRef key, CFStringRef *specialKeys, void *context)
+ {
+     CFMutableDictionaryRef temp = CFDictionaryCreateMutableCopy(NULL, 0, dictionary);
+     
+     if (specialKeys) {
+         while (*specialKeys) {
+diff -rU5 IOKitUser-1324.50.21/hid.subproj/IOHIDQueue.c IOKitUser-1324.50.21/hid.subproj/IOHIDQueue.c
+--- IOKitUser-1324.50.21/hid.subproj/IOHIDQueue.c	2016-02-25 20:35:22.000000000 +0000
++++ IOKitUser-1324.50.21/hid.subproj/IOHIDQueue.c	2017-05-12 21:42:07.000000000 +0100
+@@ -370,18 +370,18 @@
+                                               IOHIDQueueRef                   queue,
+                                               IOHIDCallback                   callback,
+                                               void *                          context)
+ {
+     if (!callback) {
+-        os_log_error(_IOHIDLog(), "called with a NULL callback");
++        asl_log_message(0, "called with a NULL callback");
+         return;
+     }    
+     if (!queue->callbackDictionary) {
+         queue->callbackDictionary = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
+     }
+     if (!queue->callbackDictionary) {
+-        os_log_error(_IOHIDLog(), "unable to create dictionary");
++        asl_log_message(0, "unable to create dictionary");
+         return;
+     }
+     CFDictionarySetValue(queue->callbackDictionary, (void*)callback, context);
+     
+     (*queue->queueInterface)->setValueAvailableCallback(
+diff -rU5 IOKitUser-1324.50.21/hidsystem.subproj/IOEventStatusAPI.c IOKitUser-1324.50.21/hidsystem.subproj/IOEventStatusAPI.c
+--- IOKitUser-1324.50.21/hidsystem.subproj/IOEventStatusAPI.c	2016-03-23 21:23:17.000000000 +0000
++++ IOKitUser-1324.50.21/hidsystem.subproj/IOEventStatusAPI.c	2017-05-12 21:42:07.000000000 +0100
+@@ -178,88 +178,19 @@
+ 
+     return evs_info;
+ }
+ 
+ kern_return_t IOHIDCopyHIDParameterFromEventSystem(io_connect_t handle, CFStringRef key, CFTypeRef *parameter) {
+-    CFTypeRef param = NULL;
+-    IOHIDEventSystemClientRef client = IOHIDEventSystemClientCreateWithType (kCFAllocatorDefault, kIOHIDEventSystemClientTypePassive, NULL);
+-    kern_return_t  kr = kIOReturnNotReady;
+-    if (!client) {
+-        goto exit;
+-    }
+-    io_service_t  service = 0;
+-    if (IOConnectGetService (handle, &service) == kIOReturnSuccess) {
+-        if (IOObjectConformsTo (service, "IOHIDSystem")) {
+-            param = IOHIDEventSystemClientCopyProperty(client, key);
+-        } else {
+-            uint64_t entryID = 0;
+-            if (IORegistryEntryGetRegistryEntryID (service, &entryID) == kIOReturnSuccess) {
+-                IOHIDServiceClientRef serviceClient = IOHIDEventSystemClientCopyServiceForRegistryID(client, entryID);
+-                if (serviceClient) {
+-                    param = IOHIDServiceClientCopyProperty(serviceClient, key);
+-                    CFRelease(serviceClient);
+-                }
+-            }
+-        }
+-        IOObjectRelease(service);
+-    }
+-  
+- exit:
+-    if (param) {
+-        *parameter = param;
+-        kr = kIOReturnSuccess;
+-    }
+-    if (client) {
+-        CFRelease(client);
+-    }
+-    if (kr) {
+-        os_log_error(_IOHIDLog(), "Fail to get parameter with status 0x%x", kr);
+-    }
+-    return kr;
++    asl_log_message(0, "Fail to get parameter - IOHIDEventSystem is not open-source. Please file a radar at bugreport.apple.com.");
++    return kIOReturnInternalError;
+ }
+ 
+ 
+ 
+ kern_return_t IOHIDSetHIDParameterToEventSystem(io_connect_t handle, CFStringRef key, CFTypeRef parameter) {
+-    IOHIDEventSystemClientRef client = IOHIDEventSystemClientCreateWithType (kCFAllocatorDefault, kIOHIDEventSystemClientTypeMonitor, NULL);
+-    kern_return_t  kr = kIOReturnNotReady;
+-    if (!client) {
+-        goto exit;
+-    }
+- 
+-    kr = kIOReturnUnsupported;
+-    io_service_t  service = 0;
+-    if (IOConnectGetService (handle, &service) == kIOReturnSuccess) {
+-        if (IOObjectConformsTo (service, "IOHIDSystem")) {
+-            IOHIDEventSystemClientSetProperty(client, key, parameter);
+-            kr = kIOReturnSuccess;
+-        } else {
+-            uint64_t entryID = 0;
+-            if (IORegistryEntryGetRegistryEntryID (service, &entryID) == kIOReturnSuccess) {
+-                IOHIDServiceClientRef serviceClient = IOHIDEventSystemClientCopyServiceForRegistryID(client, entryID);
+-                if (serviceClient) {
+-                    if (IOHIDServiceClientSetProperty(serviceClient, key, parameter)) {
+-                      kr = kIOReturnSuccess;
+-                    } else {
+-                      kr = kIOReturnInternalError;
+-                    }
+-                    CFRelease(serviceClient);
+-                }
+-            }
+-        }
+-        IOObjectRelease(service);
+-    }
+-    
+- exit:
+-
+-    if (client) {
+-        CFRelease(client);
+-    }
+-    if (kr) {
+-        os_log_error(_IOHIDLog(), "Fail to set parameter with status 0x%x", kr);
+-    }
+-    return kr;
++    asl_log_message(0, "Fail to set parameter - IOHIDEventSystem is not open-source. Please file a radar at bugreport.apple.com.");
++    return kIOReturnInternalError;
+ }
+ 
+ 
+ kern_return_t IOHIDSetParameter( io_connect_t handle, CFStringRef key,
+                 const void * bytes, IOByteCount size )
+diff -rU5 IOKitUser-1324.50.21/hidsystem.subproj/IOHIDLib.c IOKitUser-1324.50.21/hidsystem.subproj/IOHIDLib.c
+--- IOKitUser-1324.50.21/hidsystem.subproj/IOHIDLib.c	2017-03-29 21:10:15.000000000 +0100
++++ IOKitUser-1324.50.21/hidsystem.subproj/IOHIDLib.c	2017-05-12 21:42:07.000000000 +0100
+@@ -32,17 +32,16 @@
+ #include <CoreFoundation/CoreFoundation.h>
+ #include <libkern/OSByteOrder.h>
+ #include <bootstrap_priv.h>
+ #include <mach/mach.h>
+ 
+-
+ #include <IOKit/IOKitLib.h>
+ #include <IOKit/hidsystem/IOHIDLib.h>
+ #include <IOKit/hid/IOHIDLibPrivate.h>
+ #include <IOKit/pwr_mgt/IOPMLibPrivate.h>
+ #include <servers/bootstrap.h>
+-#include "powermanagement.h"
++#include "powermanagement.h" /* io_pm_hid_event_report_activity */
+ #include <IOKit/hid/IOHIDEventSystemClient.h>
+ #include <IOKit/hid/IOHIDServiceKeys.h>
+ #include <os/log.h>
+ 
+ 
+@@ -262,99 +261,20 @@
+ 
+ 
+ kern_return_t
+ IOHIDGetModifierLockState( io_connect_t handle __unused, int selector, bool *state )
+ {
+-    kern_return_t               err = kIOReturnSuccess;
+-    boolean_t                   modifierState = false;
+-    IOHIDEventSystemClientRef   client = NULL;
+-    CFArrayRef                  services = NULL;
+-  
+-    if (selector != kIOHIDCapsLockState &&  selector != kIOHIDNumLockState) {
+-        err = kIOReturnBadArgument;
+-        goto exit;
+-    }
+-    
+-    client = IOHIDEventSystemClientCreateWithType (kCFAllocatorDefault, kIOHIDEventSystemClientTypePassive, NULL);
+-    if (client == NULL) {
+-      os_log_error (OS_LOG_DEFAULT, "Failed to create event system client");
+-      return kIOReturnError;
+-    }
+-    
+-    services = (CFArrayRef) IOHIDEventSystemClientCopyServices (client);
+-    if (services == NULL || CFArrayGetCount(services) == 0) {
+-        err = kIOReturnNoDevice;
+-        goto exit;
+-    }
+-    
+-    for (CFIndex index = 0; index < CFArrayGetCount(services); index++) {
+-        IOHIDServiceClientRef service = (IOHIDServiceClientRef) CFArrayGetValueAtIndex(services, index);
+-        if (service && IOHIDServiceClientConformsTo (service, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard)) {
+-            CFStringRef key = (selector == kIOHIDCapsLockState) ?  CFSTR(kIOHIDServiceCapsLockStateKey) : CFSTR(kIOHIDServiceNumLockStateKey);
+-            CFBooleanRef modifierStateProp = (CFBooleanRef)IOHIDServiceClientCopyProperty(service, key);
+-            if (modifierStateProp) {
+-                modifierState = CFBooleanGetValue(modifierStateProp);
+-                if (modifierState) {
+-                    break;
+-                }
+-                CFRelease(modifierStateProp);
+-            }
+-        }
+-    }
+-    
+-exit:
+-
+-    *state = modifierState;
+-    if (services) {
+-        CFRelease(services);
+-    }
+-    if (client) {
+-        CFRelease(client);
+-    }
++    UInt32  internalState = 0;
++    kern_return_t err = IOHIDGetStateForSelector(handle, selector, &internalState);
++    *state = internalState ? true : false;
+     return err;
+ }
+ 
+ kern_return_t
+ IOHIDSetModifierLockState( io_connect_t handle __unused, int selector, bool state )
+ {
+-    kern_return_t               err = kIOReturnSuccess;
+-    IOHIDEventSystemClientRef   client = NULL;
+-    CFArrayRef                  services = NULL;
+-  
+-    if (selector != kIOHIDCapsLockState &&  selector != kIOHIDNumLockState) {
+-        err = kIOReturnBadArgument;
+-        goto exit;
+-    }
+-    
+-    client = IOHIDEventSystemClientCreateWithType (kCFAllocatorDefault, kIOHIDEventSystemClientTypePassive, NULL);
+-    if (client == NULL) {
+-        os_log_error (OS_LOG_DEFAULT, "Failed to create event system client");
+-        return kIOReturnError;
+-    }
+-    
+-    services = (CFArrayRef) IOHIDEventSystemClientCopyServices (client);
+-    if (services == NULL || CFArrayGetCount(services) == 0) {
+-        err = kIOReturnNoDevice;
+-        goto exit;
+-    }
+-    
+-    for (CFIndex index = 0; index < CFArrayGetCount(services); index++) {
+-        IOHIDServiceClientRef service = (IOHIDServiceClientRef) CFArrayGetValueAtIndex(services, index);
+-        if (service && IOHIDServiceClientConformsTo (service, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard)) {
+-            CFStringRef key = (selector == kIOHIDCapsLockState) ?  CFSTR(kIOHIDServiceCapsLockStateKey) : CFSTR(kIOHIDServiceNumLockStateKey);
+-            IOHIDServiceClientSetProperty(service, key, state ? kCFBooleanTrue : kCFBooleanFalse);
+-        }
+-    }
+-    
+-exit:
+-    if (services) {
+-        CFRelease(services);
+-    }
+-    if (client) {
+-        CFRelease(client);
+-    }
+-    return err;
++    return IOHIDSetStateForSelector(handle, selector, state);
+ }
+ 
+ kern_return_t
+ IOHIDRegisterVirtualDisplay( io_connect_t handle, UInt32 *display_token )
+ {
+diff -rU5 IOKitUser-1324.50.21/ioserviceauthorized/ioserviceauthorized.m IOKitUser-1324.50.21/ioserviceauthorized/ioserviceauthorized.m
+--- IOKitUser-1324.50.21/ioserviceauthorized/ioserviceauthorized.m	2014-03-21 18:41:32.000000000 +0000
++++ IOKitUser-1324.50.21/ioserviceauthorized/ioserviceauthorized.m	2017-05-12 21:42:07.000000000 +0100
+@@ -22,11 +22,10 @@
+  */
+ 
+ #include "open.h"
+ 
+ #include <libproc.h>
+-#include <xpc/private.h>
+ #include <IOKit/IOKitLib.h>
+ 
+ static void __MessageCallback( xpc_connection_t connection, xpc_object_t message, uint64_t authorizationID )
+ {
+     xpc_type_t type;
+diff -rU5 IOKitUser-1324.50.21/kext.subproj/OSKext.c IOKitUser-1324.50.21/kext.subproj/OSKext.c
+--- IOKitUser-1324.50.21/kext.subproj/OSKext.c	2017-01-10 01:28:15.000000000 +0000
++++ IOKitUser-1324.50.21/kext.subproj/OSKext.c	2017-05-13 00:26:55.000000000 +0100
+@@ -13192,30 +13192,35 @@
+  * we can't actually link with security signing framework until issues
+  * with the iOS simulator are resolved (see 12826218)
+  *********************************************************************/
+ Boolean OSKextIsSigned(OSKextRef aKext)
+ {
+-    CFURLRef    checkURL           = NULL;  // must release
+-    
++    CFBooleanRef    pathExists; // must release
++    CFURLRef        checkURL           = NULL;  // must release
++    SInt32          URLError;
++
+     if (aKext->flags.isSigned) {
+         return(true);
+     }
+     
+     checkURL = CFURLCreateCopyAppendingPathComponent(
+                                                      kCFAllocatorDefault,
+                                                      aKext->bundleURL,
+                                                      CFSTR("Contents/_CodeSignature"),
+                                                      true);
+     if (checkURL) {
+-        if (CFURLResourceIsReachable(checkURL, NULL)) {
++        pathExists = CFURLCreatePropertyFromResource(kCFAllocatorDefault, checkURL, kCFURLFileExists, &URLError);
++
++        if (pathExists) {
+             aKext->flags.isSigned = 1;
+         }
+         else {
+             __OSKextSetDiagnostic(aKext, kOSKextDiagnosticsFlagWarnings,
+                                   kOSKextDiagnosticNotSignedKey);
+         }
+     }
++    SAFE_RELEASE(pathExists);
+     SAFE_RELEASE(checkURL);
+     
+     return aKext->flags.isSigned ? true : false;
+ }
+ #endif /* !IOKIT_EMBEDDED */
+@@ -18238,11 +18243,10 @@
+     CFSetRef                    loadListIDs             = NULL; // must release
+     char                      * kextVolPath             = NULL; // do not free
+     int                         i                       = 0;
+     int                         count                   = 0;
+     CC_SHA256_CTX               ctx;
+-    unsigned char               kernelCacheHash[CC_SHA256_DIGEST_LENGTH];
+     CFDataRef                   kcID                    = NULL; // must release
+ 
+     /* Get the C string for the volume root URL. */
+ 
+     if (volumeRootURL) {
+@@ -18321,15 +18325,10 @@
+                              CFSTR(kPrelinkLinkKASLROffsetsKey),
+                              kaslrOffsetsData);
+         free(myPackedOffsets);
+     }
+ 
+-    CC_SHA256_Init(&ctx);
+-    if (kernelUUID) {
+-        CC_SHA256_Update(&ctx, (unsigned char*) CFDataGetBytePtr(kernelUUID), CFDataGetLength(kernelUUID));
+-    }
+-
+     /* Create an info dictionary for each kext in the load list */
+ 
+     count = CFArrayGetCount(loadList);
+     for (i = 0; i < count; ++i) {
+         Boolean   gotPath = FALSE;
+@@ -18405,16 +18404,10 @@
+                 }
+                 
+                 CFDictionarySetValue(kextInfoDict, CFSTR(kPrelinkExecutableSizeKey), cfnum);
+                 SAFE_RELEASE_NULL(cfnum);
+ 
+-                // Update the KC ID based on the start addresses of each segment in the KEXT
+-                uint64_t seg_addr = 0;
+-                for (enum enumSegIdx idx = SEG_IDX_TEXT; idx < SEG_IDX_COUNT; ++idx) {
+-                    seg_addr = getKextVMAddr(aKext, idx);
+-                    CC_SHA256_Update(&ctx, &seg_addr, sizeof(seg_addr));
+-                }
+             }
+             else {
+                 cfnum = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt64Type,
+                                        &aKext->loadInfo->linkInfo.vmaddr_TEXT);
+                 if (!cfnum) {
+@@ -18441,14 +18434,10 @@
+                     OSKextLogMemError();
+                     goto finish;
+                 }
+                 CFDictionarySetValue(kextInfoDict, CFSTR(kPrelinkExecutableSizeKey), cfnum);
+                 SAFE_RELEASE_NULL(cfnum);
+-
+-                // Update the KC ID based on the start address of the KEXT
+-                CC_SHA256_Update(&ctx, &aKext->loadInfo->linkInfo.vmaddr_TEXT,
+-                                 sizeof(aKext->loadInfo->linkInfo.vmaddr_TEXT));
+             }
+ 
+             cfnum = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt64Type,
+                 &aKext->loadInfo->kmodInfoAddress);
+             if (!cfnum) {
+@@ -18459,13 +18448,10 @@
+             SAFE_RELEASE_NULL(cfnum);
+         }
+ 
+         uuid = OSKextCopyUUIDForArchitecture(aKext, OSKextGetArchitecture());
+         if (uuid) {
+-            /* Add UUID to KC ID hash */
+-            CC_SHA256_Update(&ctx, CFDataGetBytePtr(uuid), CFDataGetLength(uuid));
+-
+             /* If this is an interface kext, add its UUID. */
+             if (OSKextDeclaresExecutable(aKext) && OSKextIsInterface(aKext)) {
+                 CFDictionarySetValue(kextInfoDict, CFSTR(kPrelinkInterfaceUUIDKey),
+                     uuid);
+             }
+@@ -18505,21 +18491,13 @@
+         /* Add this info dictionary to the info dict array */
+ 
+         CFArrayAppendValue(kextInfoDictArray, kextInfoDict);
+     }
+ 
+-    CC_SHA256_Final((unsigned char*)&kernelCacheHash, &ctx);
+-    kcID = CFDataCreate(kCFAllocatorDefault, kernelCacheHash, sizeof(uuid_t));
+     if (kcID) {
+         /* Add the kernelcache ID */
+         CFDictionarySetValue(prelinkInfoDict, CFSTR(kPrelinkInfoKCIDKey), kcID);
+-
+-        printf("KernelCache ID: ");
+-        for (unsigned long i = 0; i < sizeof(kernelCacheHash)/2; i++)  {
+-            printf("%02X", kernelCacheHash[i]);
+-        }
+-        printf("\n");
+     } else {
+         kcgen_verboseLog("Failed to allocate kernelcache ID");
+     }
+ 
+     /* Serialize the info dictionary */
+diff -rU5 IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMAssertions.c IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMAssertions.c
+--- IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMAssertions.c	2017-03-29 21:10:15.000000000 +0100
++++ IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMAssertions.c	2017-05-12 21:42:07.000000000 +0100
+@@ -20,26 +20,21 @@
+  * 
+  * @APPLE_LICENSE_HEADER_END@
+  */
+ 
+ #include <CoreFoundation/CoreFoundation.h>
+-#include <CoreFoundation/CFXPCBridge.h>
+ #include <CoreFoundation/CFPriv.h>
+ #include <mach/mach.h>
+ #include <IOKit/pwr_mgt/IOPMLib.h>
+ #include <IOKit/pwr_mgt/IOPMLibPrivate.h>
+ #include "IOSystemConfiguration.h"
+ #include <sys/time.h>
+ #include <notify.h>
+ #include <execinfo.h>
+ #include <asl.h>
+ #include <mach/mach_time.h>
+-#if !TARGET_OS_SIMULATOR
+-#include <energytrace.h>
+-#endif
+ #include <os/log.h>
+-#include <xpc/xpc.h>
+ #define POWERD_XPC_ID   "com.apple.iokit.powerdxpc"
+ 
+ #include "powermanagement_mig.h"
+ #include "powermanagement.h"
+ 
+@@ -51,19 +46,19 @@
+ 
+ #define DEBUG 1
+ #if DEBUG
+ #define DEBUG_LOG(fmt, args...) \
+ { \
+-    os_log_debug(OS_LOG_DEFAULT, fmt, ##args); \
++    asl_log_message(0, fmt, ##args); \
+ }
+ #else
+ #define DEBUG_LOG(fmt, args...) {}
+ #endif
+ 
+ #define ERROR_LOG(fmt, args...) \
+ {  \
+-    os_log_error(OS_LOG_DEFAULT, fmt, ##args); \
++    asl_log_message(0, fmt, ##args); \
+ }
+ 
+ 
+ static uint64_t  collectBackTrace = 0;
+ 
+@@ -80,44 +75,10 @@
+     static int              disableAppSleepToken = 0;
+     static int              enableAppSleepToken = 0;
+ #endif
+     static int              collectBackTraceToken = 0;
+ 
+-#if !TARGET_OS_IPHONE
+-    if ( !disableAppSleepToken ) {
+-        char notify_str[128];
+-
+-        snprintf(notify_str, sizeof(notify_str), "%s.%d", 
+-                 kIOPMDisableAppSleepPrefix, getpid());
+-
+-        notify_register_dispatch(
+-                                 notify_str,
+-                                 &disableAppSleepToken,
+-                                 dispatch_get_main_queue(),
+-                                 ^(int t __unused){
+-                                 __CFRunLoopSetOptionsReason(__CFRunLoopOptionsTakeAssertion, 
+-                                                             CFSTR("App is holding power assertion."));
+-                                 });
+-    }
+-
+-    if ( !enableAppSleepToken ) {
+-        char notify_str[128];
+-
+-        snprintf(notify_str, sizeof(notify_str), "%s.%d", 
+-                 kIOPMEnableAppSleepPrefix, getpid());
+-
+-        notify_register_dispatch(
+-                                 notify_str,
+-                                 &enableAppSleepToken,
+-                                 dispatch_get_main_queue(),
+-                                 ^(int t __unused){
+-                                 __CFRunLoopSetOptionsReason(__CFRunLoopOptionsDropAssertion, 
+-                                                             CFSTR("App released all power assertions."));
+-                                 });
+-    }
+-#endif
+-
+     if (!collectBackTraceToken) {
+         notify_register_dispatch(
+                                  kIOPMAssertionsCollectBTString,
+                                  &collectBackTraceToken,
+                                  dispatch_get_main_queue(),
+@@ -200,13 +161,10 @@
+ 
+ 
+ static dispatch_source_t             offloader = 0;
+ static CFMutableDictionaryRef       gAssertionsDict = NULL;
+ static uint64_t  nextOffload_ts;
+-static xpc_connection_t assertionConnection;
+-
+-
+ 
+ uint64_t getMonotonicTime( )
+ {
+     static mach_timebase_info_data_t    timebaseInfo;
+ 
+@@ -221,67 +179,20 @@
+ // Returns remote assertion id for create request
+ // Returns null for property update message
+ //
+ IOPMAssertionID sendAsyncAssertionMsg(bool create, CFDictionaryRef dict, IOReturn *rc)
+ {
+-    xpc_object_t            desc = NULL;
+-    xpc_object_t            msg = NULL;
+-    xpc_object_t            resp = NULL;
+     IOPMAssertionID         remoteID = kIOPMNullAssertionID;
+ 
+-
+-    msg = xpc_dictionary_create(NULL, NULL, 0);
+-    if (!msg) {
+-        ERROR_LOG("Failed to create xpc msg object\n");
+-        return remoteID;
+-    }
+-
+-    desc = _CFXPCCreateXPCMessageWithCFObject(dict);
+-    if (!desc) {
+-        ERROR_LOG("Failed to convert CF dictionary to xpc object\n");
+-        return remoteID;
+-    }
+-
+-    if (create) {
+-        xpc_dictionary_set_value(msg, kAssertionCreateMsg, desc);
+-
+-        resp = xpc_connection_send_message_with_reply_sync(assertionConnection, msg);
+-        remoteID = xpc_dictionary_get_uint64(resp, kAssertionIdKey);
+-        if (rc) {
+-            *rc = xpc_dictionary_get_uint64(resp, kMsgReturnCode);
+-        }
+-
+-    }
+-    else {
+-        xpc_dictionary_set_value(msg, kAssertionPropertiesMsg, desc);
+-        xpc_connection_send_message(assertionConnection, msg);
+-    }
+-
+-    xpc_release(msg);
+-    xpc_release(desc);
++    ERROR_LOG("Failed to create xpc msg object - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
+ 
+     return remoteID;
+ }
+ 
+ void sendAsyncReleaseMsg(IOPMAssertionID remoteID)
+ {
+-    xpc_object_t            msg = NULL;
+-
+-
+-    msg = xpc_dictionary_create(NULL, NULL, 0);
+-    if (!msg) {
+-        ERROR_LOG("Failed to create xpc msg object\n");
+-        return;
+-    }
+-
+-    DEBUG_LOG("Sending Assertion release message for assertion Id 0x%x\n", remoteID);
+-    xpc_dictionary_set_uint64(msg, kAssertionReleaseMsg, remoteID);
+-
+-    xpc_connection_send_message(assertionConnection, msg);
+-    xpc_release(msg);
+-
+-    return;
++    ERROR_LOG("Failed to create xpc msg object - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
+ }
+ 
+ void offloadAssertions(bool clearOldOnes)
+ {
+     int idx;
+@@ -349,103 +260,24 @@
+     nextOffload_ts = 0;
+     dispatch_suspend(offloader);
+ 
+ }
+ 
+-void processCheckAssertionsMsg(xpc_object_t msg)
++void processCheckAssertionsMsg(void* msg)
+ {
+-    uint32_t blockers = 0;
+-    CFTypeRef value;
+-    CFDictionaryRef props;
+-    uint64_t    token = 0;
+-    int idx;
+-
+-    for (idx=0; idx < kMaxAsyncAssertions; idx++) {
+-        IOPMAssertionID id = ASYNC_ID_FROM_IDX(idx);
+-
+-        if (!CFDictionaryGetValueIfPresent(gAssertionsDict, (uintptr_t)idx, (const void **)&value)) {
+-            continue;
+-        }
+-
+-        if (isA_CFNumber(value)) {
+-            // This is the remoteID for previously offloaded assertion
+-            IOPMAssertionID remoteId = kIOPMNullAssertionID;
+-            CFNumberGetValue(value, kCFNumberDoubleType, &remoteId);
+-            DEBUG_LOG("Received assertion check when offloaded assertion exists(0x%x)\n", remoteId);
+-            continue;
+-        }
+-        if (!isA_CFDictionary(value)) {
+-            ERROR_LOG("Unexpected type in the assertions dictionary with id 0x%x\n", id);
+-            continue;
+-        }
+-        props = value;
+-
+-        CFNumberRef numRef = CFDictionaryGetValue(props, kIOPMAssertionLevelKey);
+-        int level = kIOPMAssertionLevelOn;
+-        if (isA_CFNumber(numRef)) {
+-            CFNumberGetValue(numRef, kCFNumberIntType, &level);
+-        }
+-        if (level != kIOPMAssertionLevelOn) {
+-            blockers++;
+-        }
+-    }
+-
+-    xpc_object_t reply = xpc_dictionary_create_reply(msg);
+-    if (!reply) {
+-        ERROR_LOG("Failed to create xpc reply object\n");
+-        return;
+-    }
+-
+-    // Taken the token from incoming message and put it in reply
+-    token = xpc_dictionary_get_uint64(msg, kAssertionCheckTokenKey);
+-    xpc_dictionary_set_uint64(reply, kAssertionCheckTokenKey, token);
+-    xpc_dictionary_set_uint64(reply, kAssertionCheckCountKey, blockers);
+-
+-    DEBUG_LOG("Replying to assertion check message with count %d token:%llu\n", blockers, token);
+-    xpc_connection_t remote = xpc_dictionary_get_remote_connection(msg);
+-    xpc_connection_send_message(remote, reply);
+-    xpc_release(reply);
+-
++    ERROR_LOG("Failed to create xpc msg object - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
+ }
+ 
+-void processAssertionTimeout(xpc_object_t msg)
++void processAssertionTimeout(void* msg)
+ {
+-    IOPMAssertionID id;
+-    int idx;
+-
+-    id = xpc_dictionary_get_uint64(msg, kAssertionTimeoutMsg);
+-    idx = ASYNC_IDX_FROM_ID(id);
+-    CFDictionaryRemoveValue(gAssertionsDict, (uintptr_t)idx);
+-
+-    DEBUG_LOG("Received assertion timeout message for asyncId 0x%x\n", id);
++    ERROR_LOG("Failed to get msg from xpc dictionary - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
+ }
+ 
+-void processRemoteMsg(xpc_object_t msg)
++void processRemoteMsg(void* msg)
+ {
+-    xpc_type_t type = xpc_get_type(msg);
+-
+-    if (type == XPC_TYPE_DICTIONARY) {
+-        if ((xpc_dictionary_get_value(msg, kAssertionCheckMsg))) {
+-            processCheckAssertionsMsg(msg);
+-        }
+-        else if ((xpc_dictionary_get_value(msg, kAssertionTimeoutMsg))) {
+-            processAssertionTimeout(msg);
+-        }
+-        else {
+-            ERROR_LOG("Unexpected message from async assertions connections\n");
+-        }
+-    }
+-    else if (type == XPC_TYPE_ERROR) {
+-        if (msg == XPC_ERROR_CONNECTION_INTERRUPTED) {
+-            // powerd must have crashed
+-            dispatch_async(getPMQueue(), ^{offloadAssertions(true);});
+-        }
+-        else {
+-            ERROR_LOG("Irrecoverable error for assertion creation\n");
+-            IOPMDisableAsyncAssertions();
+-        }
+-    }
++    ERROR_LOG("Failed to get xpc msg object - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
++    IOPMDisableAsyncAssertions();
+ }
+ 
+ void initialSetup( )
+ {
+     if (gAssertionsDict) {
+@@ -470,21 +302,12 @@
+                 });
+ 
+         dispatch_source_set_timer(offloader, dispatch_time(DISPATCH_TIME_NOW, 0), kDefaultOffloadDelay, 0);
+     }
+ 
+-    assertionConnection = xpc_connection_create_mach_service(POWERD_XPC_ID, dispatch_get_main_queue(), 0);
+-    if (!assertionConnection) {
+-        ERROR_LOG("Failed to create assertionConnection\n");
+-        goto error_exit;
+-    }
+-
+-    xpc_connection_set_target_queue(assertionConnection, getPMQueue());
+-    xpc_connection_set_event_handler(assertionConnection,
+-            ^(xpc_object_t msg ) {processRemoteMsg(msg); });
+-
+-    xpc_connection_resume(assertionConnection);
++    ERROR_LOG("Failed to create assertionConnection - libxpc is not open source\nPlease file a radar at bugreport.apple.com\n");
++    goto error_exit;
+ 
+     return;
+ 
+ error_exit:
+     if (gAssertionsDict) {
+@@ -493,14 +316,10 @@
+     }
+     if (offloader) {
+         dispatch_resume(offloader);
+         dispatch_cancel(offloader);
+     }
+-
+-    if (assertionConnection) {
+-        xpc_connection_cancel(assertionConnection);
+-    }
+ }
+ 
+ 
+ bool createAsyncAssertion(CFDictionaryRef AssertionProperties, IOPMAssertionID *id)
+ {
+@@ -1000,38 +819,11 @@
+             goto exit;
+         }
+     }
+     else {
+             return_code = kIOReturnSuccess;
+-#if !TARGET_OS_SIMULATOR
+-            enTrIntensity = kEnTrQualSPKeepSystemAwake;
+-#endif
+-    }
+-
+-#if !TARGET_OS_IPHONE
+-    if (disableAppSleep) {
+-        CFStringRef assertionName = NULL;
+-        CFStringRef appSleepString = NULL;
+-
+-        assertionName = CFDictionaryGetValue(AssertionProperties, kIOPMAssertionNameKey);
+-        appSleepString = CFStringCreateWithFormat(NULL, NULL, 
+-                                                  CFSTR("App is holding power assertion %u with name \'%@\' "),
+-                                                  *AssertionID, assertionName);
+-
+-        __CFRunLoopSetOptionsReason(__CFRunLoopOptionsTakeAssertion,  appSleepString);
+-
+-        CFRelease(appSleepString);
+     }
+-#endif
+-
+-
+-#if !TARGET_OS_SIMULATOR
+-        if ((enTrIntensity != kEnTrQualNone) && assertionEnabled) {
+-            entr_act_begin(kEnTrCompSysPower, kEnTrActSPPMAssertion, *AssertionID,
+-                                    enTrIntensity, kEnTrValNone);
+-        }
+-#endif
+ 
+ exit:
+     if (flattenedProps) {
+         CFRelease(flattenedProps);
+     }
+@@ -1115,26 +907,10 @@
+                                                   &enableAppSleep,
+                                                   &return_code);
+ 
+     if(KERN_SUCCESS != kern_result) {
+         return_code = kIOReturnInternalError;
+-    } else {
+-#if !TARGET_OS_IPHONE
+-        if (disableAppSleep) {
+-            CFStringRef appSleepString = NULL;
+-
+-            appSleepString = CFStringCreateWithFormat(NULL, NULL, CFSTR("App is holding power assertion %u"),
+-                                                      theAssertion);
+-            __CFRunLoopSetOptionsReason(__CFRunLoopOptionsTakeAssertion,  appSleepString);
+-
+-            CFRelease(appSleepString);
+-        }
+-#endif
+-#if !TARGET_OS_SIMULATOR
+-        entr_act_modify(kEnTrCompSysPower, kEnTrActSPPMAssertion,
+-                                (int)theAssertion, kEnTrModSPRetain, kEnTrValNone); 
+-#endif
+     }
+ 
+ 
+ exit:
+     if (MACH_PORT_NULL != pm_server) {
+@@ -1189,31 +965,10 @@
+         }
+     }
+     else {
+         return_code = kIOReturnSuccess;
+     }
+-#if !TARGET_OS_IPHONE
+-    if (enableAppSleep) {
+-        CFStringRef appSleepString = NULL;
+-
+-        appSleepString = CFStringCreateWithFormat(NULL, NULL, CFSTR("App released its last power assertion %u"),
+-                                                  AssertionID);
+-        __CFRunLoopSetOptionsReason(__CFRunLoopOptionsDropAssertion, appSleepString);
+-
+-        CFRelease(appSleepString);
+-    }
+-#endif
+-
+-#if !TARGET_OS_SIMULATOR
+-    if (retainCnt)
+-        entr_act_modify(kEnTrCompSysPower, kEnTrActSPPMAssertion,
+-                                (int)AssertionID, kEnTrModSPRelease, kEnTrValNone);
+-    else
+-        entr_act_end(kEnTrCompSysPower, kEnTrActSPPMAssertion,
+-                                (int)AssertionID, kEnTrQualNone, kEnTrValNone);
+-#endif
+-
+     pm_connect_close(pm_server);
+ exit:
+     return return_code;
+ }
+ 
+@@ -1297,46 +1052,10 @@
+     }
+     else {
+         return_code = kIOReturnSuccess;
+     }
+ 
+-#if !TARGET_OS_IPHONE
+-    if (disableAppSleep) {
+-        CFStringRef appSleepString = NULL;
+-
+-        appSleepString = CFStringCreateWithFormat(NULL, NULL, CFSTR("App is holding power assertion %u"),
+-                                                  theAssertion);
+-        __CFRunLoopSetOptionsReason(__CFRunLoopOptionsTakeAssertion,  appSleepString);
+-
+-        CFRelease(appSleepString);
+-    }
+-    else if (enableAppSleep) {
+-        CFStringRef appSleepString = NULL;
+-
+-        appSleepString = CFStringCreateWithFormat(NULL, NULL, CFSTR("App released its last power assertion %u"),
+-                                                  theAssertion);
+-        __CFRunLoopSetOptionsReason(__CFRunLoopOptionsDropAssertion, appSleepString);
+-
+-        CFRelease(appSleepString);
+-    }
+-#endif
+-
+-
+-#if !TARGET_OS_SIMULATOR
+-    if (enTrIntensity != kEnTrQualNone) {
+-        if (assertionEnabled) {
+-            entr_act_begin(kEnTrCompSysPower, kEnTrActSPPMAssertion, theAssertion,
+-                           enTrIntensity, kEnTrValNone);
+-        }
+-        else if (assertionDisabled) {
+-            entr_act_end(kEnTrCompSysPower, kEnTrActSPPMAssertion, theAssertion,
+-                         kEnTrQualNone, kEnTrValNone);
+-        }
+-    }
+-#endif
+-
+-
+ exit:
+     if (sendData)
+         CFRelease(sendData);
+ 
+     if (MACH_PORT_NULL != pm_server) {
+@@ -1550,17 +1269,10 @@
+ 
+     if(KERN_SUCCESS != kern_result) {
+         return_code = kIOReturnInternalError;
+         goto exit;
+     }
+-#if !TARGET_OS_IPHONE
+-    else if (disableAppSleep) {
+-        __CFRunLoopSetOptionsReason(__CFRunLoopOptionsTakeAssertion,
+-                                    CFSTR("App is holding 'DeclareUserActivity' power assertion"));
+-    }
+-#endif
+-
+ 
+ exit:
+     if (flattenedProps)
+         CFRelease(flattenedProps);
+ 
+@@ -1631,17 +1343,10 @@
+ 
+     if(KERN_SUCCESS != kern_result) {
+         return_code = kIOReturnInternalError;
+         goto exit;
+     }
+-#if !TARGET_OS_IPHONE
+-    else if (disableAppSleep) {
+-        __CFRunLoopSetOptionsReason(__CFRunLoopOptionsTakeAssertion,
+-                                    CFSTR("App is holding 'DeclareNetworkClientActivity' power assertion"));
+-    }
+-#endif
+-
+ 
+ exit:
+     if (flattenedProps)
+         CFRelease(flattenedProps);
+ 
+diff -rU5 IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMEnergyPrefs.c IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMEnergyPrefs.c
+--- IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMEnergyPrefs.c	2017-03-29 21:10:15.000000000 +0100
++++ IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMEnergyPrefs.c	2017-05-12 21:42:07.000000000 +0100
+@@ -36,11 +36,10 @@
+ #include <servers/bootstrap.h>
+ #include <bootstrap_priv.h>
+ #include <sys/syslog.h>
+ #include "IOPMLib.h"
+ #include "IOPMLibPrivate.h"
+-#include "powermanagement.h"
+ 
+ #include <asl.h>
+ #include <IOKit/IOKitLib.h>
+ #include <IOKit/IOBSD.h>
+ 
+@@ -236,11 +235,11 @@
+                 uuid[10],uuid[11],uuid[12],uuid[13],uuid[14],uuid[15]);
+ 
+         uuidStr = CFStringCreateWithCString(kCFAllocatorDefault, cstr, kCFStringEncodingMacRoman);
+     }
+     else {
+-        os_log(OS_LOG_DEFAULT, "Failed to get UUID. rc=%d\n", rc);
++        asl_log_message(0, "Failed to get UUID. rc=%d\n", rc);
+     }
+     return uuidStr;
+ }
+ 
+ bool isA_GenericPref(CFStringRef key)
+@@ -1313,11 +1312,11 @@
+                             supportsNewPNKey = true;
+                     }
+ 
+                     // For legacy machines, we look for either the kIOPMDarkWakeBackgroundTaskKey or the
+                     // kIOPMSleepServicesKey
+-                    if ( ((!IOPMFeatureIsAvailableWithSupportedTable( CFSTR(kIOPMDarkWakeBackgroundTaskKey),
++                    if ( (!IOPMFeatureIsAvailableWithSupportedTable( CFSTR(kIOPMDarkWakeBackgroundTaskKey),
+                             (CFStringRef)profile_keys[profile_count], _supportedCached)  &&
+                         !IOPMFeatureIsAvailableWithSupportedTable( CFSTR(kIOPMSleepServicesKey),
+                             (CFStringRef)profile_keys[profile_count], _supportedCached))
+                          && !supportsNewPNKey
+                       )
+diff -rU5 IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMLibPrivate.c IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMLibPrivate.c
+--- IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMLibPrivate.c	2017-03-29 21:10:15.000000000 +0100
++++ IOKitUser-1324.50.21/pwr_mgt.subproj/IOPMLibPrivate.c	2017-05-12 21:42:07.000000000 +0100
+@@ -20,11 +20,10 @@
+  * 
+  * @APPLE_LICENSE_HEADER_END@
+  */
+ 
+ #include <CoreFoundation/CoreFoundation.h>
+-#include <CoreFoundation/CFXPCBridge.h>
+ #include <TargetConditionals.h>
+ #include <IOKit/IOKitLib.h>
+ #include <IOKit/pwr_mgt/IOPMPrivate.h>
+ #include <IOKit/pwr_mgt/IOPMLib.h>
+ #include <mach/mach_init.h>
+@@ -38,21 +37,25 @@
+ #include <os/log.h>
+ #include "IOSystemConfiguration.h"
+ #include "IOPMLibPrivate.h"
+ #include "powermanagement.h"
+ #include <asl.h>
+-#include <xpc/xpc.h>
+ 
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <dirent.h>
+ #include <pthread.h>
+ 
+ 
+ #define POWERD_XPC_ID   "com.apple.iokit.powerdxpc"
+ #define pwrLogDirName "/System/Library/PowerEvents"
+ 
++#define ERROR_LOG(fmt, args...) \
++{  \
++    asl_log_message(0, fmt, ##args);\
++}
++
+ static const int kMaxNameLength = 128;
+ static mach_port_t powerd_connection = MACH_PORT_NULL;
+ static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+ 
+ 
+@@ -164,11 +167,11 @@
+     io_object_t                     letItGo;
+ 
+ // UserActivityLevel
+     void (^callblock_activity)(uint64_t, uint64_t);
+     int             dtoken;
+-    xpc_object_t    connection;
++    void*    connection;
+     uint32_t        idleTimeout;
+     uint64_t            levels;
+ } _UserActiveNotification;
+ 
+ void IOPMUserDidChangeCallback(
+@@ -205,13 +208,10 @@
+         IOObjectRelease(_useractive->letItGo);
+     }
+     if (_useractive->dtoken) {
+         notify_cancel(_useractive->dtoken);
+     }
+-    if (_useractive->connection) {
+-        xpc_release(_useractive->connection);
+-    }
+     if (_useractive->clientQueue) {
+         dispatch_release(_useractive->clientQueue);
+     }
+     bzero(_useractive, sizeof(*_useractive));
+     free(_useractive);
+@@ -297,84 +297,28 @@
+     return kIOReturnSuccess;
+ }
+ 
+ void sendUserActivityMsg(_UserActiveNotification *_useractive, char *key)
+ {
+-    xpc_object_t            desc = NULL;
+-    xpc_object_t            msg = NULL;
+-
+-
+-    desc = xpc_dictionary_create(NULL, NULL, 0);
+-    msg = xpc_dictionary_create(NULL, NULL, 0);
+-    if (desc && msg) {
+-        xpc_dictionary_set_uint64(desc, kUserActivityTimeoutKey, _useractive->idleTimeout);
+-        xpc_dictionary_set_value(msg, key, desc);
+-
+-        xpc_connection_send_message(_useractive->connection, msg);
+-        xpc_release(msg);
+-        xpc_release(desc);
+-    }
+-    else {
+-        os_log_error(OS_LOG_DEFAULT, "Failed to create xpc objects to send userActivityRegister message\n");
+-        return;
+-    }
+-
++    ERROR_LOG("Failed to create xpc objects to send userActivityRegister message - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
++    return;
+ }
+ 
+-void processUserActivityMsg(_UserActiveNotification *_useractive, xpc_object_t msg)
++void processUserActivityMsg(_UserActiveNotification *_useractive, void* msg)
+ {
+-    xpc_type_t type = xpc_get_type(msg);
+-
+-    if (type == XPC_TYPE_DICTIONARY) {
+-        _useractive->levels = xpc_dictionary_get_uint64(msg, kUserActivityLevels);
+-        uint64_t significant = _useractive->levels ? (1 << (ffsl(_useractive->levels)-1)) : 0;
+-
+-        dispatch_async(_useractive->clientQueue, ^{_useractive->callblock_activity(_useractive->levels, significant);});
+-    }
+-    else if (type == XPC_TYPE_ERROR) {
+-        if (msg == XPC_ERROR_CONNECTION_INTERRUPTED) {
+-            dispatch_async(getPMQueue(), ^{sendUserActivityMsg(_useractive, kUserActivityRegister);});
+-        }
+-        else {
+-            os_log_error(OS_LOG_DEFAULT, "Irrecoverable error for useractivity connection\n");
+-            unregisterNotification(_useractive);
+-        }
+-    }
++    ERROR_LOG("Irrecoverable error for useractivity connection - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
++    unregisterNotification(_useractive);
+ }
+ 
+ IOPMNotificationHandle IOPMScheduleUserActivityLevelNotificationWithTimeout(
+                                dispatch_queue_t queue,
+                                uint32_t timeout,
+                                void (^inblock)(uint64_t, uint64_t))
+ {
+-    xpc_object_t connection;
+-    _UserActiveNotification *_useractive = NULL;
+-    _useractive = calloc(1, sizeof(_UserActiveNotification));
+-
+-    if (!_useractive) {
+-        return NULL;
+-    }
+-
+-    connection = xpc_connection_create_mach_service(POWERD_XPC_ID, dispatch_get_main_queue(), 0);
+-    if (!connection) {
+-        free(_useractive);
+-        return NULL;
+-    }
+-    xpc_connection_set_target_queue(connection, getPMQueue());
+-    xpc_connection_set_event_handler(connection,
+-            ^(xpc_object_t msg ) {processUserActivityMsg(_useractive, msg); });
+-
+-    _useractive->connection = connection;
+-    dispatch_retain(queue);
+-    _useractive->clientQueue = queue;
++    ERROR_LOG("Error in IOPMScheduleUserActivityLevelNotificationWithTimeout - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n")
+ 
+-    _useractive->callblock_activity = Block_copy(inblock);
+-    _useractive->idleTimeout = timeout;
+-    xpc_connection_resume(connection);
+-    sendUserActivityMsg(_useractive, kUserActivityRegister);
+-
+-    return _useractive;
++    return NULL;
+ }
+ 
+ IOReturn IOPMSetUserActivityIdleTimeout(IOPMNotificationHandle handle, uint32_t timeout)
+ {
+     _UserActiveNotification *_useractive = (_UserActiveNotification *)handle;
+@@ -1000,11 +944,11 @@
+     io_registry_entry_t gRoot = IO_OBJECT_NULL;
+     CFNumberRef         setNum = NULL;
+     IOReturn            ret = kIOReturnError;
+     CFStringRef         key = NULL;
+     
+-    os_log_debug(OS_LOG_DEFAULT, "Wake progress from %d. data: 0x%x\n", component, progress_data);
++    asl_log_message(0, "Wake progress from %d. data: 0x%x\n", component, progress_data);
+ 
+     switch (component) {
+         case kIOPMLoginWindowProgress:
+             key = CFSTR(kIOPMLoginWindowProgressKey);
+             break;
+@@ -1083,63 +1027,11 @@
+ void IOPMClaimSystemWakeEvent(
+     CFStringRef         identity,
+     CFStringRef         reason,
+     CFDictionaryRef     description)
+ {
+-    xpc_connection_t        connection = NULL;
+-    xpc_object_t            sendClaim = NULL;
+-    xpc_object_t            msg = NULL;
+-    xpc_object_t            desc = NULL;
+-    char                    str[255];
+-
+-    connection = xpc_connection_create_mach_service(POWERD_XPC_ID,
+-                            dispatch_get_global_queue(DISPATCH_QUEUE_CONCURRENT, 0), 0);
+-    
+-    if (!connection) {
+-        goto exit;
+-    }
+-    
+-    xpc_connection_set_target_queue(connection,
+-                            dispatch_get_global_queue(DISPATCH_QUEUE_CONCURRENT, 0));
+-    
+-    xpc_connection_set_event_handler(connection,
+-                                     ^(xpc_object_t e __unused) { });
+-    
+-    sendClaim = xpc_dictionary_create(NULL, NULL, 0);
+-    if (sendClaim) {
+-        if (identity) {
+-            CFStringGetCString(identity, str, sizeof(str), kCFStringEncodingUTF8);
+-            xpc_dictionary_set_string(sendClaim, "identity", str);
+-        }
+-        if (reason) {
+-            CFStringGetCString(reason, str, sizeof(str), kCFStringEncodingUTF8);
+-            xpc_dictionary_set_string(sendClaim, "reason", str);
+-        }
+-        
+-        if (description) {
+-            desc = _CFXPCCreateXPCObjectFromCFObject(description);
+-            if (desc) {
+-                xpc_dictionary_set_value(sendClaim, "description", desc);
+-                xpc_release(desc);
+-            }
+-        }
+-    }
+-    
+-    msg = xpc_dictionary_create(NULL, NULL, 0);
+-    if (msg) {
+-        xpc_dictionary_set_value(msg, "claimSystemWakeEvent", sendClaim);
+-        xpc_connection_resume(connection);
+-        xpc_connection_send_message(connection, msg);
+-        xpc_release(msg);
+-    }
+-exit:
+-    if (sendClaim) {
+-        xpc_release(sendClaim);
+-    }
+-    if (connection) {
+-        xpc_release(connection);
+-    }
++    ERROR_LOG("Error in IOPMClaimSystemWakeEvent - libxpc is not open source\nPlease file a radar at bugreport.apple.com.\n");
+ }
+ 
+ /*****************************************************************************/
+ /*****************************************************************************/
+ /*****************************************************************************/

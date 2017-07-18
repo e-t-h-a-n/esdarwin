@@ -1,21 +1,9 @@
-MIT License
+Some of the code on this site is from Apple (https://opensource.apple.com) and is licensed under the Apple Public Source License version 2 (APSLv2). For the full text of the APSLv2, please look at the LICENSE.APSLv2 file in the topmost directory of this project.
 
-Copyright (c) 2017 e-t-h-a-n
+Files licensed under the APSL are as follows:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  1. All binaries (libraries, executables, "destroots"/"chroots", or archives thereof) compiled from from Apple's source code.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+All other files are licensed under the MIT license (license text in the file LICENSE.MIT in the topmost directory of this project).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+In order to retain compatibility with existing licenses, all patches or modifications to code released under the APSL are licensed under either the MIT license or the APSL (version 2 or later) license. Which license to use these patches under is left to the user's choice.
